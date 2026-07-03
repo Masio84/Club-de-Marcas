@@ -155,10 +155,27 @@ export default async function HomePage({ searchParams }: PageProps) {
 
                   {/* Detalles */}
                   <div className="p-4 flex-1 flex flex-col justify-between space-y-3">
-                    <div className="space-y-1">
+                    <div className="space-y-1 text-left">
                       <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider block">
                         {product.category}
                       </span>
+                      {product.rating_avg !== undefined && product.rating_count !== undefined && product.rating_count > 0 && (
+                        <div className="flex items-center space-x-1.5 mt-0.5">
+                          <div className="flex items-center text-amber-400">
+                            {[...Array(5)].map((_, i) => (
+                              <Star 
+                                key={i} 
+                                className={`w-3 h-3 fill-current ${
+                                  i < Math.round(product.rating_avg || 0) ? 'text-amber-400' : 'text-gray-200'
+                                }`} 
+                              />
+                            ))}
+                          </div>
+                          <span className="text-[10px] text-gray-400 font-bold">
+                            {product.rating_avg.toFixed(1)} ({product.rating_count})
+                          </span>
+                        </div>
+                      )}
                       <h4 className="font-bold text-navy text-sm line-clamp-2 min-h-[40px] group-hover:text-emerald-hover transition-colors">
                         {product.title}
                       </h4>
@@ -233,10 +250,27 @@ export default async function HomePage({ searchParams }: PageProps) {
                   </div>
 
                   <div className="p-4 flex-1 flex flex-col justify-between space-y-3">
-                    <div className="space-y-1">
+                    <div className="space-y-1 text-left">
                       <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider block">
                         {product.category}
                       </span>
+                      {product.rating_avg !== undefined && product.rating_count !== undefined && product.rating_count > 0 && (
+                        <div className="flex items-center space-x-1.5 mt-0.5">
+                          <div className="flex items-center text-amber-400">
+                            {[...Array(5)].map((_, i) => (
+                              <Star 
+                                key={i} 
+                                className={`w-3 h-3 fill-current ${
+                                  i < Math.round(product.rating_avg || 0) ? 'text-amber-400' : 'text-gray-200'
+                                }`} 
+                              />
+                            ))}
+                          </div>
+                          <span className="text-[10px] text-gray-400 font-bold">
+                            {product.rating_avg.toFixed(1)} ({product.rating_count})
+                          </span>
+                        </div>
+                      )}
                       <h4 className="font-bold text-navy text-sm line-clamp-2 min-h-[40px]">
                         {product.title}
                       </h4>

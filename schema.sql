@@ -336,4 +336,45 @@ CREATE OR REPLACE TRIGGER on_profile_terms_accepted_audit
     WHEN (NEW.terms_accepted = TRUE AND NEW.privacy_accepted = TRUE)
     EXECUTE FUNCTION public.log_profile_terms_acceptance();
 
+-- ==========================================================================================
+-- TABLA DE CALIFICACIONES Y OPINIONES (product_reviews)
+-- ==========================================================================================
+CREATE TABLE IF NOT EXISTS public.product_reviews (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    product_id UUID NOT NULL REFERENCES public.products(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+    rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
+    comment TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    UNIQUE(product_id, user_id)
+);
+
+-- Habilitar RLS
+ALTER TABLE public.product_reviews ENABLE ROW LEVEL SECURITY;
+
+-- Políticas RLS
+CREATE POLICY "Permitir lectura pública de calificaciones" ON public.product_reviews 
+    FOR SELECT USING (TRUE);
+
+CREATE POLICY "Permitir inserción de opiniones a usuarios autenticados" ON public.product_reviews 
+    FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Permitir edición/eliminación propia de opiniones" ON public.product_reviews 
+    FOR ALL USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+
+-- Trigger de auditoría para opiniones
+CREATE OR REPLACE FUNCTION public.log_profile_review_submission()
+RETURNS TRIGGER AS $$
+BEGIN
+    INSERT INTO public.security_logs (user_id, action, ip_address)
+    VALUES (NEW.user_id, 'submitted_product_review', '0.0.0.0');
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE OR REPLACE TRIGGER on_product_review_submitted_audit
+    AFTER INSERT ON public.product_reviews
+    FOR EACH ROW EXECUTE FUNCTION public.log_profile_review_submission();
+
+
 

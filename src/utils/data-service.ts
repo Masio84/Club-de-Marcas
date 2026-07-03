@@ -36,6 +36,18 @@ export interface Product {
   category: 'Tenis' | 'Relojes' | 'Gorras' | 'Lentes' | 'Bolsas' | 'Cuidado Personal'
   image_url?: string
   created_at: string
+  rating_avg?: number
+  rating_count?: number
+}
+
+export interface ProductReview {
+  id: string
+  product_id: string
+  user_id: string
+  rating: number
+  comment?: string
+  created_at: string
+  profile?: Profile
 }
 
 export interface CartItem {
@@ -259,14 +271,44 @@ export const DataService = {
       // Ordenar por más recientes
       query = query.order('created_at', { ascending: false })
       const { data, error } = await query
-      if (error) return []
-      return data as Product[]
+      if (error || !data) return []
+
+      // Obtener calificaciones para calcular promedios
+      const { data: reviews } = await supabase.from('product_reviews').select('product_id, rating')
+      const reviewsByProduct: Record<string, number[]> = {}
+      if (reviews) {
+        reviews.forEach(r => {
+          if (!reviewsByProduct[r.product_id]) reviewsByProduct[r.product_id] = []
+          reviewsByProduct[r.product_id].push(r.rating)
+        })
+      }
+
+      return data.map((p: any) => {
+        const ratings = reviewsByProduct[p.id] || []
+        const rating_count = ratings.length
+        const rating_avg = rating_count > 0 ? ratings.reduce((sum, r) => sum + r, 0) / rating_count : undefined
+        return { ...p, rating_avg, rating_count }
+      })
     } else {
       let products = await getCookieData<Product[]>('mock_products', SEED_PRODUCTS)
       if (category) {
         products = products.filter(p => p.category.toLowerCase() === category.toLowerCase())
       }
-      return products.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+      const reviews = await getCookieData<any[]>('mock_product_reviews', [])
+      const reviewsByProduct: Record<string, number[]> = {}
+      reviews.forEach(r => {
+        if (!reviewsByProduct[r.product_id]) reviewsByProduct[r.product_id] = []
+        reviewsByProduct[r.product_id].push(r.rating)
+      })
+
+      const productsWithRatings = products.map(p => {
+        const ratings = reviewsByProduct[p.id] || []
+        const rating_count = ratings.length
+        const rating_avg = rating_count > 0 ? ratings.reduce((sum, r) => sum + r, 0) / rating_count : undefined
+        return { ...p, rating_avg, rating_count }
+      })
+
+      return productsWithRatings.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
     }
   },
 
@@ -278,10 +320,24 @@ export const DataService = {
         .select('*')
         .eq('id', id)
         .single()
-      return data as Product | null
+      if (!data) return null
+
+      const { data: reviews } = await supabase.from('product_reviews').select('rating').eq('product_id', id)
+      const rating_count = reviews?.length || 0
+      const rating_avg = rating_count > 0 ? (reviews?.reduce((sum, r) => sum + r.rating, 0) || 0) / rating_count : undefined
+
+      return { ...data, rating_avg, rating_count } as Product
     } else {
       const products = await getCookieData<Product[]>('mock_products', SEED_PRODUCTS)
-      return products.find(p => p.id === id) || null
+      const p = products.find(prod => prod.id === id)
+      if (!p) return null
+
+      const reviews = await getCookieData<any[]>('mock_product_reviews', [])
+      const productReviews = reviews.filter(r => r.product_id === id)
+      const rating_count = productReviews.length
+      const rating_avg = rating_count > 0 ? productReviews.reduce((sum, r) => sum + r.rating, 0) / rating_count : undefined
+
+      return { ...p, rating_avg, rating_count }
     }
   },
 
@@ -808,6 +864,89 @@ export const DataService = {
       })
       await setCookieData('mock_security_logs', logs)
       return true
+    }
+  },
+
+  async getProductReviews(productId: string): Promise<ProductReview[]> {
+    if (isSupabaseConfigured()) {
+      const supabase = await createClient()
+      const { data, error } = await supabase
+        .from('product_reviews')
+        .select('*, profile:profiles(*)')
+        .eq('product_id', productId)
+        .order('created_at', { ascending: false })
+      if (error || !data) return []
+      return data as ProductReview[]
+    } else {
+      const reviews = await getCookieData<any[]>('mock_product_reviews', [])
+      const profiles = await this.getProfiles()
+      const filtered = reviews.filter(r => r.product_id === productId)
+      return filtered.map(r => ({
+        ...r,
+        profile: profiles.find(p => p.id === r.user_id)
+      })).sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+    }
+  },
+
+  async createProductReview(productId: string, rating: number, comment?: string): Promise<ProductReview | null> {
+    const user = await this.getCurrentUser()
+    if (!user) return null
+
+    if (isSupabaseConfigured()) {
+      const supabase = await createClient()
+      const { data, error } = await supabase
+        .from('product_reviews')
+        .insert({
+          product_id: productId,
+          user_id: user.id,
+          rating,
+          comment
+        })
+        .select()
+        .single()
+      if (error || !data) {
+        console.error('Error inserting review:', error)
+        return null
+      }
+      return data as ProductReview
+    } else {
+      const reviews = await getCookieData<any[]>('mock_product_reviews', [])
+      const exists = reviews.some(r => r.product_id === productId && r.user_id === user.id)
+      if (exists) return null
+
+      const newReview = {
+        id: 'rev-' + Math.random().toString(36).substr(2, 9),
+        product_id: productId,
+        user_id: user.id,
+        rating,
+        comment,
+        created_at: new Date().toISOString()
+      }
+      reviews.push(newReview)
+      await setCookieData('mock_product_reviews', reviews)
+      
+      // Log audit trail for simulation
+      await this.logSecurityEvent(user.id, 'submitted_product_review', '0.0.0.0')
+
+      return newReview as ProductReview
+    }
+  },
+
+  async getUserReviews(): Promise<ProductReview[]> {
+    const user = await this.getCurrentUser()
+    if (!user) return []
+
+    if (isSupabaseConfigured()) {
+      const supabase = await createClient()
+      const { data, error } = await supabase
+        .from('product_reviews')
+        .select('*')
+        .eq('user_id', user.id)
+      if (error || !data) return []
+      return data as ProductReview[]
+    } else {
+      const reviews = await getCookieData<any[]>('mock_product_reviews', [])
+      return reviews.filter(r => r.user_id === user.id)
     }
   }
 }

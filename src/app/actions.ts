@@ -2,6 +2,7 @@
 
 import { cookies, headers } from 'next/headers'
 import { redirect } from 'next/navigation'
+import { revalidatePath } from 'next/cache'
 import { createClient as createSupabaseClient } from '@/utils/supabase/server'
 import { DataService, type Product, type Profile } from '@/utils/data-service'
 
@@ -449,6 +450,36 @@ export async function updateStoreSettingsAction(prevState: any, formData: FormDa
     return { success: 'Ajustes de la tienda actualizados correctamente.' }
   } else {
     return { error: 'Error al guardar los ajustes.' }
+  }
+}
+
+export async function createProductReviewAction(prevState: any, formData: FormData) {
+  const user = await DataService.getCurrentUser()
+  if (!user) {
+    return { error: 'No estás autenticado.' }
+  }
+
+  const productId = formData.get('product_id') as string
+  const ratingStr = formData.get('rating') as string
+  const comment = formData.get('comment') as string
+
+  if (!productId || !ratingStr) {
+    return { error: 'Datos de calificación faltantes.' }
+  }
+
+  const rating = parseInt(ratingStr, 10)
+  if (isNaN(rating) || rating < 1 || rating > 5) {
+    return { error: 'La calificación debe ser entre 1 y 5 estrellas.' }
+  }
+
+  const review = await DataService.createProductReview(productId, rating, comment)
+
+  if (review) {
+    revalidatePath('/profile')
+    revalidatePath('/')
+    return { success: '¡Gracias por calificar el producto!' }
+  } else {
+    return { error: 'No se pudo registrar la calificación. Tal vez ya calificaste este producto.' }
   }
 }
 

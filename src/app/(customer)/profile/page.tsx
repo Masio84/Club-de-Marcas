@@ -23,27 +23,34 @@ export default async function ProfilePage() {
     redirect('/')
   }
 
+  const orders = await DataService.getOrders()
+  const userReviews = await DataService.getUserReviews()
+
   return (
     <div className="flex flex-col items-center justify-center py-8 px-4 sm:px-6 lg:px-8 min-h-[75vh]">
-      <div className="bg-pure-white p-8 rounded-3xl border border-gray-200 shadow-lg w-full max-w-xl text-center space-y-6">
+      <div className="bg-pure-white p-8 sm:p-10 rounded-3xl border border-gray-200 shadow-lg w-full max-w-4xl space-y-6">
         
         {/* Encabezado */}
-        <div className="space-y-2">
-          <span className="text-xs uppercase bg-emerald/10 text-emerald-800 px-3 py-1 rounded-full font-black tracking-widest inline-block">
+        <div className="space-y-2 text-center">
+          <span className="text-xs uppercase bg-emerald/10 text-emerald-850 px-3 py-1 rounded-full font-black tracking-widest inline-block">
             Membresía Activa
           </span>
           <h1 className="text-3xl font-black tracking-tight text-navy uppercase">
-            Mi Perfil de Socio
+            Panel de Control del Socio
           </h1>
           <p className="text-sm text-gray-500 font-medium">
-            Mantén tus datos actualizados para recibir tus compras sin contratiempos.
+            Gestiona tus datos de envío, consulta tu historial de compras y califica tus productos favoritos.
           </p>
         </div>
 
-        <hr className="border-gray-200" />
+        <hr className="border-gray-150" />
 
-        {/* Formulario */}
-        <ProfileForm initialProfile={profile} />
+        {/* Formulario / Dashboard */}
+        <ProfileForm 
+          initialProfile={profile} 
+          initialOrders={orders} 
+          initialReviews={userReviews} 
+        />
         
       </div>
     </div>
