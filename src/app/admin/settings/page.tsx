@@ -25,11 +25,11 @@ export default async function AdminSettingsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-black text-pure-white uppercase tracking-tight">
+      <div className="border-b border-gray-200 pb-4">
+        <h1 className="text-2xl font-black text-navy uppercase tracking-tight">
           Ajustes y Configuración
         </h1>
-        <p className="text-sm text-gray-400 font-medium">
+        <p className="text-xs text-gray-500">
           Personaliza tu perfil administrativo y administra los parámetros generales de tu tienda en línea.
         </p>
       </div>
