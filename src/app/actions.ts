@@ -1,6 +1,6 @@
 'use server'
 
-import { cookies } from 'next/headers'
+import { cookies, headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { createClient as createSupabaseClient } from '@/utils/supabase/server'
 import { DataService, type Product, type Profile } from '@/utils/data-service'
@@ -98,6 +98,9 @@ export async function signUpAction(prevState: any, formData: FormData) {
   const email = formData.get('email') as string
   const password = formData.get('password') as string
   const confirmPassword = formData.get('confirmPassword') as string
+  
+  const termsAccepted = formData.get('terms_accepted') === 'on' || formData.get('terms_accepted') === 'true'
+  const privacyAccepted = formData.get('privacy_accepted') === 'on' || formData.get('privacy_accepted') === 'true'
 
   if (!email || !password) {
     return { error: 'Por favor, completa todos los campos.' }
@@ -111,20 +114,42 @@ export async function signUpAction(prevState: any, formData: FormData) {
     return { error: 'La contraseña debe tener al menos 6 caracteres.' }
   }
 
+  if (!termsAccepted || !privacyAccepted) {
+    return { error: 'Debes aceptar los Términos y Condiciones y el Aviso de Privacidad.' }
+  }
+
+  const headerList = await headers()
+  const ipAddress = headerList.get('x-forwarded-for')?.split(',')[0].trim() || '127.0.0.1'
+
   const configured = isSupabaseConfigured()
 
   if (configured) {
     const supabase = await createSupabaseClient()
-    const { error } = await supabase.auth.signUp({
+    const { data: { user }, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
         emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/callback`,
+        data: {
+          terms_accepted: true,
+          privacy_accepted: true,
+          accepted_at: new Date().toISOString(),
+          legal_version: 'v1.0'
+        }
       },
     })
 
     if (error) {
       return { error: `Error de registro: ${error.message}` }
+    }
+
+    // Registrar bitácora de seguridad si el usuario se creó correctamente
+    if (user) {
+      await supabase.from('security_logs').insert({
+        user_id: user.id,
+        action: 'accepted_terms_and_privacy',
+        ip_address: ipAddress
+      })
     }
 
     return { success: 'Registro exitoso. Si se requiere confirmación por correo, revisa tu bandeja de entrada.' }
@@ -145,12 +170,19 @@ export async function signUpAction(prevState: any, formData: FormData) {
       email,
       role: isFirst ? 'admin' : 'client',
       is_banned: false,
+      terms_accepted: true,
+      privacy_accepted: true,
+      accepted_at: new Date().toISOString(),
+      legal_version: 'v1.0',
       created_at: new Date().toISOString()
     }
 
     mockProfiles.push(newProfile)
     cookieStore.set('mock_profiles', JSON.stringify(mockProfiles), { path: '/' })
     
+    // Registrar bitácora de seguridad en el modo simulado
+    await DataService.logSecurityEvent(newId, 'accepted_terms_and_privacy', ipAddress)
+
     // Iniciar sesión automáticamente
     cookieStore.set('mock_auth_user', JSON.stringify({ id: newProfile.id, email: newProfile.email }), { path: '/' })
     cookieStore.set('mock_user_role', newProfile.role, { path: '/' })

@@ -12,6 +12,10 @@ CREATE TABLE public.profiles (
     avatar_url TEXT,
     address TEXT,
     phone TEXT,
+    terms_accepted BOOLEAN NOT NULL DEFAULT FALSE,
+    privacy_accepted BOOLEAN NOT NULL DEFAULT FALSE,
+    accepted_at TIMESTAMP WITH TIME ZONE,
+    legal_version TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
@@ -201,7 +205,10 @@ WITH CHECK (public.is_admin());
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
-    INSERT INTO public.profiles (id, email, role, is_banned, full_name, avatar_url, phone)
+    INSERT INTO public.profiles (
+        id, email, role, is_banned, full_name, avatar_url, phone,
+        terms_accepted, privacy_accepted, accepted_at, legal_version
+    )
     VALUES (
         NEW.id,
         NEW.email,
@@ -213,7 +220,11 @@ BEGIN
         FALSE,
         coalesce(NEW.raw_user_meta_data->>'full_name', NEW.raw_user_meta_data->>'name'),
         NEW.raw_user_meta_data->>'avatar_url',
-        coalesce(NEW.phone, NEW.raw_user_meta_data->>'phone')
+        coalesce(NEW.phone, NEW.raw_user_meta_data->>'phone'),
+        coalesce((NEW.raw_user_meta_data->>'terms_accepted')::boolean, false),
+        coalesce((NEW.raw_user_meta_data->>'privacy_accepted')::boolean, false),
+        (NEW.raw_user_meta_data->>'accepted_at')::timestamp with time zone,
+        NEW.raw_user_meta_data->>'legal_version'
     );
     RETURN NEW;
 END;
@@ -281,4 +292,48 @@ CREATE POLICY "Permitir escritura de ajustes solo a administradores" ON public.s
     WHERE profiles.id = auth.uid() AND profiles.role = 'admin'
   )
 );
+
+-- ==========================================
+-- TABLA DE BITÁCORA DE SEGURIDAD (AUDITORÍA)
+-- ==========================================
+CREATE TABLE IF NOT EXISTS public.security_logs (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    user_id UUID REFERENCES auth.users ON DELETE CASCADE,
+    action TEXT NOT NULL,
+    ip_address TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- Habilitar RLS estricto
+ALTER TABLE public.security_logs ENABLE ROW LEVEL SECURITY;
+
+-- Políticas RLS
+-- El usuario final solo puede leer sus propios logs de seguridad.
+CREATE POLICY "Permitir lectura de logs propios" ON public.security_logs 
+    FOR SELECT USING (auth.uid() = user_id);
+
+-- Permitir la inserción para el usuario actual o sistema durante el registro (si el usuario aún no está logueado, auth.uid() es null)
+CREATE POLICY "Permitir inserción al propietario o sistema" ON public.security_logs 
+    FOR INSERT WITH CHECK (auth.uid() = user_id OR auth.uid() IS NULL);
+
+-- ==========================================================================================
+-- TRIGGER DE AUDITORÍA AUTOMÁTICA DE TÉRMINOS Y CONDICIONES
+-- ==========================================================================================
+CREATE OR REPLACE FUNCTION public.log_profile_terms_acceptance()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.terms_accepted = TRUE AND NEW.privacy_accepted = TRUE AND (OLD IS NULL OR OLD.terms_accepted = FALSE OR OLD.privacy_accepted = FALSE) THEN
+        INSERT INTO public.security_logs (user_id, action, ip_address)
+        VALUES (NEW.id, 'accepted_terms_and_privacy', '0.0.0.0');
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE OR REPLACE TRIGGER on_profile_terms_accepted_audit
+    AFTER INSERT OR UPDATE OF terms_accepted, privacy_accepted ON public.profiles
+    FOR EACH ROW
+    WHEN (NEW.terms_accepted = TRUE AND NEW.privacy_accepted = TRUE)
+    EXECUTE FUNCTION public.log_profile_terms_acceptance();
+
 

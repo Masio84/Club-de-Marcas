@@ -20,6 +20,10 @@ export interface Profile {
   avatar_url?: string
   address?: string
   phone?: string
+  terms_accepted?: boolean
+  privacy_accepted?: boolean
+  accepted_at?: string
+  legal_version?: string
 }
 
 export interface Product {
@@ -782,6 +786,27 @@ export const DataService = {
       const current = await this.getStoreSettings()
       const updated = { ...current, ...settings }
       await setCookieData('mock_store_settings', updated)
+      return true
+    }
+  },
+
+  async logSecurityEvent(userId: string, action: string, ipAddress: string): Promise<boolean> {
+    if (isSupabaseConfigured()) {
+      const supabase = await createClient()
+      const { error } = await supabase
+        .from('security_logs')
+        .insert({ user_id: userId, action, ip_address: ipAddress })
+      return !error
+    } else {
+      const logs = await getCookieData<any[]>('mock_security_logs', [])
+      logs.push({
+        id: Math.random().toString(),
+        user_id: userId,
+        action,
+        ip_address: ipAddress,
+        created_at: new Date().toISOString()
+      })
+      await setCookieData('mock_security_logs', logs)
       return true
     }
   }

@@ -2,12 +2,15 @@
 
 import React, { useState, useTransition } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import Link from 'next/link'
 import { Eye, EyeOff, Key, Mail, UserPlus, ArrowRight, ShieldCheck, User } from 'lucide-react'
 import { signInAction, signUpAction } from '@/app/actions'
 
 export default function AuthForm() {
   const [isLogin, setIsLogin] = useState(true)
   const [showPassword, setShowPassword] = useState(false)
+  const [termsAccepted, setTermsAccepted] = useState(false)
+  const [privacyAccepted, setPrivacyAccepted] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [isPending, startTransition] = useTransition()
@@ -170,6 +173,56 @@ export default function AuthForm() {
           </div>
         )}
 
+        {/* Checkboxes Legales para Registro */}
+        {!isLogin && (
+          <div className="space-y-3 pt-1.5 text-left animate-fadeIn">
+            <div className="flex items-start">
+              <input
+                type="checkbox"
+                id="terms_accepted"
+                name="terms_accepted"
+                checked={termsAccepted}
+                onChange={(e) => setTermsAccepted(e.target.checked)}
+                className="w-4 h-4 text-emerald focus:ring-emerald border-gray-300 rounded mt-0.5 cursor-pointer accent-emerald"
+                required
+              />
+              <label htmlFor="terms_accepted" className="ml-2 text-xs text-navy/70 leading-normal">
+                Acepto los{' '}
+                <Link
+                  href="/terminos-y-condiciones"
+                  target="_blank"
+                  className="underline text-navy font-bold hover:text-emerald"
+                >
+                  Términos y Condiciones
+                </Link>{' '}
+                de servicio.
+              </label>
+            </div>
+
+            <div className="flex items-start">
+              <input
+                type="checkbox"
+                id="privacy_accepted"
+                name="privacy_accepted"
+                checked={privacyAccepted}
+                onChange={(e) => setPrivacyAccepted(e.target.checked)}
+                className="w-4 h-4 text-emerald focus:ring-emerald border-gray-300 rounded mt-0.5 cursor-pointer accent-emerald"
+                required
+              />
+              <label htmlFor="privacy_accepted" className="ml-2 text-xs text-navy/70 leading-normal">
+                He leído y acepto el{' '}
+                <Link
+                  href="/aviso-de-privacidad"
+                  target="_blank"
+                  className="underline text-navy font-bold hover:text-emerald"
+                >
+                  Aviso de Privacidad
+                </Link>.
+              </label>
+            </div>
+          </div>
+        )}
+
         {/* Mensaje de Error */}
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-700 text-xs p-3 rounded-lg font-semibold">
@@ -187,8 +240,8 @@ export default function AuthForm() {
         {/* Botón Submit */}
         <button
           type="submit"
-          disabled={isPending}
-          className="w-full bg-emerald hover:bg-emerald-hover text-navy font-bold py-3 px-4 rounded-xl text-sm transition-all flex items-center justify-center space-x-2 shadow-md hover:scale-[1.01] cursor-pointer"
+          disabled={isPending || (!isLogin && (!termsAccepted || !privacyAccepted))}
+          className="w-full bg-emerald hover:bg-emerald-hover text-navy font-bold py-3 px-4 rounded-xl text-sm transition-all flex items-center justify-center space-x-2 shadow-md hover:scale-[1.01] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isLogin ? (
             <>

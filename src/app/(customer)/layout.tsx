@@ -4,6 +4,7 @@ import { ShoppingCart, User, ShieldAlert, LogOut, LayoutDashboard, ShoppingBag }
 import { DataService } from '@/utils/data-service'
 import { signOutAction } from '@/app/actions'
 import SearchBar from '@/components/SearchBar'
+import CookieBanner from '@/components/CookieBanner'
 
 function isSupabaseConfigured() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -238,11 +239,17 @@ export default async function CustomerLayout({
               </p>
             </div>
           </div>
-          <div className="border-t border-navy-light/60 mt-8 pt-8 text-center text-xs">
+          <div className="border-t border-navy-light/60 mt-8 pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs">
             <p>&copy; {new Date().getFullYear()} Club de Marcas México. Todos los derechos reservados. Desarrollado con Next.js & Supabase.</p>
+            <div className="flex flex-wrap justify-center gap-x-6 gap-y-2">
+              <Link href="/terminos-y-condiciones" className="hover:text-emerald transition-colors font-medium">Términos y Condiciones</Link>
+              <Link href="/aviso-de-privacidad" className="hover:text-emerald transition-colors font-medium">Aviso de Privacidad</Link>
+              <Link href="/envios-y-devoluciones" className="hover:text-emerald transition-colors font-medium">Envíos y Devoluciones</Link>
+            </div>
           </div>
         </div>
       </footer>
+      <CookieBanner />
     </div>
   )
 }
