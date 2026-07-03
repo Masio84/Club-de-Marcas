@@ -333,3 +333,63 @@ export async function toggleBanUserAction(userId: string, currentBanStatus: bool
   const success = await DataService.toggleBanUser(userId, currentBanStatus)
   return { success }
 }
+
+export async function updateProfileAction(prevState: any, formData: FormData) {
+  const user = await DataService.getCurrentUser()
+  if (!user) {
+    return { error: 'No estás autenticado.' }
+  }
+
+  const full_name = formData.get('full_name') as string
+  const phone = formData.get('phone') as string
+  const address = formData.get('address') as string
+  const avatarFile = formData.get('avatar_file') as File | null
+
+  let avatar_url = formData.get('current_avatar_url') as string || undefined
+
+  if (avatarFile && avatarFile.name && avatarFile.size > 0) {
+    if (isSupabaseConfigured()) {
+      try {
+        const supabase = await createSupabaseClient()
+        const fileExt = avatarFile.name.split('.').pop()
+        const fileName = `${user.id}-${Math.random()}.${fileExt}`
+        const filePath = `avatars/${fileName}`
+
+        const { error: uploadError } = await supabase.storage
+          .from('product-images')
+          .upload(filePath, avatarFile, {
+            cacheControl: '3600',
+            upsert: true
+          })
+
+        if (!uploadError) {
+          const { data: { publicUrl } } = supabase.storage
+            .from('product-images')
+            .getPublicUrl(filePath)
+          avatar_url = publicUrl
+        } else {
+          console.error('Error al subir avatar:', uploadError)
+        }
+      } catch (e) {
+        console.error('Error de red al subir avatar:', e)
+      }
+    } else {
+      // Modo simulación: usar una imagen mock para pruebas rápidas
+      avatar_url = `https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop`
+    }
+  }
+
+  const updatedProfile = await DataService.updateProfile(user.id, {
+    full_name,
+    phone,
+    address,
+    ...(avatar_url ? { avatar_url } : {})
+  })
+
+  if (updatedProfile) {
+    return { success: 'Perfil actualizado correctamente.' }
+  } else {
+    return { error: 'Error al actualizar el perfil.' }
+  }
+}
+

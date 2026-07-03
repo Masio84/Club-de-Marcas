@@ -16,6 +16,10 @@ export interface Profile {
   role: 'client' | 'admin'
   is_banned: boolean
   created_at: string
+  full_name?: string
+  avatar_url?: string
+  address?: string
+  phone?: string
 }
 
 export interface Product {
@@ -220,14 +224,20 @@ export const DataService = {
           email: 'admin@clubdemarcas.mx',
           role: 'admin',
           is_banned: false,
-          created_at: new Date().toISOString()
+          created_at: new Date().toISOString(),
+          full_name: 'Administrador Club',
+          phone: '5512345678',
+          address: 'Av. Paseo de la Reforma 123, CDMX'
         },
         {
           id: 'client-id',
           email: 'cliente@clubdemarcas.mx',
           role: 'client',
           is_banned: false,
-          created_at: new Date().toISOString()
+          created_at: new Date().toISOString(),
+          full_name: 'Juan Pérez',
+          phone: '5587654321',
+          address: 'Calle Juárez 456, Monterrey'
         }
       ])
       return profiles.find(p => p.id === user.id) || null
@@ -675,14 +685,20 @@ export const DataService = {
           email: 'admin@clubdemarcas.mx',
           role: 'admin',
           is_banned: false,
-          created_at: new Date(Date.now() - 86400000 * 2).toISOString()
+          created_at: new Date(Date.now() - 86400000 * 2).toISOString(),
+          full_name: 'Administrador Club',
+          phone: '5512345678',
+          address: 'Av. Paseo de la Reforma 123, CDMX'
         },
         {
           id: 'client-id',
           email: 'cliente@clubdemarcas.mx',
           role: 'client',
           is_banned: false,
-          created_at: new Date(Date.now() - 86400000).toISOString()
+          created_at: new Date(Date.now() - 86400000).toISOString(),
+          full_name: 'Juan Pérez',
+          phone: '5587654321',
+          address: 'Calle Juárez 456, Monterrey'
         }
       ]
       return await getCookieData<Profile[]>('mock_profiles', defaultProfiles)
@@ -706,6 +722,28 @@ export const DataService = {
         return true
       }
       return false
+    }
+  },
+
+  async updateProfile(userId: string, updates: Partial<Omit<Profile, 'id' | 'role' | 'created_at'>>): Promise<Profile | null> {
+    if (isSupabaseConfigured()) {
+      const supabase = await createClient()
+      const { data, error } = await supabase
+        .from('profiles')
+        .update(updates)
+        .eq('id', userId)
+        .select()
+        .single()
+      if (error) return null
+      return data as Profile
+    } else {
+      const profiles = await this.getProfiles()
+      const index = profiles.findIndex(p => p.id === userId)
+      if (index === -1) return null
+      const updated = { ...profiles[index], ...updates }
+      profiles[index] = updated
+      await setCookieData('mock_profiles', profiles)
+      return updated
     }
   }
 }

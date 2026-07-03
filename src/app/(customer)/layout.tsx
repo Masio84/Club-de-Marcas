@@ -85,14 +85,31 @@ export default async function CustomerLayout({
             <div className="hidden md:flex items-center space-x-6">
               {user ? (
                 <div className="flex items-center space-x-4">
-                  <div className="flex flex-col text-right">
-                    <span className="text-xs text-gray-400 truncate max-w-[150px]">
-                      {user.email}
-                    </span>
-                    <span className="text-xs font-semibold text-emerald uppercase tracking-wider">
-                      {profile?.role === 'admin' ? 'Administrador' : 'Club Socio'}
-                    </span>
-                  </div>
+                  <Link
+                    href="/profile"
+                    title="Ver mi perfil de socio"
+                    className="flex items-center space-x-3 group text-gray-300 hover:text-emerald transition-all"
+                  >
+                    <div className="w-8 h-8 rounded-full overflow-hidden border border-navy-light/60 bg-navy-light flex items-center justify-center flex-shrink-0 group-hover:border-emerald transition-colors">
+                      {profile?.avatar_url ? (
+                        <img
+                          src={profile.avatar_url}
+                          alt={profile.full_name || user.email || 'Avatar'}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <User className="w-4 h-4 text-gray-400" />
+                      )}
+                    </div>
+                    <div className="flex flex-col text-left leading-tight">
+                      <span className="text-xs text-pure-white font-semibold truncate max-w-[120px] group-hover:text-emerald transition-colors">
+                        {profile?.full_name || user.email}
+                      </span>
+                      <span className="text-[10px] font-bold text-emerald uppercase tracking-wider">
+                        {profile?.role === 'admin' ? 'Administrador' : 'Socio Premium'}
+                      </span>
+                    </div>
+                  </Link>
 
                   {profile?.role === 'admin' && (
                     <Link

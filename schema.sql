@@ -8,6 +8,10 @@ CREATE TABLE public.profiles (
     email TEXT NOT NULL,
     role TEXT NOT NULL DEFAULT 'client' CHECK (role IN ('client', 'admin')),
     is_banned BOOLEAN NOT NULL DEFAULT FALSE,
+    full_name TEXT,
+    avatar_url TEXT,
+    address TEXT,
+    phone TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
@@ -197,7 +201,7 @@ WITH CHECK (public.is_admin());
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
-    INSERT INTO public.profiles (id, email, role, is_banned)
+    INSERT INTO public.profiles (id, email, role, is_banned, full_name, avatar_url, phone)
     VALUES (
         NEW.id,
         NEW.email,
@@ -206,7 +210,10 @@ BEGIN
             WHEN NOT EXISTS (SELECT 1 FROM public.profiles) THEN 'admin'
             ELSE 'client'
         END,
-        FALSE
+        FALSE,
+        coalesce(NEW.raw_user_meta_data->>'full_name', NEW.raw_user_meta_data->>'name'),
+        NEW.raw_user_meta_data->>'avatar_url',
+        coalesce(NEW.phone, NEW.raw_user_meta_data->>'phone')
     );
     RETURN NEW;
 END;
