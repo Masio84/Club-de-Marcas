@@ -58,6 +58,10 @@ export default function ProfileForm({ initialProfile, initialOrders, initialRevi
         setStatus({ type: 'error', message: res.error })
       } else if (res?.success) {
         setStatus({ type: 'success', message: res.success })
+        if (res.avatarUrl) {
+          setAvatarUrl(res.avatarUrl)
+          setAvatarPreview(res.avatarUrl)
+        }
       }
     })
   }

@@ -395,20 +395,21 @@ export async function updateProfileAction(prevState: any, formData: FormData) {
             upsert: true
           })
 
-        if (!uploadError) {
-          const { data: { publicUrl } } = supabase.storage
-            .from('product-images')
-            .getPublicUrl(filePath)
-          avatar_url = publicUrl
-        } else {
-          console.error('Error al subir avatar:', uploadError)
+        if (uploadError) {
+          return { error: `Error al subir la fotografía a Supabase Storage: ${uploadError.message}` }
         }
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('product-images')
+          .getPublicUrl(filePath)
+        avatar_url = publicUrl
       } catch (e) {
         console.error('Error de red al subir avatar:', e)
+        return { error: 'Error de red al subir la fotografía de perfil.' }
       }
     } else {
       // Modo simulación: usar una imagen mock para pruebas rápidas
-      avatar_url = `https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop`
+      avatar_url = `https://images.unsplash.com/photo-${Math.random() > 0.5 ? '1534528741775-53994a69daeb' : '1494790108377-be9c29b29330'}?w=150&auto=format&fit=crop`
     }
   }
 
@@ -420,9 +421,12 @@ export async function updateProfileAction(prevState: any, formData: FormData) {
   })
 
   if (updatedProfile) {
-    return { success: 'Perfil actualizado correctamente.' }
+    return { 
+      success: 'Perfil actualizado correctamente.', 
+      avatarUrl: avatar_url 
+    }
   } else {
-    return { error: 'Error al actualizar el perfil.' }
+    return { error: 'Error al actualizar el perfil en la base de datos.' }
   }
 }
 
