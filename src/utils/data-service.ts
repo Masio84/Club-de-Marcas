@@ -745,5 +745,44 @@ export const DataService = {
       await setCookieData('mock_profiles', profiles)
       return updated
     }
+  },
+
+  async getStoreSettings(): Promise<Record<string, string>> {
+    const defaults = {
+      store_name: 'Club de Marcas',
+      support_whatsapp: '+52 (55) 1234-5678',
+      shipping_cost: '0'
+    }
+    if (isSupabaseConfigured()) {
+      const supabase = await createClient()
+      const { data, error } = await supabase
+        .from('store_settings')
+        .select('*')
+      if (error || !data || data.length === 0) return defaults
+      const settings = { ...defaults }
+      data.forEach((item: any) => {
+        settings[item.key as keyof typeof defaults] = item.value
+      })
+      return settings
+    } else {
+      return await getCookieData<Record<string, string>>('mock_store_settings', defaults)
+    }
+  },
+
+  async updateStoreSettings(settings: Record<string, string>): Promise<boolean> {
+    if (isSupabaseConfigured()) {
+      const supabase = await createClient()
+      for (const [key, value] of Object.entries(settings)) {
+        await supabase
+          .from('store_settings')
+          .upsert({ key, value, updated_at: new Date().toISOString() })
+      }
+      return true
+    } else {
+      const current = await this.getStoreSettings()
+      const updated = { ...current, ...settings }
+      await setCookieData('mock_store_settings', updated)
+      return true
+    }
   }
 }

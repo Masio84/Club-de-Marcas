@@ -255,3 +255,30 @@ VALUES
 -- Categoría: Cuidado Personal
 ('Minoxidil Kirkland 5% (Paquete de 3)', 'Tratamiento de crecimiento de cabello y barba para hombres, suministro para 3 meses.', 699.00, 999.00, 50, 'Cuidado Personal', 'https://images.unsplash.com/photo-1608248597279-f99d160bfcbc?w=600&auto=format&fit=crop'),
 ('Cera Cabello Suavecito Pomade Firme Hold', 'Pomada para cabello a base de agua con fijación firme y brillo medio, aroma clásico de barbería.', 349.00, 420.00, 35, 'Cuidado Personal', 'https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?w=600&auto=format&fit=crop');
+
+-- ==========================================
+-- TABLA DE AJUSTES GENERALES DE LA TIENDA
+-- ==========================================
+CREATE TABLE IF NOT EXISTS public.store_settings (
+    key TEXT PRIMARY KEY,
+    value TEXT NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- Habilitar RLS
+ALTER TABLE public.store_settings ENABLE ROW LEVEL SECURITY;
+
+-- Políticas RLS
+CREATE POLICY "Permitir lectura pública de ajustes" ON public.store_settings FOR SELECT USING (TRUE);
+CREATE POLICY "Permitir escritura de ajustes solo a administradores" ON public.store_settings FOR ALL USING (
+  EXISTS (
+    SELECT 1 FROM public.profiles
+    WHERE profiles.id = auth.uid() AND profiles.role = 'admin'
+  )
+) WITH CHECK (
+  EXISTS (
+    SELECT 1 FROM public.profiles
+    WHERE profiles.id = auth.uid() AND profiles.role = 'admin'
+  )
+);
+

@@ -10,7 +10,8 @@ import {
   LogOut,
   ShieldCheck,
   Menu,
-  ShieldAlert
+  ShieldAlert,
+  Settings
 } from 'lucide-react'
 import { DataService } from '@/utils/data-service'
 import { signOutAction } from '@/app/actions'
@@ -45,6 +46,7 @@ export default async function AdminLayout({
     { name: 'Productos', href: '/admin/products', icon: ShoppingBag },
     { name: 'Usuarios', href: '/admin/users', icon: Users },
     { name: 'Pedidos', href: '/admin/orders', icon: ClipboardList },
+    { name: 'Ajustes', href: '/admin/settings', icon: Settings },
   ]
 
   return (

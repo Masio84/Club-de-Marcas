@@ -393,3 +393,31 @@ export async function updateProfileAction(prevState: any, formData: FormData) {
   }
 }
 
+export async function updateStoreSettingsAction(prevState: any, formData: FormData) {
+  const user = await DataService.getCurrentUser()
+  if (!user) {
+    return { error: 'No estás autenticado.' }
+  }
+  const profile = await DataService.getCurrentUserProfile()
+  if (!profile || profile.role !== 'admin') {
+    return { error: 'No tienes permisos de administrador.' }
+  }
+
+  const store_name = formData.get('store_name') as string
+  const support_whatsapp = formData.get('support_whatsapp') as string
+  const shipping_cost = formData.get('shipping_cost') as string
+
+  const success = await DataService.updateStoreSettings({
+    store_name,
+    support_whatsapp,
+    shipping_cost
+  })
+
+  if (success) {
+    return { success: 'Ajustes de la tienda actualizados correctamente.' }
+  } else {
+    return { error: 'Error al guardar los ajustes.' }
+  }
+}
+
+
