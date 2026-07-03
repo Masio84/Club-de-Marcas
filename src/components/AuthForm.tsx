@@ -258,35 +258,37 @@ export default function AuthForm() {
       </form>
 
       {/* CREDENCIALES DE PRUEBA RÁPIDA (Solo visible si Supabase no está configurado, o para facilitar testing) */}
-      <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 space-y-3.5 shadow-inner">
-        <div className="flex items-center space-x-1.5 text-xs font-bold text-navy uppercase tracking-wider">
-          <ShieldCheck className="w-4 h-4 text-emerald" />
-          <span>Acceso Rápido para Pruebas (Maqueta)</span>
+      {!(!!process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_URL !== 'https://placeholder.supabase.co') && (
+        <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 space-y-3.5 shadow-inner">
+          <div className="flex items-center space-x-1.5 text-xs font-bold text-navy uppercase tracking-wider">
+            <ShieldCheck className="w-4 h-4 text-emerald" />
+            <span>Acceso Rápido para Pruebas (Maqueta)</span>
+          </div>
+          <p className="text-[11px] text-gray-500">
+            Haz clic en uno de los roles para auto-rellenar y probar la navegación por roles de forma instantánea.
+          </p>
+          <div className="grid grid-cols-2 gap-3 pt-1">
+            <button
+              type="button"
+              onClick={() => handleQuickLogin('admin@clubdemarcas.mx')}
+              disabled={isPending}
+              className="bg-navy hover:bg-navy-light text-pure-white text-xs font-bold py-2 px-3 rounded-lg border border-navy-light flex items-center justify-center space-x-1.5 transition-colors cursor-pointer"
+            >
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald" />
+              <span>Entrar como Admin</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => handleQuickLogin('cliente@clubdemarcas.mx')}
+              disabled={isPending}
+              className="bg-pure-white hover:bg-gray-100 text-navy text-xs font-bold py-2 px-3 rounded-lg border border-gray-200 flex items-center justify-center space-x-1.5 transition-colors cursor-pointer"
+            >
+              <User className="w-3.5 h-3.5 text-gray-500" />
+              <span>Entrar como Cliente</span>
+            </button>
+          </div>
         </div>
-        <p className="text-[11px] text-gray-500">
-          Haz clic en uno de los roles para auto-rellenar y probar la navegación por roles de forma instantánea.
-        </p>
-        <div className="grid grid-cols-2 gap-3 pt-1">
-          <button
-            type="button"
-            onClick={() => handleQuickLogin('admin@clubdemarcas.mx')}
-            disabled={isPending}
-            className="bg-navy hover:bg-navy-light text-pure-white text-xs font-bold py-2 px-3 rounded-lg border border-navy-light flex items-center justify-center space-x-1.5 transition-colors cursor-pointer"
-          >
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald" />
-            <span>Entrar como Admin</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => handleQuickLogin('cliente@clubdemarcas.mx')}
-            disabled={isPending}
-            className="bg-pure-white hover:bg-gray-100 text-navy text-xs font-bold py-2 px-3 rounded-lg border border-gray-200 flex items-center justify-center space-x-1.5 transition-colors cursor-pointer"
-          >
-            <User className="w-3.5 h-3.5 text-gray-500" />
-            <span>Entrar como Cliente</span>
-          </button>
-        </div>
-      </div>
+      )}
     </div>
   )
 }
