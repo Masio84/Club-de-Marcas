@@ -16,6 +16,9 @@ CREATE TABLE public.profiles (
     privacy_accepted BOOLEAN NOT NULL DEFAULT FALSE,
     accepted_at TIMESTAMP WITH TIME ZONE,
     legal_version TEXT,
+    membership_tier TEXT DEFAULT NULL CHECK (membership_tier IN (NULL, 'basic', 'premium')),
+    membership_expires_at TIMESTAMP WITH TIME ZONE DEFAULT NULL,
+    reward_balance NUMERIC(10, 2) NOT NULL DEFAULT 0.00 CHECK (reward_balance >= 0),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
@@ -62,6 +65,9 @@ CREATE TABLE public.products (
     inventory INTEGER NOT NULL DEFAULT 0 CHECK (inventory >= 0),
     category TEXT NOT NULL CHECK (category IN ('Tenis', 'Relojes', 'Gorras', 'Lentes', 'Bolsas', 'Cuidado Personal')),
     image_url TEXT,
+    is_prestige BOOLEAN NOT NULL DEFAULT FALSE,
+    return_rate_basic NUMERIC(5, 2) NOT NULL DEFAULT 2.00 CHECK (return_rate_basic >= 0),
+    return_rate_premium NUMERIC(5, 2) NOT NULL DEFAULT 10.00 CHECK (return_rate_premium >= 0),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
@@ -375,6 +381,61 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 CREATE OR REPLACE TRIGGER on_product_review_submitted_audit
     AFTER INSERT ON public.product_reviews
     FOR EACH ROW EXECUTE FUNCTION public.log_profile_review_submission();
+
+
+-- ==========================================================================================
+-- TABLA DE INVERSIONES A PLAZO (term_investments)
+-- ==========================================================================================
+CREATE TABLE IF NOT EXISTS public.term_investments (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+    amount NUMERIC(10, 2) NOT NULL CHECK (amount > 0),
+    term_months INT NOT NULL CHECK (term_months IN (1, 3, 6, 12)),
+    annual_rate NUMERIC(5, 2) NOT NULL CHECK (annual_rate > 0),
+    start_date TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    end_date TIMESTAMP WITH TIME ZONE NOT NULL,
+    expected_yield NUMERIC(10, 2) NOT NULL CHECK (expected_yield >= 0),
+    status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'completed')),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- Habilitar RLS
+ALTER TABLE public.term_investments ENABLE ROW LEVEL SECURITY;
+
+-- Políticas RLS
+CREATE POLICY "Permitir lectura de inversiones propias" ON public.term_investments 
+    FOR SELECT USING (auth.uid() = user_id);
+
+CREATE POLICY "Permitir inserción de inversiones propias" ON public.term_investments 
+    FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Permitir actualización de inversiones propias (por ejemplo, al completar)" ON public.term_investments 
+    FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+
+
+-- ==========================================================================================
+-- TABLA DE HISTORIAL DE TRANSACCIONES DE ACTIVOS (reward_transactions)
+-- ==========================================================================================
+CREATE TABLE IF NOT EXISTS public.reward_transactions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+    amount NUMERIC(10, 2) NOT NULL,
+    type TEXT NOT NULL CHECK (type IN ('purchase_reward', 'investment_locked', 'investment_returned', 'admin_adjustment')),
+    reference_id UUID,
+    description TEXT NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- Habilitar RLS
+ALTER TABLE public.reward_transactions ENABLE ROW LEVEL SECURITY;
+
+-- Políticas RLS
+CREATE POLICY "Permitir lectura de transacciones de activos propias" ON public.reward_transactions 
+    FOR SELECT USING (auth.uid() = user_id);
+
+CREATE POLICY "Permitir inserción de transacciones de activos propias" ON public.reward_transactions 
+    FOR INSERT WITH CHECK (auth.uid() = user_id);
+
 
 
 

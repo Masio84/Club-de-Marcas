@@ -24,6 +24,9 @@ export interface Profile {
   privacy_accepted?: boolean
   accepted_at?: string
   legal_version?: string
+  membership_tier?: 'basic' | 'premium' | null
+  membership_expires_at?: string | null
+  reward_balance?: number
 }
 
 export interface Product {
@@ -38,6 +41,32 @@ export interface Product {
   created_at: string
   rating_avg?: number
   rating_count?: number
+  is_prestige?: boolean
+  return_rate_basic?: number
+  return_rate_premium?: number
+}
+
+export interface TermInvestment {
+  id: string
+  user_id: string
+  amount: number
+  term_months: number
+  annual_rate: number
+  start_date: string
+  end_date: string
+  expected_yield: number
+  status: 'active' | 'completed'
+  created_at: string
+}
+
+export interface RewardTransaction {
+  id: string
+  user_id: string
+  amount: number
+  type: 'purchase_reward' | 'investment_locked' | 'investment_returned' | 'admin_adjustment'
+  reference_id?: string
+  description: string
+  created_at: string
 }
 
 export interface ProductReview {
@@ -81,7 +110,6 @@ export interface Order {
 // ==========================================
 // PRODUCTOS SEMILLA DE MAQUETA
 // ==========================================
-
 const SEED_PRODUCTS: Product[] = [
   {
     id: 'prod-1',
@@ -92,6 +120,9 @@ const SEED_PRODUCTS: Product[] = [
     inventory: 25,
     category: 'Tenis',
     image_url: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&auto=format&fit=crop',
+    is_prestige: false,
+    return_rate_basic: 2.00,
+    return_rate_premium: 10.00,
     created_at: new Date().toISOString()
   },
   {
@@ -103,6 +134,9 @@ const SEED_PRODUCTS: Product[] = [
     inventory: 18,
     category: 'Tenis',
     image_url: 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=600&auto=format&fit=crop',
+    is_prestige: true,
+    return_rate_basic: 3.00,
+    return_rate_premium: 12.00,
     created_at: new Date().toISOString()
   },
   {
@@ -113,6 +147,9 @@ const SEED_PRODUCTS: Product[] = [
     inventory: 15,
     category: 'Tenis',
     image_url: 'https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?w=600&auto=format&fit=crop',
+    is_prestige: false,
+    return_rate_basic: 2.00,
+    return_rate_premium: 8.00,
     created_at: new Date().toISOString()
   },
   {
@@ -124,6 +161,9 @@ const SEED_PRODUCTS: Product[] = [
     inventory: 8,
     category: 'Relojes',
     image_url: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&auto=format&fit=crop',
+    is_prestige: true,
+    return_rate_basic: 4.00,
+    return_rate_premium: 15.00,
     created_at: new Date().toISOString()
   },
   {
@@ -135,6 +175,9 @@ const SEED_PRODUCTS: Product[] = [
     inventory: 30,
     category: 'Relojes',
     image_url: 'https://images.unsplash.com/photo-1547996160-81dfa63595aa?w=600&auto=format&fit=crop',
+    is_prestige: false,
+    return_rate_basic: 2.00,
+    return_rate_premium: 8.50,
     created_at: new Date().toISOString()
   },
   {
@@ -146,6 +189,9 @@ const SEED_PRODUCTS: Product[] = [
     inventory: 40,
     category: 'Gorras',
     image_url: 'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=600&auto=format&fit=crop',
+    is_prestige: false,
+    return_rate_basic: 1.50,
+    return_rate_premium: 6.00,
     created_at: new Date().toISOString()
   },
   {
@@ -157,6 +203,9 @@ const SEED_PRODUCTS: Product[] = [
     inventory: 12,
     category: 'Lentes',
     image_url: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=600&auto=format&fit=crop',
+    is_prestige: true,
+    return_rate_basic: 3.50,
+    return_rate_premium: 12.00,
     created_at: new Date().toISOString()
   },
   {
@@ -168,6 +217,9 @@ const SEED_PRODUCTS: Product[] = [
     inventory: 6,
     category: 'Bolsas',
     image_url: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=600&auto=format&fit=crop',
+    is_prestige: true,
+    return_rate_basic: 4.00,
+    return_rate_premium: 14.00,
     created_at: new Date().toISOString()
   },
   {
@@ -179,6 +231,9 @@ const SEED_PRODUCTS: Product[] = [
     inventory: 50,
     category: 'Cuidado Personal',
     image_url: 'https://images.unsplash.com/photo-1608248597279-f99d160bfcbc?w=600&auto=format&fit=crop',
+    is_prestige: false,
+    return_rate_basic: 1.00,
+    return_rate_premium: 5.00,
     created_at: new Date().toISOString()
   }
 ]
@@ -243,7 +298,10 @@ export const DataService = {
           created_at: new Date().toISOString(),
           full_name: 'Administrador Club',
           phone: '5512345678',
-          address: 'Av. Paseo de la Reforma 123, CDMX'
+          address: 'Av. Paseo de la Reforma 123, CDMX',
+          membership_tier: 'premium',
+          membership_expires_at: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
+          reward_balance: 1500.00
         },
         {
           id: 'client-id',
@@ -253,7 +311,10 @@ export const DataService = {
           created_at: new Date().toISOString(),
           full_name: 'Juan Pérez',
           phone: '5587654321',
-          address: 'Calle Juárez 456, Monterrey'
+          address: 'Calle Juárez 456, Monterrey',
+          membership_tier: null,
+          membership_expires_at: null,
+          reward_balance: 0.00
         }
       ])
       return profiles.find(p => p.id === user.id) || null
@@ -647,7 +708,6 @@ export const DataService = {
         .insert(orderItems)
 
       if (itemsErr) {
-        // En un escenario real, haríamos rollback, pero en supabase simple podemos eliminar la orden
         await supabase.from('orders').delete().eq('id', order.id)
         return null
       }
@@ -660,7 +720,38 @@ export const DataService = {
         }
       }
 
-      // 4. Limpiar el carrito
+      // 4. Calcular y acreditar Activos Club (Recompensas)
+      let rewardEarned = 0
+      const profile = await this.getCurrentUserProfile()
+      const tier = profile?.membership_tier
+
+      if (tier) {
+        const productIds = items.map(i => i.product_id)
+        const { data: dbProducts } = await supabase.from('products').select('*').in('id', productIds)
+        if (dbProducts) {
+          items.forEach(item => {
+            const prod = dbProducts.find(p => p.id === item.product_id)
+            if (prod) {
+              const rate = tier === 'premium' ? (prod.return_rate_premium || 10.00) : (prod.return_rate_basic || 2.00)
+              rewardEarned += Number((item.price * item.quantity * (rate / 100)).toFixed(2))
+            }
+          })
+        }
+      }
+
+      if (rewardEarned > 0) {
+        const newBalance = Number(((profile?.reward_balance || 0) + rewardEarned).toFixed(2))
+        await supabase.from('profiles').update({ reward_balance: newBalance }).eq('id', user.id)
+        await supabase.from('reward_transactions').insert({
+          user_id: user.id,
+          amount: rewardEarned,
+          type: 'purchase_reward',
+          reference_id: order.id,
+          description: `Retorno Activo generado por la compra del pedido #${order.id.slice(0, 8)}`
+        })
+      }
+
+      // 5. Limpiar el carrito
       await this.clearCart()
 
       return order as Order
@@ -701,6 +792,40 @@ export const DataService = {
         }
       })
       await setCookieData('mock_products', mockProducts)
+
+      // Calcular y acreditar Activos Club (Recompensas)
+      let rewardEarned = 0
+      const profiles = await getCookieData<Profile[]>('mock_profiles', [])
+      const profileIdx = profiles.findIndex(p => p.id === user.id)
+      const profile = profileIdx !== -1 ? profiles[profileIdx] : null
+      const tier = profile?.membership_tier
+
+      if (tier && profile) {
+        items.forEach(item => {
+          const prod = products.find(p => p.id === item.product_id)
+          if (prod) {
+            const rate = tier === 'premium' ? (prod.return_rate_premium || 10.00) : (prod.return_rate_basic || 2.00)
+            rewardEarned += Number((item.price * item.quantity * (rate / 100)).toFixed(2))
+          }
+        })
+      }
+
+      if (rewardEarned > 0 && profile && profileIdx !== -1) {
+        profile.reward_balance = Number(((profile.reward_balance || 0) + rewardEarned).toFixed(2))
+        await setCookieData('mock_profiles', profiles)
+
+        const transactions = await getCookieData<RewardTransaction[]>('mock_reward_transactions', [])
+        transactions.push({
+          id: 'tx-' + Math.random().toString(36).substr(2, 9),
+          user_id: user.id,
+          amount: rewardEarned,
+          type: 'purchase_reward',
+          reference_id: newOrderId,
+          description: `Retorno Activo generado por la compra del pedido #${newOrderId.slice(0, 8)}`,
+          created_at: new Date().toISOString()
+        })
+        await setCookieData('mock_reward_transactions', transactions)
+      }
 
       // Limpiar el carrito del usuario
       await this.clearCart()
@@ -947,6 +1072,282 @@ export const DataService = {
     } else {
       const reviews = await getCookieData<any[]>('mock_product_reviews', [])
       return reviews.filter(r => r.user_id === user.id)
+    }
+  },
+
+  async subscribeToMembership(tier: 'basic' | 'premium' | null): Promise<boolean> {
+    const user = await this.getCurrentUser()
+    if (!user) return false
+
+    const expiresAt = tier ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() : null
+
+    if (isSupabaseConfigured()) {
+      const supabase = await createClient()
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          membership_tier: tier,
+          membership_expires_at: expiresAt
+        })
+        .eq('id', user.id)
+      return !error
+    } else {
+      const profiles = await getCookieData<Profile[]>('mock_profiles', [])
+      const updatedProfiles = profiles.map(p => {
+        if (p.id === user.id) {
+          return {
+            ...p,
+            membership_tier: tier,
+            membership_expires_at: expiresAt
+          }
+        }
+        return p
+      })
+      await setCookieData('mock_profiles', updatedProfiles)
+      return true
+    }
+  },
+
+  async getRewardTransactions(): Promise<RewardTransaction[]> {
+    const user = await this.getCurrentUser()
+    if (!user) return []
+
+    if (isSupabaseConfigured()) {
+      const supabase = await createClient()
+      const { data, error } = await supabase
+        .from('reward_transactions')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+      if (error || !data) return []
+      return data as RewardTransaction[]
+    } else {
+      const txs = await getCookieData<RewardTransaction[]>('mock_reward_transactions', [])
+      return txs
+        .filter(t => t.user_id === user.id)
+        .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+    }
+  },
+
+  async getActiveInvestments(): Promise<TermInvestment[]> {
+    const user = await this.getCurrentUser()
+    if (!user) return []
+
+    if (isSupabaseConfigured()) {
+      const supabase = await createClient()
+      const { data, error } = await supabase
+        .from('term_investments')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+      if (error || !data) return []
+      return data as TermInvestment[]
+    } else {
+      const invs = await getCookieData<TermInvestment[]>('mock_term_investments', [])
+      return invs
+        .filter(i => i.user_id === user.id)
+        .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+    }
+  },
+
+  async createInvestment(amount: number, termMonths: number): Promise<{ success: boolean; message: string }> {
+    const user = await this.getCurrentUser()
+    if (!user) return { success: false, message: 'Usuario no autenticado' }
+
+    const profile = await this.getCurrentUserProfile()
+    if (!profile) return { success: false, message: 'Perfil no encontrado' }
+
+    const currentBalance = profile.reward_balance || 0
+    if (currentBalance < amount) {
+      return { success: false, message: 'Saldo de Activos insuficiente' }
+    }
+
+    // Definición de tasas anuales por membresía
+    // Acceso (basic): 1m = 5%, 3m = 8%, 6m = 12%, 12m = 15%
+    // Signature (premium): 1m = 7%, 3m = 10%, 6m = 14%, 12m = 17%
+    const isPremium = profile.membership_tier === 'premium'
+    let annualRate = 5
+    if (termMonths === 1) annualRate = isPremium ? 7 : 5
+    else if (termMonths === 3) annualRate = isPremium ? 10 : 8
+    else if (termMonths === 6) annualRate = isPremium ? 14 : 12
+    else if (termMonths === 12) annualRate = isPremium ? 17 : 15
+
+    const expectedYield = Number((amount * (annualRate / 100) * (termMonths / 12)).toFixed(2))
+    const startDate = new Date().toISOString()
+    const endDate = new Date(Date.now() + termMonths * 30 * 24 * 60 * 60 * 1000).toISOString()
+    const investmentId = 'inv-' + Math.random().toString(36).substr(2, 9)
+
+    const newInvestment: TermInvestment = {
+      id: investmentId,
+      user_id: user.id,
+      amount,
+      term_months: termMonths,
+      annual_rate: annualRate,
+      start_date: startDate,
+      end_date: endDate,
+      expected_yield: expectedYield,
+      status: 'active',
+      created_at: startDate
+    }
+
+    const newBalance = Number((currentBalance - amount).toFixed(2))
+
+    if (isSupabaseConfigured()) {
+      const supabase = await createClient()
+      
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({ reward_balance: newBalance })
+        .eq('id', user.id)
+
+      if (profileError) return { success: false, message: 'Error actualizando saldo' }
+
+      const { error: invError, data: invData } = await supabase
+        .from('term_investments')
+        .insert({
+          user_id: user.id,
+          amount,
+          term_months: termMonths,
+          annual_rate: annualRate,
+          end_date: endDate,
+          expected_yield: expectedYield,
+          status: 'active'
+        })
+        .select()
+        .single()
+
+      if (invError) {
+        // Revertir saldo
+        await supabase.from('profiles').update({ reward_balance: currentBalance }).eq('id', user.id)
+        return { success: false, message: 'Error creando la inversión' }
+      }
+
+      await supabase
+        .from('reward_transactions')
+        .insert({
+          user_id: user.id,
+          amount: -amount,
+          type: 'investment_locked',
+          reference_id: invData.id,
+          description: `Inversión congelada a ${termMonths} mes(es) al ${annualRate}% anual`
+        })
+
+      return { success: true, message: 'Inversión creada con éxito' }
+    } else {
+      // Mock local
+      const profiles = await getCookieData<Profile[]>('mock_profiles', [])
+      const updatedProfiles = profiles.map(p => {
+        if (p.id === user.id) {
+          return { ...p, reward_balance: newBalance }
+        }
+        return p
+      })
+      await setCookieData('mock_profiles', updatedProfiles)
+
+      const investments = await getCookieData<TermInvestment[]>('mock_term_investments', [])
+      investments.push(newInvestment)
+      await setCookieData('mock_term_investments', investments)
+
+      const transactions = await getCookieData<RewardTransaction[]>('mock_reward_transactions', [])
+      const newTransaction: RewardTransaction = {
+        id: 'tx-' + Math.random().toString(36).substr(2, 9),
+        user_id: user.id,
+        amount: -amount,
+        type: 'investment_locked',
+        reference_id: investmentId,
+        description: `Inversión congelada a ${termMonths} mes(es) al ${annualRate}% anual`,
+        created_at: new Date().toISOString()
+      }
+      transactions.push(newTransaction)
+      await setCookieData('mock_reward_transactions', transactions)
+
+      return { success: true, message: 'Inversión creada con éxito' }
+    }
+  },
+
+  async simulateTermCompletion(investmentId: string): Promise<{ success: boolean; message: string }> {
+    const user = await this.getCurrentUser()
+    if (!user) return { success: false, message: 'Usuario no autenticado' }
+
+    if (isSupabaseConfigured()) {
+      const supabase = await createClient()
+      const { data: inv, error: invError } = await supabase
+        .from('term_investments')
+        .select('*')
+        .eq('id', investmentId)
+        .single()
+
+      if (invError || !inv) return { success: false, message: 'Inversión no encontrada' }
+      if (inv.status === 'completed') return { success: false, message: 'La inversión ya fue completada' }
+
+      const totalReturn = Number((inv.amount + inv.expected_yield).toFixed(2))
+
+      const profile = await this.getCurrentUserProfile()
+      if (!profile) return { success: false, message: 'Perfil no encontrado' }
+      const newBalance = Number(((profile.reward_balance || 0) + totalReturn).toFixed(2))
+
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({ reward_balance: newBalance })
+        .eq('id', user.id)
+
+      if (profileError) return { success: false, message: 'Error actualizando saldo de activos' }
+
+      const { error: updateInvError } = await supabase
+        .from('term_investments')
+        .update({ status: 'completed' })
+        .eq('id', investmentId)
+
+      if (updateInvError) return { success: false, message: 'Error actualizando estado de inversión' }
+
+      await supabase
+        .from('reward_transactions')
+        .insert({
+          user_id: user.id,
+          amount: totalReturn,
+          type: 'investment_returned',
+          reference_id: investmentId,
+          description: `Retorno de inversión a plazo más rendimiento generado (+${inv.expected_yield})`
+        })
+
+      return { success: true, message: 'Plazo completado con éxito, rendimiento acreditado' }
+    } else {
+      const investments = await getCookieData<TermInvestment[]>('mock_term_investments', [])
+      const invIndex = investments.findIndex(i => i.id === investmentId)
+      if (invIndex === -1) return { success: false, message: 'Inversión no encontrada' }
+      
+      const inv = investments[invIndex]
+      if (inv.status === 'completed') return { success: false, message: 'La inversión ya fue completada' }
+
+      inv.status = 'completed'
+      await setCookieData('mock_term_investments', investments)
+
+      const totalReturn = Number((inv.amount + inv.expected_yield).toFixed(2))
+
+      const profiles = await getCookieData<Profile[]>('mock_profiles', [])
+      const updatedProfiles = profiles.map(p => {
+        if (p.id === user.id) {
+          const prevBalance = p.reward_balance || 0
+          return { ...p, reward_balance: Number((prevBalance + totalReturn).toFixed(2)) }
+        }
+        return p
+      })
+      await setCookieData('mock_profiles', updatedProfiles)
+
+      const transactions = await getCookieData<RewardTransaction[]>('mock_reward_transactions', [])
+      const newTransaction: RewardTransaction = {
+        id: 'tx-' + Math.random().toString(36).substr(2, 9),
+        user_id: user.id,
+        amount: totalReturn,
+        type: 'investment_returned',
+        reference_id: investmentId,
+        description: `Retorno de inversión a plazo más rendimiento generado (+${inv.expected_yield})`,
+        created_at: new Date().toISOString()
+      }
+      transactions.push(newTransaction)
+      await setCookieData('mock_reward_transactions', transactions)
+
+      return { success: true, message: 'Plazo completado con éxito, rendimiento acreditado' }
     }
   }
 }

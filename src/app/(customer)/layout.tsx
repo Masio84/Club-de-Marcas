@@ -1,6 +1,6 @@
 import React from 'react'
 import Link from 'next/link'
-import { ShoppingCart, User, ShieldAlert, LogOut, LayoutDashboard, ShoppingBag } from 'lucide-react'
+import { ShoppingCart, User, ShieldAlert, LogOut, LayoutDashboard, ShoppingBag, Wallet } from 'lucide-react'
 import { DataService } from '@/utils/data-service'
 import { signOutAction } from '@/app/actions'
 import SearchBar from '@/components/SearchBar'
@@ -107,7 +107,13 @@ export default async function CustomerLayout({
                         {profile?.full_name || user.email}
                       </span>
                       <span className="text-[10px] font-bold text-emerald uppercase tracking-wider">
-                        {profile?.role === 'admin' ? 'Administrador' : 'Socio Premium'}
+                        {profile?.role === 'admin' 
+                          ? 'Administrador' 
+                          : profile?.membership_tier === 'premium' 
+                            ? 'Socio Signature' 
+                            : profile?.membership_tier === 'basic' 
+                              ? 'Socio Acceso' 
+                              : 'Socio Standard'}
                       </span>
                     </div>
                   </Link>
@@ -142,6 +148,23 @@ export default async function CustomerLayout({
                 </Link>
               )}
 
+              {/* Botón Bóveda de Activos */}
+              {user && (
+                <Link
+                  href="/vault"
+                  title="Ver mi Bóveda de Activos Club"
+                  className="flex items-center space-x-2 text-sm font-semibold text-pure-white hover:text-emerald transition-all"
+                >
+                  <div className="relative p-2 rounded-full bg-navy-light hover:bg-navy-light/80 transition-colors">
+                    <Wallet className="w-5 h-5 text-emerald" />
+                  </div>
+                  <div className="flex flex-col leading-none">
+                    <span className="text-[10px] text-gray-400">Activos Club</span>
+                    <span className="text-xs font-semibold text-emerald">${(profile?.reward_balance || 0).toLocaleString('es-MX', { minimumFractionDigits: 2 })}</span>
+                  </div>
+                </Link>
+              )}
+
               {/* Botón Carrito */}
               <Link
                 href="/cart"
@@ -168,6 +191,9 @@ export default async function CustomerLayout({
             <div className="flex items-center space-x-6 text-sm font-medium text-gray-300 min-w-max">
               <Link href="/" className="hover:text-pure-white transition-colors">
                 Inicio
+              </Link>
+              <Link href="/memberships" className="hover:text-emerald transition-colors font-bold flex items-center">
+                👑 Membresías
               </Link>
               {categories.map((cat) => (
                 <Link

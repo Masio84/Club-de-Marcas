@@ -106,8 +106,20 @@ export default function AdminProductManager({ products }: AdminProductManagerPro
                     </td>
 
                     {/* Título */}
-                    <td className="p-4 font-bold text-navy max-w-[200px] truncate" title={product.title}>
-                      {product.title}
+                    <td className="p-4 font-bold text-navy max-w-[200px]" title={product.title}>
+                      <div className="flex flex-col">
+                        <span className="truncate">{product.title}</span>
+                        <div className="flex items-center space-x-1.5 mt-0.5">
+                          {product.is_prestige && (
+                            <span className="bg-navy text-emerald text-[8px] font-black uppercase px-1 rounded">
+                              👑 Signature
+                            </span>
+                          )}
+                          <span className="text-[8px] text-gray-400 font-bold">
+                            R: {product.return_rate_basic || 2}% / {product.return_rate_premium || 10}%
+                          </span>
+                        </div>
+                      </div>
                     </td>
 
                     {/* Categoría */}
@@ -269,6 +281,57 @@ export default function AdminProductManager({ products }: AdminProductManagerPro
                     placeholder="3199.00"
                     className="w-full text-xs bg-gray-50 text-navy p-2.5 rounded-lg border border-gray-200 focus:outline-none focus:border-navy"
                   />
+                </div>
+              </div>
+
+              {/* Opciones de Membresía y Retorno */}
+              <div className="bg-slate-50 p-4 rounded-xl border border-gray-150 space-y-4 text-left">
+                <span className="text-[10px] font-black text-navy uppercase tracking-wider block">
+                  Configuración de Retorno (Bóveda)
+                </span>
+                
+                {/* Prestige Checkbox */}
+                <div className="flex items-center space-x-2.5">
+                  <input
+                    type="checkbox"
+                    id="is_prestige"
+                    name="is_prestige"
+                    defaultChecked={editingProduct?.is_prestige || false}
+                    className="w-4 h-4 rounded text-navy focus:ring-navy cursor-pointer"
+                  />
+                  <label htmlFor="is_prestige" className="text-xs font-bold text-navy select-none cursor-pointer flex items-center">
+                    <span>Marca de Prestigio 👑</span>
+                    <span className="text-[9px] text-gray-400 font-semibold ml-1.5">(Exclusivo para Socios Signature)</span>
+                  </label>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <label className="text-[9px] font-bold text-gray-500 uppercase block">
+                      Retorno Acceso (%)
+                    </label>
+                    <input
+                      type="number"
+                      name="return_rate_basic"
+                      step="0.1"
+                      min={0}
+                      defaultValue={editingProduct?.return_rate_basic ?? 2.0}
+                      className="w-full text-xs bg-pure-white text-navy p-2 rounded-lg border border-gray-200 focus:outline-none focus:border-navy"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[9px] font-bold text-gray-500 uppercase block">
+                      Retorno Signature (%)
+                    </label>
+                    <input
+                      type="number"
+                      name="return_rate_premium"
+                      step="0.1"
+                      min={0}
+                      defaultValue={editingProduct?.return_rate_premium ?? 10.0}
+                      className="w-full text-xs bg-pure-white text-navy p-2 rounded-lg border border-gray-200 focus:outline-none focus:border-navy"
+                    />
+                  </div>
                 </div>
               </div>
 

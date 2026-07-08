@@ -14,6 +14,10 @@ export default async function HomePage({ searchParams }: PageProps) {
   const category = resolvedParams.category as string | undefined
   const search = resolvedParams.search as string | undefined
 
+  // Obtener sesión y perfil para personalizar Activos y restricciones
+  const user = await DataService.getCurrentUser()
+  const profile = await DataService.getCurrentUserProfile()
+
   // Obtener productos filtrados
   let allProducts = await DataService.getProducts()
   
@@ -138,6 +142,13 @@ export default async function HomePage({ searchParams }: PageProps) {
                     </span>
                   )}
 
+                  {/* Etiqueta de prestigio */}
+                  {product.is_prestige && (
+                    <span className="absolute top-3 right-3 bg-navy text-emerald text-[9px] font-black px-2.5 py-0.5 rounded-full z-10 shadow-sm border border-emerald/20 flex items-center">
+                      👑 Prestige
+                    </span>
+                  )}
+
                   {/* Imagen */}
                   <div className="relative aspect-square w-full bg-gray-100 overflow-hidden">
                     {product.image_url ? (
@@ -199,8 +210,42 @@ export default async function HomePage({ searchParams }: PageProps) {
                         </span>
                       </div>
 
-                      {/* Botón comprar */}
-                      <AddToCartButton productId={product.id} inventory={product.inventory} />
+                      {/* Retorno Activo e Invitación a Membresía */}
+                      <div className="bg-slate-50 p-2 rounded-xl border border-slate-100 text-left space-y-0.5">
+                        <span className="text-[9px] text-gray-400 font-bold uppercase tracking-wider block">Retorno Activo</span>
+                        <div className="text-xs font-semibold">
+                          {profile?.membership_tier === 'premium' ? (
+                            <p className="font-extrabold text-emerald">
+                              Ganas ${(product.price * (product.return_rate_premium || 10.0) / 100).toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                            </p>
+                          ) : profile?.membership_tier === 'basic' ? (
+                            <div className="space-y-0.5">
+                              <p className="font-bold text-navy/70">
+                                Ganas ${(product.price * (product.return_rate_basic || 2.0) / 100).toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                              </p>
+                              <p className="text-[9px] text-emerald font-bold leading-none">
+                                Con Signature: ${(product.price * (product.return_rate_premium || 10.0) / 100).toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                              </p>
+                            </div>
+                          ) : (
+                            <p className="text-[9px] text-gray-500 leading-tight">
+                              Signature te da: <span className="font-bold text-emerald">${(product.price * (product.return_rate_premium || 10.0) / 100).toLocaleString('es-MX', { minimumFractionDigits: 2 })}</span>
+                            </p>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Botón comprar / Restricción */}
+                      {product.is_prestige && profile?.membership_tier !== 'premium' ? (
+                        <Link
+                          href="/memberships"
+                          className="w-full block text-center bg-navy hover:bg-navy-light text-pure-white text-xs font-black uppercase py-2.5 px-4 rounded-xl transition-all shadow hover:shadow-md"
+                        >
+                          👑 Signature Exclusivo
+                        </Link>
+                      ) : (
+                        <AddToCartButton productId={product.id} inventory={product.inventory} />
+                      )}
                     </div>
                   </div>
                 </div>
@@ -232,6 +277,13 @@ export default async function HomePage({ searchParams }: PageProps) {
                   {discount > 0 && (
                     <span className="absolute top-3 left-3 bg-emerald text-navy text-[10px] font-black px-2 py-0.5 rounded-full z-10 shadow-sm">
                       -{discount}%
+                    </span>
+                  )}
+
+                  {/* Etiqueta de prestigio */}
+                  {product.is_prestige && (
+                    <span className="absolute top-3 right-3 bg-navy text-emerald text-[9px] font-black px-2.5 py-0.5 rounded-full z-10 shadow-sm border border-emerald/20 flex items-center">
+                      👑 Prestige
                     </span>
                   )}
 
@@ -293,7 +345,42 @@ export default async function HomePage({ searchParams }: PageProps) {
                         </span>
                       </div>
 
-                      <AddToCartButton productId={product.id} inventory={product.inventory} />
+                      {/* Retorno Activo e Invitación a Membresía */}
+                      <div className="bg-slate-50 p-2 rounded-xl border border-slate-100 text-left space-y-0.5">
+                        <span className="text-[9px] text-gray-400 font-bold uppercase tracking-wider block">Retorno Activo</span>
+                        <div className="text-xs font-semibold">
+                          {profile?.membership_tier === 'premium' ? (
+                            <p className="font-extrabold text-emerald">
+                              Ganas ${(product.price * (product.return_rate_premium || 10.0) / 100).toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                            </p>
+                          ) : profile?.membership_tier === 'basic' ? (
+                            <div className="space-y-0.5">
+                              <p className="font-bold text-navy/70">
+                                Ganas ${(product.price * (product.return_rate_basic || 2.0) / 100).toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                              </p>
+                              <p className="text-[9px] text-emerald font-bold leading-none">
+                                Con Signature: ${(product.price * (product.return_rate_premium || 10.0) / 100).toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                              </p>
+                            </div>
+                          ) : (
+                            <p className="text-[9px] text-gray-500 leading-tight">
+                              Signature te da: <span className="font-bold text-emerald">${(product.price * (product.return_rate_premium || 10.0) / 100).toLocaleString('es-MX', { minimumFractionDigits: 2 })}</span>
+                            </p>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Botón comprar / Restricción */}
+                      {product.is_prestige && profile?.membership_tier !== 'premium' ? (
+                        <Link
+                          href="/memberships"
+                          className="w-full block text-center bg-navy hover:bg-navy-light text-pure-white text-xs font-black uppercase py-2.5 px-4 rounded-xl transition-all shadow hover:shadow-md"
+                        >
+                          👑 Signature Exclusivo
+                        </Link>
+                      ) : (
+                        <AddToCartButton productId={product.id} inventory={product.inventory} />
+                      )}
                     </div>
                   </div>
                 </div>

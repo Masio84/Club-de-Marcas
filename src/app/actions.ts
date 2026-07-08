@@ -226,9 +226,12 @@ export async function addProductAction(formData: FormData) {
   const category = formData.get('category') as any
   const imageUrlInput = formData.get('image_url') as string
   
+  const is_prestige = formData.get('is_prestige') === 'on' || formData.get('is_prestige') === 'true'
+  const return_rate_basic = parseFloat(formData.get('return_rate_basic') as string) || 2.00
+  const return_rate_premium = parseFloat(formData.get('return_rate_premium') as string) || 10.00
+
   let image_url = imageUrlInput || 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&auto=format&fit=crop'
 
-  // Simulación o subida real de archivos
   const imageFile = formData.get('image_file') as File | null
   
   if (imageFile && imageFile.name && imageFile.size > 0 && isSupabaseConfigured()) {
@@ -263,7 +266,10 @@ export async function addProductAction(formData: FormData) {
     original_price,
     inventory,
     category,
-    image_url
+    image_url,
+    is_prestige,
+    return_rate_basic,
+    return_rate_premium
   })
 
   nextRedirect('/admin/products')
@@ -279,6 +285,10 @@ export async function updateProductAction(formData: FormData) {
   const inventory = parseInt(formData.get('inventory') as string)
   const category = formData.get('category') as any
   const imageUrlInput = formData.get('image_url') as string
+
+  const is_prestige = formData.get('is_prestige') === 'on' || formData.get('is_prestige') === 'true'
+  const return_rate_basic = parseFloat(formData.get('return_rate_basic') as string) || 2.00
+  const return_rate_premium = parseFloat(formData.get('return_rate_premium') as string) || 10.00
 
   let image_url = imageUrlInput
 
@@ -315,6 +325,9 @@ export async function updateProductAction(formData: FormData) {
     original_price,
     inventory,
     category,
+    is_prestige,
+    return_rate_basic,
+    return_rate_premium,
     ...(image_url ? { image_url } : {})
   })
 
@@ -485,6 +498,38 @@ export async function createProductReviewAction(prevState: any, formData: FormDa
   } else {
     return { error: 'No se pudo registrar la calificación. Tal vez ya calificaste este producto.' }
   }
+}
+
+export async function subscribeToMembershipAction(tier: 'basic' | 'premium' | null) {
+  const success = await DataService.subscribeToMembership(tier)
+  if (success) {
+    revalidatePath('/profile')
+    revalidatePath('/vault')
+    revalidatePath('/memberships')
+    revalidatePath('/')
+    return { success: true }
+  }
+  return { success: false, error: 'No se pudo actualizar tu membresía. Intenta de nuevo.' }
+}
+
+export async function createInvestmentAction(amount: number, termMonths: number) {
+  const result = await DataService.createInvestment(amount, termMonths)
+  if (result.success) {
+    revalidatePath('/profile')
+    revalidatePath('/vault')
+    return { success: true }
+  }
+  return { success: false, error: result.message }
+}
+
+export async function simulateTermCompletionAction(investmentId: string) {
+  const result = await DataService.simulateTermCompletion(investmentId)
+  if (result.success) {
+    revalidatePath('/profile')
+    revalidatePath('/vault')
+    return { success: true }
+  }
+  return { success: false, error: result.message }
 }
 
 

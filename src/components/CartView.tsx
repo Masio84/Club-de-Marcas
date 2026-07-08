@@ -3,33 +3,55 @@
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Trash2, Plus, Minus, ShoppingBag, CreditCard, Truck, ChevronRight } from 'lucide-react'
-import { CartItem } from '@/utils/data-service'
-import { updateCartItemAction, removeFromCartAction, createOrderAction } from '@/app/actions'
+import { Trash2, Plus, Minus, ShoppingBag, CreditCard, Truck, ChevronRight, Coins } from 'lucide-react'
+import { CartItem, type Profile } from '@/utils/data-service'
 
 interface CartViewProps {
   initialItems: CartItem[]
   userEmail: string
+  profile: Profile | null
 }
 
-export default function CartView({ initialItems, userEmail }: CartViewProps) {
+export default function CartView({ initialItems, userEmail, profile }: CartViewProps) {
   const [items, setItems] = useState<CartItem[]>(initialItems)
-  const [shippingAddress, setShippingAddress] = useState('')
+  const [shippingAddress, setShippingAddress] = useState(profile?.address || '')
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState('')
   const router = useRouter()
 
+  React.useEffect(() => {
+    if (profile?.address && !shippingAddress) {
+      setShippingAddress(profile.address)
+    }
+  }, [profile])
+
   const subtotal = items.reduce((acc, item) => acc + (item.product?.price || 0) * item.quantity, 0)
   const shipping = 0 // Envíos gratis en Club de Marcas
   const total = subtotal + shipping
+
+  // Calcular retornos ganados
+  const tier = profile?.membership_tier
+  const rewardEarned = items.reduce((acc, item) => {
+    if (!tier || !item.product) return acc
+    const rate = tier === 'premium' ? (item.product.return_rate_premium || 10.00) : (item.product.return_rate_basic || 2.00)
+    return acc + (item.product.price * item.quantity * (rate / 100))
+  }, 0)
+
+  const rewardIfPremium = items.reduce((acc, item) => {
+    if (!item.product) return acc
+    const rate = item.product.return_rate_premium || 10.00
+    return acc + (item.product.price * item.quantity * (rate / 100))
+  }, 0)
+
+  // Verificar si hay artículos de prestigio bloqueados por membresía
+  const hasRestrictedPrestigeItems = items.some(item => item.product?.is_prestige && tier !== 'premium')
 
   // Actualizar cantidad de un elemento
   const handleQuantityChange = async (itemId: string, currentQty: number, change: number, maxStock: number) => {
     const newQty = currentQty + change
     if (newQty < 1 || newQty > maxStock || loading) return
 
-    // Actualizar estado local inmediatamente para micro-animación fluida
     const updatedItems = items.map(item => 
       item.id === itemId ? { ...item, quantity: newQty } : item
     )
@@ -38,7 +60,6 @@ export default function CartView({ initialItems, userEmail }: CartViewProps) {
     try {
       const res = await updateCartItemAction(itemId, newQty)
       if (!res.success) {
-        // Si falla en el servidor, revertimos
         setItems(items)
         alert('No se pudo actualizar la cantidad.')
       } else {
@@ -74,7 +95,7 @@ export default function CartView({ initialItems, userEmail }: CartViewProps) {
   // Procesar compra (Checkout)
   const handleCheckout = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!shippingAddress.trim() || items.length === 0 || loading) return
+    if (!shippingAddress.trim() || items.length === 0 || loading || hasRestrictedPrestigeItems) return
 
     setLoading(true)
     setError('')
@@ -163,12 +184,24 @@ export default function CartView({ initialItems, userEmail }: CartViewProps) {
                   className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-xl border border-gray-100 flex-shrink-0"
                 />
                 <div className="min-w-0">
-                  <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider">
-                    {item.product?.category}
-                  </span>
+                  <div className="flex items-center space-x-2">
+                    <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider">
+                      {item.product?.category}
+                    </span>
+                    {item.product?.is_prestige && (
+                      <span className="bg-navy text-emerald text-[8px] font-black uppercase px-1.5 py-0.5 rounded-md">
+                        👑 Prestige
+                      </span>
+                    )}
+                  </div>
                   <h3 className="font-bold text-navy text-sm sm:text-base truncate max-w-[200px] sm:max-w-[300px]">
                     {item.product?.title}
                   </h3>
+                  {item.product?.is_prestige && tier !== 'premium' && (
+                    <p className="text-[10px] text-red-500 font-extrabold mt-0.5">
+                      ⚠️ Requiere Membresía Signature
+                    </p>
+                  )}
                   <div className="flex items-baseline space-x-2 mt-1">
                     <span className="text-sm font-black text-navy">
                       ${item.product?.price.toLocaleString('es-MX')} MXN
@@ -236,6 +269,40 @@ export default function CartView({ initialItems, userEmail }: CartViewProps) {
               <span>Envío (DHL / FedEx)</span>
               <span className="font-semibold text-emerald uppercase text-xs">Gratis</span>
             </div>
+            
+            {/* Activos Club Estimados */}
+            <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 space-y-1.5 text-left mt-2">
+              <div className="flex items-center justify-between text-xs text-gray-500">
+                <span className="font-bold uppercase tracking-wider text-[9px] flex items-center text-navy/70">
+                  <Coins className="w-3.5 h-3.5 text-emerald mr-1" /> Retorno Activo Estimado
+                </span>
+                {tier ? (
+                  <span className="text-[8px] bg-emerald/20 text-emerald-900 px-1.5 rounded font-black uppercase">
+                    Socio {tier === 'premium' ? 'Signature' : 'Acceso'}
+                  </span>
+                ) : (
+                  <span className="text-[8px] bg-gray-100 text-gray-500 px-1.5 rounded font-black uppercase">
+                    Sin Membresía
+                  </span>
+                )}
+              </div>
+              <div className="flex justify-between items-baseline mt-1">
+                <span className="text-xs text-gray-400">Total a ganar:</span>
+                <span className="text-sm font-black text-emerald">${rewardEarned.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</span>
+              </div>
+              
+              {!tier && (
+                <p className="text-[9px] text-gray-500 leading-tight">
+                  <Link href="/memberships" className="text-navy hover:text-emerald font-bold underline">Suscribirse hoy</Link> para ganar activos de retorno en este pedido.
+                </p>
+              )}
+              {tier === 'basic' && (
+                <p className="text-[9px] text-gray-500 leading-tight">
+                  ¡Haciendo upgrade a <Link href="/memberships" className="text-emerald hover:text-emerald-light font-bold underline">Signature</Link> ganarías <span className="font-bold text-emerald">${rewardIfPremium.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</span>!
+                </p>
+              )}
+            </div>
+
             <div className="flex justify-between text-navy text-base font-black pt-2">
               <span>Total (MXN)</span>
               <span>${total.toLocaleString('es-MX')}</span>
@@ -259,6 +326,16 @@ export default function CartView({ initialItems, userEmail }: CartViewProps) {
               />
             </div>
 
+            {hasRestrictedPrestigeItems && (
+              <div className="bg-rose-50 border border-rose-200 text-rose-800 text-xs p-4 rounded-xl font-semibold space-y-2 text-left">
+                <p className="font-bold">⚠️ Productos Exclusivos Bloqueados</p>
+                <p className="text-[10px] text-rose-600 leading-tight">Tienes artículos de marcas de prestigio que requieren Membresía Signature. Adquiere Signature o elimina los productos marcados con Prestige para continuar.</p>
+                <Link href="/memberships" className="inline-block bg-navy hover:bg-navy-light text-pure-white text-[10px] font-black uppercase tracking-wider py-1.5 px-3 rounded-lg transition-all text-center w-full">
+                  Adquirir Membresía Signature 👑
+                </Link>
+              </div>
+            )}
+
             {error && (
               <div className="bg-red-55 border border-red-200 text-red-650 text-xs p-3 rounded-lg font-semibold">
                 {error}
@@ -267,8 +344,8 @@ export default function CartView({ initialItems, userEmail }: CartViewProps) {
 
             <button
               type="submit"
-              disabled={loading || !shippingAddress.trim()}
-              className="w-full bg-emerald hover:bg-emerald-hover disabled:bg-gray-200 text-navy font-bold py-3.5 px-4 rounded-xl text-sm transition-all flex items-center justify-center space-x-2 shadow-md hover:scale-[1.01]"
+              disabled={loading || !shippingAddress.trim() || hasRestrictedPrestigeItems}
+              className="w-full bg-emerald hover:bg-emerald-hover disabled:bg-gray-200 disabled:text-gray-400 text-navy font-bold py-3.5 px-4 rounded-xl text-sm transition-all flex items-center justify-center space-x-2 shadow-md hover:scale-[1.01] disabled:cursor-not-allowed"
             >
               <CreditCard className="w-5 h-5" />
               <span>{loading ? 'Procesando Pago...' : 'Finalizar Pedido y Pagar'}</span>

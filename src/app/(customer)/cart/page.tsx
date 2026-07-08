@@ -12,10 +12,11 @@ export default async function CartPage() {
   }
 
   const cartItems = await DataService.getCart()
+  const profile = await DataService.getCurrentUserProfile()
 
   return (
     <div className="max-w-7xl mx-auto py-4">
-      <CartView initialItems={cartItems} userEmail={user.email || ''} />
+      <CartView initialItems={cartItems} userEmail={user.email || ''} profile={profile} />
     </div>
   )
 }
