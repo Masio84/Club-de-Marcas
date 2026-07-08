@@ -1075,9 +1075,9 @@ export const DataService = {
     }
   },
 
-  async subscribeToMembership(tier: 'basic' | 'premium' | null): Promise<boolean> {
+  async subscribeToMembership(tier: 'basic' | 'premium' | null): Promise<{ success: boolean; error?: string }> {
     const user = await this.getCurrentUser()
-    if (!user) return false
+    if (!user) return { success: false, error: 'Usuario no autenticado' }
 
     const expiresAt = tier ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() : null
 
@@ -1090,7 +1090,7 @@ export const DataService = {
           membership_expires_at: expiresAt
         })
         .eq('id', user.id)
-      return !error
+      return { success: !error, error: error?.message }
     } else {
       const profiles = await getCookieData<Profile[]>('mock_profiles', [])
       const updatedProfiles = profiles.map(p => {
@@ -1104,7 +1104,7 @@ export const DataService = {
         return p
       })
       await setCookieData('mock_profiles', updatedProfiles)
-      return true
+      return { success: true }
     }
   },
 

@@ -501,15 +501,15 @@ export async function createProductReviewAction(prevState: any, formData: FormDa
 }
 
 export async function subscribeToMembershipAction(tier: 'basic' | 'premium' | null) {
-  const success = await DataService.subscribeToMembership(tier)
-  if (success) {
+  const result = await DataService.subscribeToMembership(tier)
+  if (result.success) {
     revalidatePath('/profile')
     revalidatePath('/vault')
     revalidatePath('/memberships')
     revalidatePath('/')
     return { success: true }
   }
-  return { success: false, error: 'No se pudo actualizar tu membresía. Intenta de nuevo.' }
+  return { success: false, error: result.error || 'No se pudo actualizar tu membresía. Intenta de nuevo.' }
 }
 
 export async function createInvestmentAction(amount: number, termMonths: number) {
