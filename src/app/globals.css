@@ -1,19 +1,48 @@
 @import "tailwindcss";
 
 :root {
-  --background: #F5F5F7;
-  --foreground: #0A192F;
-  --navy: #0A192F;
-  --navy-light: #172A45;
-  --light-grey: #F5F5F7;
-  --pure-white: #FFFFFF;
-  --emerald: #00E676;
-  --emerald-hover: #00C853;
+  --bg-base: #F7F8FA;
+  --bg-surface: #FFFFFF;
+  --border-hairline: #E4E7EC;
+  --text-primary: #12161F;
+  --text-secondary: #5B6472;
+  
+  --accent-signature: #C08A1E;
+  --accent-signature-tint: #F0E4CF;
+  --accent-acceso: #0EA372;
+  --accent-acceso-tint: #DCF3EA;
+  --accent-alert: #C93B31;
+  --bg-dark-panel: #12161F;
+
+  /* Mapeo de compatibilidad para variables antiguas */
+  --background: var(--bg-base);
+  --foreground: var(--text-primary);
+  --navy: var(--text-primary);
+  --navy-light: var(--border-hairline);
+  --light-grey: var(--bg-base);
+  --pure-white: var(--bg-surface);
+  --emerald: var(--accent-acceso);
+  --emerald-hover: #0b8a61;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+@theme {
+  --font-sans: var(--font-manrope), sans-serif;
+  --font-display: var(--font-space-grotesk), sans-serif;
+  --font-mono: var(--font-ibm-plex-mono), monospace;
+
+  --color-bg-base: var(--bg-base);
+  --color-bg-surface: var(--bg-surface);
+  --color-border-hairline: var(--border-hairline);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-accent-signature: var(--accent-signature);
+  --color-accent-signature-tint: var(--accent-signature-tint);
+  --color-accent-acceso: var(--accent-acceso);
+  --color-accent-acceso-tint: var(--accent-acceso-tint);
+  --color-accent-alert: var(--accent-alert);
+  --color-bg-dark-panel: var(--bg-dark-panel);
+
+  /* Mapeos heredados */
   --color-navy: var(--navy);
   --color-navy-light: var(--navy-light);
   --color-light-grey: var(--light-grey);
@@ -23,8 +52,9 @@
 }
 
 body {
-  background-color: var(--background);
-  color: var(--foreground);
+  background-color: var(--bg-base);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
   min-height: 100vh;
 }
 
@@ -32,3 +62,45 @@ body {
 .transition-all-custom {
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
+/* Efecto shine sweep para botones */
+@keyframes shine-sweep {
+  0% { transform: translateX(-100%) skewX(-15deg); }
+  100% { transform: translateX(100%) skewX(-15deg); }
+}
+
+.animate-shine-sweep {
+  position: relative;
+  overflow: hidden;
+}
+
+.animate-shine-sweep::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 150%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transform: translateX(-100%) skewX(-15deg);
+}
+
+.animate-shine-sweep:hover::after {
+  animation: shine-sweep 0.85s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* Fallback y Overrides de Fuentes para asegurar su aplicación */
+.font-mono {
+  font-family: var(--font-ibm-plex-mono), monospace !important;
+}
+
+.font-display {
+  font-family: var(--font-space-grotesk), sans-serif !important;
+}
+
+

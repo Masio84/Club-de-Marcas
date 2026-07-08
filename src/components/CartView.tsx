@@ -3,7 +3,7 @@
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Trash2, Plus, Minus, ShoppingBag, CreditCard, Truck, ChevronRight, Coins } from 'lucide-react'
+import { Trash2, Plus, Minus, ShoppingBag, CreditCard, Truck, ChevronRight, Coins, Lock, CheckCircle2, ShieldCheck, AlertCircle, Crown } from 'lucide-react'
 import { CartItem, type Profile } from '@/utils/data-service'
 import { updateCartItemAction, removeFromCartAction, createOrderAction } from '@/app/actions'
 
@@ -28,7 +28,7 @@ export default function CartView({ initialItems, userEmail, profile }: CartViewP
   }, [profile])
 
   const subtotal = items.reduce((acc, item) => acc + (item.product?.price || 0) * item.quantity, 0)
-  const shipping = 0 // Envíos gratis en Club de Marcas
+  const shipping = 0
   const total = subtotal + shipping
 
   // Calcular retornos ganados
@@ -125,22 +125,20 @@ export default function CartView({ initialItems, userEmail, profile }: CartViewP
 
   if (success) {
     return (
-      <div className="bg-pure-white p-8 md:p-12 rounded-2xl border border-gray-200 shadow-sm text-center max-w-xl mx-auto space-y-6">
-        <div className="w-16 h-16 bg-emerald/20 text-emerald rounded-full flex items-center justify-center mx-auto">
-          <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
-          </svg>
+      <div className="bg-bg-surface p-12 rounded-2xl border border-border-hairline text-center max-w-xl mx-auto space-y-6">
+        <div className="w-16 h-16 bg-accent-acceso-tint text-accent-acceso rounded-full flex items-center justify-center mx-auto">
+          <CheckCircle2 className="w-8 h-8" />
         </div>
         <div className="space-y-2">
-          <h2 className="text-2xl font-black text-navy">¡Compra Realizada con Éxito!</h2>
-          <p className="text-gray-500 text-sm">
-            Hemos registrado tu pedido. Te enviaremos un correo de confirmación a <b>{userEmail}</b> con los detalles de rastreo de tu paquete.
+          <h2 className="text-[28px] font-display font-semibold text-text-primary">Compra Confirmada</h2>
+          <p className="text-text-secondary text-[17px] leading-relaxed">
+            Hemos registrado tu pedido. Te enviaremos un correo de confirmación a <strong className="text-text-primary">{userEmail}</strong> con los detalles de rastreo de tu paquete.
           </p>
         </div>
-        <div className="border-t border-gray-100 pt-6">
+        <div className="border-t border-border-hairline pt-6">
           <Link
             href="/"
-            className="inline-flex items-center justify-center bg-emerald hover:bg-emerald-hover text-navy font-bold px-6 py-3 rounded-lg text-sm transition-colors w-full"
+            className="inline-flex items-center justify-center bg-accent-acceso hover:bg-accent-acceso/95 text-bg-surface font-bold px-6 py-3.5 rounded-xl text-xs uppercase tracking-wider transition-colors w-full"
           >
             Seguir comprando
           </Link>
@@ -151,17 +149,17 @@ export default function CartView({ initialItems, userEmail, profile }: CartViewP
 
   if (items.length === 0) {
     return (
-      <div className="bg-pure-white p-12 rounded-2xl border border-gray-200 shadow-sm text-center max-w-xl mx-auto space-y-6">
-        <div className="w-16 h-16 bg-gray-100 text-gray-400 rounded-full flex items-center justify-center mx-auto">
+      <div className="bg-bg-surface p-12 rounded-2xl border border-border-hairline text-center max-w-xl mx-auto space-y-6">
+        <div className="w-16 h-16 bg-bg-base border border-border-hairline text-text-secondary rounded-full flex items-center justify-center mx-auto">
           <ShoppingBag className="w-8 h-8" />
         </div>
         <div className="space-y-1">
-          <h2 className="text-xl font-bold text-navy">Tu carrito está vacío</h2>
-          <p className="text-gray-400 text-sm">Agrega productos premium para comenzar tu compra.</p>
+          <h2 className="text-xl font-display font-semibold text-text-primary">Tu carrito está vacío</h2>
+          <p className="text-text-secondary text-sm">Agrega productos premium para comenzar tu compra.</p>
         </div>
         <Link
           href="/"
-          className="inline-block bg-navy hover:bg-navy-light text-pure-white font-bold px-6 py-3 rounded-lg text-sm transition-colors"
+          className="inline-block bg-text-primary hover:bg-text-primary/95 text-bg-surface font-bold px-6 py-3 rounded-xl text-xs uppercase tracking-wider transition-colors"
         >
           Explorar catálogo
         </Link>
@@ -170,199 +168,205 @@ export default function CartView({ initialItems, userEmail, profile }: CartViewP
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      {/* Lista de productos en el carrito */}
-      <div className="lg:col-span-2 space-y-4">
-        <h2 className="text-lg font-black text-navy uppercase tracking-wider mb-2">Mi Carrito ({items.length})</h2>
-        
-        <div className="bg-pure-white rounded-2xl border border-gray-200 shadow-sm divide-y divide-gray-100 overflow-hidden">
-          {items.map((item) => (
-            <div key={item.id} className="p-4 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div className="flex items-center space-x-4">
-                <img
-                  src={item.product?.image_url || 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=200&auto=format&fit=crop'}
-                  alt={item.product?.title}
-                  className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-xl border border-gray-100 flex-shrink-0"
-                />
-                <div className="min-w-0">
-                  <div className="flex items-center space-x-2">
-                    <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider">
-                      {item.product?.category}
-                    </span>
-                    {item.product?.is_prestige && (
-                      <span className="bg-navy text-emerald text-[8px] font-black uppercase px-1.5 py-0.5 rounded-md">
-                        👑 Prestige
+    <div className="space-y-12">
+      <h1 className="text-[36px] lg:text-[56px] font-display font-semibold tracking-tight text-text-primary leading-[1.1]">Mi Carrito</h1>
+      
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 items-start">
+        {/* Lista de productos en el carrito */}
+        <div className="lg:col-span-2 space-y-4">
+          <div className="flex items-center justify-between border-b border-border-hairline pb-4 mb-4">
+            <h2 className="text-lg font-display font-semibold text-text-primary">Artículos seleccionados ({items.length})</h2>
+          </div>
+          
+          <div className="bg-bg-surface rounded-2xl border border-border-hairline divide-y divide-border-hairline overflow-hidden">
+            {items.map((item) => (
+              <div key={item.id} className="p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+                <div className="flex items-center space-x-6">
+                  <img
+                    src={item.product?.image_url || 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=200&auto=format&fit=crop'}
+                    alt={item.product?.title}
+                    className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-xl border border-border-hairline flex-shrink-0"
+                  />
+                  <div className="min-w-0 space-y-1">
+                    <div className="flex items-center space-x-2">
+                      <span className="text-[10px] uppercase font-bold text-text-secondary tracking-wider">
+                        {item.product?.category}
                       </span>
+                      {item.product?.is_prestige && (
+                        <span className="bg-accent-signature-tint border border-accent-signature/25 text-accent-signature text-[10px] font-mono font-bold uppercase px-1.5 py-0.5 rounded">
+                          Prestige
+                        </span>
+                      )}
+                    </div>
+                    <h3 className="font-display font-semibold text-text-primary text-[17px] leading-snug truncate max-w-[200px] sm:max-w-[300px]">
+                      {item.product?.title}
+                    </h3>
+                    {item.product?.is_prestige && tier !== 'premium' && (
+                      <p className="text-[10px] text-accent-alert font-bold uppercase tracking-wider flex items-center gap-1.5 mt-0.5">
+                        <Lock className="w-3.5 h-3.5" /> Requiere Membresía Signature
+                      </p>
                     )}
+                    <div className="flex items-baseline space-x-2 mt-1">
+                      <span className="text-[17px] font-bold font-mono text-text-primary">
+                        ${item.product?.price.toLocaleString('es-MX')} MXN
+                      </span>
+                      {item.product?.original_price && (
+                        <span className="text-xs font-mono text-text-secondary line-through">
+                          ${item.product?.original_price.toLocaleString('es-MX')}
+                        </span>
+                      )}
+                    </div>
                   </div>
-                  <h3 className="font-bold text-navy text-sm sm:text-base truncate max-w-[200px] sm:max-w-[300px]">
-                    {item.product?.title}
-                  </h3>
-                  {item.product?.is_prestige && tier !== 'premium' && (
-                    <p className="text-[10px] text-red-500 font-extrabold mt-0.5">
-                      ⚠️ Requiere Membresía Signature
-                    </p>
-                  )}
-                  <div className="flex items-baseline space-x-2 mt-1">
-                    <span className="text-sm font-black text-navy">
-                      ${item.product?.price.toLocaleString('es-MX')} MXN
+                </div>
+
+                {/* Controles de cantidad y eliminación */}
+                <div className="flex items-center justify-between sm:justify-end gap-6 border-t border-border-hairline/60 sm:border-none pt-4 sm:pt-0">
+                  <div className="flex items-center border border-border-hairline rounded-lg overflow-hidden bg-bg-base">
+                    <button
+                      type="button"
+                      onClick={() => handleQuantityChange(item.id, item.quantity, -1, item.product?.inventory || 99)}
+                      className="p-2 hover:bg-border-hairline text-text-secondary transition-colors"
+                    >
+                      <Minus className="w-3.5 h-3.5" />
+                    </button>
+                    <span className="w-10 text-center text-sm font-bold text-text-primary font-mono select-none">
+                      {item.quantity}
                     </span>
-                    {item.product?.original_price && (
-                      <span className="text-xs text-gray-400 line-through">
-                        ${item.product?.original_price.toLocaleString('es-MX')}
-                      </span>
-                    )}
+                    <button
+                      type="button"
+                      onClick={() => handleQuantityChange(item.id, item.quantity, 1, item.product?.inventory || 99)}
+                      className="p-2 hover:bg-border-hairline text-text-secondary transition-colors"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+
+                  <div className="flex items-center space-x-6">
+                    <span className="text-[17px] font-bold font-mono text-text-primary text-right min-w-[90px]">
+                      ${((item.product?.price || 0) * item.quantity).toLocaleString('es-MX')}
+                    </span>
+                    <button
+                      onClick={() => handleRemoveItem(item.id)}
+                      className="text-text-secondary hover:text-accent-alert p-1.5 rounded-full hover:bg-accent-alert/5 transition-colors"
+                      title="Eliminar artículo"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
                   </div>
                 </div>
               </div>
-
-              {/* Controles de cantidad y eliminación */}
-              <div className="flex items-center justify-between sm:justify-end gap-6 border-t sm:border-none pt-3 sm:pt-0">
-                <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden bg-gray-55">
-                  <button
-                    type="button"
-                    onClick={() => handleQuantityChange(item.id, item.quantity, -1, item.product?.inventory || 99)}
-                    className="p-2 hover:bg-gray-100 text-gray-500 transition-colors"
-                  >
-                    <Minus className="w-3.5 h-3.5" />
-                  </button>
-                  <span className="w-10 text-center text-sm font-bold text-navy select-none">
-                    {item.quantity}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => handleQuantityChange(item.id, item.quantity, 1, item.product?.inventory || 99)}
-                    className="p-2 hover:bg-gray-100 text-gray-500 transition-colors"
-                  >
-                    <Plus className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-
-                <div className="flex items-center space-x-4">
-                  <span className="text-sm sm:text-base font-black text-navy text-right min-w-[80px]">
-                    ${((item.product?.price || 0) * item.quantity).toLocaleString('es-MX')}
-                  </span>
-                  <button
-                    onClick={() => handleRemoveItem(item.id)}
-                    className="text-gray-400 hover:text-red-500 p-1.5 rounded-full hover:bg-red-50 transition-colors"
-                    title="Eliminar artículo"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
 
-      {/* Resumen de Compra y Checkout */}
-      <div className="space-y-6">
-        <h2 className="text-lg font-black text-navy uppercase tracking-wider mb-2">Resumen de Compra</h2>
-
-        <div className="bg-pure-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-6">
-          <div className="space-y-3 text-sm border-b border-gray-100 pb-4">
-            <div className="flex justify-between text-gray-500">
-              <span>Subtotal</span>
-              <span className="font-semibold text-navy">${subtotal.toLocaleString('es-MX')}</span>
-            </div>
-            <div className="flex justify-between text-gray-500">
-              <span>Envío (DHL / FedEx)</span>
-              <span className="font-semibold text-emerald uppercase text-xs">Gratis</span>
-            </div>
-            
-            {/* Activos Club Estimados */}
-            <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 space-y-1.5 text-left mt-2">
-              <div className="flex items-center justify-between text-xs text-gray-500">
-                <span className="font-bold uppercase tracking-wider text-[9px] flex items-center text-navy/70">
-                  <Coins className="w-3.5 h-3.5 text-emerald mr-1" /> Retorno Activo Estimado
-                </span>
-                {tier ? (
-                  <span className="text-[8px] bg-emerald/20 text-emerald-900 px-1.5 rounded font-black uppercase">
-                    Socio {tier === 'premium' ? 'Signature' : 'Acceso'}
-                  </span>
-                ) : (
-                  <span className="text-[8px] bg-gray-100 text-gray-500 px-1.5 rounded font-black uppercase">
-                    Sin Membresía
-                  </span>
-                )}
-              </div>
-              <div className="flex justify-between items-baseline mt-1">
-                <span className="text-xs text-gray-400">Total a ganar:</span>
-                <span className="text-sm font-black text-emerald">${rewardEarned.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</span>
-              </div>
-              
-              {!tier && (
-                <p className="text-[9px] text-gray-500 leading-tight">
-                  <Link href="/memberships" className="text-navy hover:text-emerald font-bold underline">Suscribirse hoy</Link> para ganar activos de retorno en este pedido.
-                </p>
-              )}
-              {tier === 'basic' && (
-                <p className="text-[9px] text-gray-500 leading-tight">
-                  ¡Haciendo upgrade a <Link href="/memberships" className="text-emerald hover:text-emerald-light font-bold underline">Signature</Link> ganarías <span className="font-bold text-emerald">${rewardIfPremium.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</span>!
-                </p>
-              )}
-            </div>
-
-            <div className="flex justify-between text-navy text-base font-black pt-2">
-              <span>Total (MXN)</span>
-              <span>${total.toLocaleString('es-MX')}</span>
-            </div>
+        {/* Resumen de Compra y Checkout */}
+        <div className="space-y-6">
+          <div className="border-b border-border-hairline pb-4 mb-4">
+            <h2 className="text-lg font-display font-semibold text-text-primary">Resumen</h2>
           </div>
 
-          {/* Formulario de envío */}
-          <form onSubmit={handleCheckout} className="space-y-4">
-            <div className="space-y-1.5">
-              <label htmlFor="address" className="text-xs font-black text-navy uppercase tracking-wider block">
-                Dirección de Envío (México)
-              </label>
-              <textarea
-                id="address"
-                required
-                value={shippingAddress}
-                onChange={(e) => setShippingAddress(e.target.value)}
-                placeholder="Calle, Número, Colonia, C.P., Municipio, Estado"
-                rows={3}
-                className="w-full text-sm bg-gray-50 text-navy placeholder-gray-400 p-3 rounded-lg border border-gray-200 focus:outline-none focus:border-navy focus:ring-1 focus:ring-navy"
-              />
+          <div className="bg-bg-surface p-6 rounded-2xl border border-border-hairline space-y-6">
+            <div className="space-y-3 text-sm border-b border-border-hairline pb-6">
+              <div className="flex justify-between text-text-secondary">
+                <span>Subtotal</span>
+                <span className="font-bold font-mono text-text-primary">${subtotal.toLocaleString('es-MX')}</span>
+              </div>
+              <div className="flex justify-between text-text-secondary">
+                <span>Envío (DHL / FedEx)</span>
+                <span className="font-bold font-mono text-accent-acceso uppercase text-xs">Gratis</span>
+              </div>
+              
+              {/* Activos Club Estimados */}
+              <div className="bg-bg-base p-4 rounded-xl border border-border-hairline space-y-2 text-left mt-2">
+                <div className="flex items-center justify-between text-[10px] text-text-secondary">
+                  <span className="font-bold uppercase tracking-wider flex items-center text-text-primary gap-1">
+                    <Coins className="w-4 h-4 text-accent-acceso" /> Retorno Activo Estimado
+                  </span>
+                  {tier ? (
+                    <span className="text-[9px] font-mono bg-accent-acceso-tint border border-accent-acceso/25 text-accent-acceso px-1.5 rounded font-bold uppercase">
+                      Socio {tier === 'premium' ? 'Signature' : 'Acceso'}
+                    </span>
+                  ) : (
+                    <span className="text-[9px] font-mono bg-bg-surface border border-border-hairline text-text-secondary px-1.5 rounded font-bold uppercase">
+                      Sin Membresía
+                    </span>
+                  )}
+                </div>
+                <div className="flex justify-between items-baseline mt-1">
+                  <span className="text-xs text-text-secondary">Total a acumular:</span>
+                  <span className="text-[17px] font-bold font-mono text-accent-acceso">${rewardEarned.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</span>
+                </div>
+                
+                {!tier && (
+                  <p className="text-[10px] text-text-secondary leading-normal">
+                    <Link href="/memberships" className="text-text-primary hover:text-accent-acceso font-bold underline">Suscribirse hoy</Link> para ganar activos de retorno en este pedido.
+                  </p>
+                )}
+                {tier === 'basic' && (
+                  <p className="text-[10px] text-text-secondary leading-normal">
+                    Haciendo upgrade a <Link href="/memberships" className="text-accent-signature hover:underline font-bold">Signature</Link> acumularías <span className="font-bold text-accent-signature font-mono">${rewardIfPremium.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</span>
+                  </p>
+                )}
+              </div>
+
+              <div className="flex justify-between text-text-primary pt-4">
+                <span className="font-semibold">Total a pagar</span>
+                <span className="text-[22px] font-bold font-mono text-text-primary">${total.toLocaleString('es-MX')}</span>
+              </div>
             </div>
 
-            {hasRestrictedPrestigeItems && (
-              <div className="bg-rose-50 border border-rose-200 text-rose-800 text-xs p-4 rounded-xl font-semibold space-y-2 text-left">
-                <p className="font-bold">⚠️ Productos Exclusivos Bloqueados</p>
-                <p className="text-[10px] text-rose-600 leading-tight">Tienes artículos de marcas de prestigio que requieren Membresía Signature. Adquiere Signature o elimina los productos marcados con Prestige para continuar.</p>
-                <Link href="/memberships" className="inline-block bg-navy hover:bg-navy-light text-pure-white text-[10px] font-black uppercase tracking-wider py-1.5 px-3 rounded-lg transition-all text-center w-full">
-                  Adquirir Membresía Signature 👑
-                </Link>
+            {/* Formulario de envío */}
+            <form onSubmit={handleCheckout} className="space-y-6">
+              <div className="space-y-2">
+                <label htmlFor="address" className="text-xs font-bold text-text-secondary uppercase tracking-wider block">
+                  Dirección de Envío (México)
+                </label>
+                <textarea
+                  id="address"
+                  required
+                  value={shippingAddress}
+                  onChange={(e) => setShippingAddress(e.target.value)}
+                  placeholder="Calle, Número, Colonia, C.P., Municipio, Estado"
+                  rows={3}
+                  className="w-full text-sm bg-bg-base text-text-primary placeholder-text-secondary/60 p-3.5 rounded-xl border border-border-hairline focus:outline-none focus:border-text-secondary font-mono"
+                />
               </div>
-            )}
 
-            {error && (
-              <div className="bg-red-55 border border-red-200 text-red-650 text-xs p-3 rounded-lg font-semibold">
-                {error}
+              {hasRestrictedPrestigeItems && (
+                <div className="bg-accent-alert/5 border border-accent-alert/20 text-accent-alert text-xs p-5 rounded-xl font-semibold space-y-3 text-left leading-relaxed">
+                  <p className="font-bold flex items-center gap-1.5 uppercase tracking-wider text-[10px]"><AlertCircle className="w-4 h-4" /> Compra Bloqueada</p>
+                  <p className="text-[11px] text-accent-alert/80">Tienes artículos de marcas de prestigio que requieren Membresía Signature. Adquiere Signature o elimina los productos de Prestige para poder continuar.</p>
+                  <Link href="/memberships" className="flex items-center justify-center gap-1.5 bg-accent-signature hover:bg-accent-signature/95 text-bg-surface text-[10px] font-bold uppercase tracking-wider py-2.5 px-4 rounded-xl transition-colors text-center w-full">
+                    <Crown className="w-3.5 h-3.5" /> Adquirir Signature
+                  </Link>
+                </div>
+              )}
+
+              {error && (
+                <div className="bg-accent-alert/5 border border-accent-alert/20 text-accent-alert text-xs p-3.5 rounded-xl font-semibold">
+                  {error}
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={loading || !shippingAddress.trim() || hasRestrictedPrestigeItems}
+                className="w-full bg-text-primary hover:bg-text-primary/95 disabled:bg-border-hairline disabled:text-text-secondary/55 text-bg-surface font-bold py-3.5 px-4 rounded-xl text-xs uppercase tracking-wider transition-colors flex items-center justify-center space-x-2 shadow-md disabled:cursor-not-allowed"
+              >
+                <CreditCard className="w-4 h-4" />
+                <span>{loading ? 'Procesando...' : 'Finalizar Pedido y Pagar'}</span>
+              </button>
+            </form>
+
+            <div className="space-y-3 pt-2 border-t border-border-hairline/60">
+              <div className="flex items-center space-x-2.5 text-xs text-text-secondary font-mono">
+                <Truck className="w-4 h-4 text-accent-acceso" />
+                <span>Entrega estimada: 3 a 5 días hábiles</span>
               </div>
-            )}
-
-            <button
-              type="submit"
-              disabled={loading || !shippingAddress.trim() || hasRestrictedPrestigeItems}
-              className="w-full bg-emerald hover:bg-emerald-hover disabled:bg-gray-200 disabled:text-gray-400 text-navy font-bold py-3.5 px-4 rounded-xl text-sm transition-all flex items-center justify-center space-x-2 shadow-md hover:scale-[1.01] disabled:cursor-not-allowed"
-            >
-              <CreditCard className="w-5 h-5" />
-              <span>{loading ? 'Procesando Pago...' : 'Finalizar Pedido y Pagar'}</span>
-            </button>
-          </form>
-
-          <div className="space-y-3 pt-2">
-            <div className="flex items-center space-x-2.5 text-xs text-gray-500">
-              <Truck className="w-4 h-4 text-emerald" />
-              <span>Entrega estimada: 3 a 5 días hábiles</span>
-            </div>
-            <div className="flex items-center space-x-2.5 text-xs text-gray-500">
-              <svg className="w-4 h-4 text-emerald" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M2.166 4.9L10 .954 17.834 4.9A1 1 0 0118.5 5.8v6c0 3.633-2.533 6.94-6 7.733l-2.5.57a1 1 0 01-.4 0l-2.5-.57c-3.467-.793-6-4.1-6-7.733v-6a1 1 0 01.666-.9zM10 10a1 1 0 00-1 1v3a1 1 0 102 0v-3a1 1 0 00-1-1zm0-3a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
-              </svg>
-              <span>Protección al comprador de Club de Marcas</span>
+              <div className="flex items-center space-x-2.5 text-xs text-text-secondary font-mono">
+                <ShieldCheck className="w-4 h-4 text-accent-acceso" />
+                <span>Transacciones 100% encriptadas y protegidas</span>
+              </div>
             </div>
           </div>
         </div>
@@ -370,3 +374,4 @@ export default function CartView({ initialItems, userEmail, profile }: CartViewP
     </div>
   )
 }
+

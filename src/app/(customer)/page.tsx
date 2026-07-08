@@ -1,9 +1,11 @@
 import React from 'react'
 import Link from 'next/link'
-import { Watch, Sparkles, ShoppingBag, Flame, Star, Glasses, Footprints, RotateCcw } from 'lucide-react'
+import Image from 'next/image'
+import { Watch, Sparkles, ShoppingBag, Flame, Star, Glasses, Footprints, RotateCcw, Lock, ArrowRight, TrendingUp, ShieldCheck } from 'lucide-react'
 import { DataService } from '@/utils/data-service'
-import HeroCarousel from '@/components/HeroCarousel'
 import AddToCartButton from '@/components/AddToCartButton'
+import YieldChip from '@/components/YieldChip'
+import HistoricalYieldPanel from '@/components/HistoricalYieldPanel'
 
 interface PageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
@@ -37,40 +39,94 @@ export default async function HomePage({ searchParams }: PageProps) {
   }
 
   // Dividir productos para las secciones
-  // Ofertas Relámpago: Tienen precio original (descuento)
   const flashDeals = allProducts.filter((p) => p.original_price && p.original_price > p.price)
-  // Más Vendidos: Todos o los de mayor stock/inventario
   const bestSellers = allProducts.filter((p) => p.inventory > 10)
 
   // Categorías con sus respectivos iconos de Lucide
   const categoriesList = [
     { name: 'Tenis', slug: 'Tenis', icon: Footprints },
     { name: 'Relojes', slug: 'Relojes', icon: Watch },
-    { name: 'Gorras', slug: 'Gorras', icon: ShoppingBag }, // Simula gorra
+    { name: 'Gorras', slug: 'Gorras', icon: ShoppingBag },
     { name: 'Lentes', slug: 'Lentes', icon: Glasses },
     { name: 'Bolsas', slug: 'Bolsas', icon: ShoppingBag },
     { name: 'Cuidado Personal', slug: 'Cuidado Personal', icon: Sparkles },
   ]
 
   return (
-    <div className="space-y-10">
-      {/* 1. CARRUSEL HERO BANNER */}
-      {!category && !search && <HeroCarousel />}
+    <div className="space-y-24 my-10">
+      {/* 1. HERO PRINCIPAL (EDITORIAL STYLE, NO BOX WRAPPER, SCALED FONTS) */}
+      {!category && !search && (
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 py-6 items-center">
+          {/* Columna Izquierda: Texto */}
+          <div className="lg:col-span-6 text-left space-y-8">
+            <h1 className="text-[36px] lg:text-[56px] font-display tracking-tight text-text-primary leading-[1.1]">
+              <span className="font-medium block">Tus compras de lujo,</span>
+              <span className="font-extrabold block">convertidas en activos de inversión.</span>
+            </h1>
+            <p className="text-[17px] text-text-secondary leading-relaxed max-w-lg">
+              Adquiere marcas exclusivas a precios outlet y recibe Activos Club de retorno inmediato en tu cuenta. Inmoviliza tus saldos en nuestra Bóveda de Inversión a plazo fijo para generar hasta un 17% anualizado.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 pt-2">
+              <Link
+                href="/memberships"
+                className="bg-text-primary hover:bg-text-primary/95 text-bg-surface text-xs font-bold uppercase tracking-wider py-3.5 px-6 rounded-xl text-center transition-colors flex items-center justify-center gap-2 animate-shine-sweep shadow-md"
+              >
+                Adquirir Membresía <ArrowRight className="w-4 h-4 text-accent-signature" />
+              </Link>
+              <Link
+                href="/vault"
+                className="bg-bg-surface hover:bg-bg-base border border-border-hairline text-text-primary text-xs font-bold uppercase tracking-wider py-3.5 px-6 rounded-xl text-center transition-all flex items-center justify-center gap-2"
+              >
+                Explorar Bóveda
+              </Link>
+            </div>
+          </div>
 
-      {/* Título de Resultados de búsqueda / Categoría */}
+          {/* Columna Derecha: Widget Curve + Imagen de producto (Ronda 5) */}
+          <div className="lg:col-span-6 grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch">
+            {/* Panel de Rendimiento Histórico (7/12) */}
+            <div className="md:col-span-7">
+              <HistoricalYieldPanel />
+            </div>
+
+            {/* Imagen de Producto de Lujo (5/12) */}
+            <div className="md:col-span-5 relative rounded-[20px] overflow-hidden border border-border-hairline bg-bg-surface flex flex-col justify-between shadow-lg group min-h-[360px]">
+              <div className="absolute inset-0 bg-gradient-to-t from-text-primary/10 to-transparent z-10 pointer-events-none"></div>
+              <div className="p-5 z-20">
+                <span className="text-[9px] uppercase font-mono bg-accent-signature-tint border border-accent-signature/20 text-accent-signature px-2 py-0.5 rounded font-bold tracking-wider">
+                  Edición Limitada
+                </span>
+              </div>
+              <div className="relative flex-1 w-full h-full overflow-hidden min-h-[220px]">
+                <img
+                  src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500&auto=format&fit=crop&q=80"
+                  alt="Reloj de Lujo"
+                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+              </div>
+              <div className="p-5 z-20 bg-bg-surface border-t border-border-hairline/60">
+                <h5 className="font-display font-semibold text-text-primary text-[14px] leading-tight">Miras analógicas</h5>
+                <p className="text-[11px] text-text-secondary mt-0.5 font-mono">Alta Relojería</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Resultados de Búsqueda Cabecera */}
       {(category || search) && (
-        <div className="bg-pure-white p-6 rounded-2xl border border-gray-200 flex items-center justify-between shadow-sm mb-6">
+        <div className="bg-bg-surface p-6 rounded-2xl border border-border-hairline flex items-center justify-between shadow-sm mb-6">
           <div>
-            <h2 className="text-xl font-bold text-navy">
+            <h2 className="text-[28px] font-display font-semibold text-text-primary">
               {category ? `Categoría: ${category}` : `Resultados para "${search}"`}
             </h2>
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-text-secondary mt-1">
               Se encontraron {allProducts.length} productos coincidentes
             </p>
           </div>
           <Link
             href="/"
-            className="flex items-center space-x-1.5 text-xs font-semibold text-navy hover:text-emerald transition-colors"
+            className="flex items-center space-x-1.5 text-xs font-bold uppercase tracking-wider text-text-primary hover:text-accent-acceso transition-colors"
           >
             <RotateCcw className="w-4 h-4" />
             <span>Limpiar filtros</span>
@@ -78,49 +134,45 @@ export default async function HomePage({ searchParams }: PageProps) {
         </div>
       )}
 
-      {/* 2. BURBUJAS DE CATEGORÍAS RÁPIDAS (Estilo Mercado Libre) */}
-      <section className="space-y-4">
-        <h3 className="text-sm font-black text-navy uppercase tracking-wider">Categorías Destacadas</h3>
-        <div className="grid grid-cols-3 sm:grid-cols-6 gap-4">
-          {categoriesList.map((cat) => {
-            const IconComponent = cat.icon
-            const isActive = category?.toLowerCase() === cat.slug.toLowerCase()
-
-            return (
-              <Link
-                key={cat.slug}
-                href={`/?category=${cat.slug}`}
-                className={`flex flex-col items-center justify-center p-4 rounded-2xl bg-pure-white border transition-all duration-200 group hover:-translate-y-1 shadow-sm ${
-                  isActive
-                    ? 'border-emerald ring-2 ring-emerald/20 bg-emerald/5'
-                    : 'border-gray-200 hover:border-navy'
-                }`}
-              >
-                <div className={`p-3 rounded-full mb-2.5 transition-colors ${
-                  isActive ? 'bg-emerald text-navy' : 'bg-gray-100 text-navy group-hover:bg-navy group-hover:text-pure-white'
-                }`}>
-                  <IconComponent className="w-6 h-6" />
-                </div>
-                <span className="text-xs font-bold text-center truncate w-full text-navy">
-                  {cat.name}
-                </span>
-              </Link>
-            )
-          })}
+      {/* 3. MARCAS DESTACADAS (HORIZONTAL RAIL - SCROLL-X - EDITORIAL STYLE) */}
+      <section className="space-y-6">
+        <h2 className="text-[28px] font-display font-semibold text-text-primary tracking-tight">Marcas de Prestigio</h2>
+        <div className="flex overflow-x-auto scrollbar-none pb-4 -mx-4 px-4 sm:mx-0 sm:px-0 items-center">
+          {[
+            { name: 'Adidas Premium', category: 'Tenis de Alto Rendimiento', slug: 'Tenis' },
+            { name: 'Seiko Watches', category: 'Relojería Fina Japonesa', slug: 'Relojes' },
+            { name: 'Coach New York', category: 'Bolsas & Accesorios de Piel', slug: 'Bolsas' },
+            { name: 'Ray-Ban Eyewear', category: 'Lentes de Sol Exclusivos', slug: 'Lentes' },
+            { name: 'Nike Sportswear', category: 'Colecciones Especiales', slug: 'Tenis' },
+            { name: 'Aroma Lujo', category: 'Cuidado Personal y Perfumería', slug: 'Cuidado Personal' }
+          ].map((brand) => (
+            <Link
+              key={brand.name}
+              href={`/?category=${brand.slug}`}
+              className="flex-shrink-0 text-left space-y-1.5 pr-8 mr-8 border-r border-border-hairline last:border-r-0 last:pr-0 last:mr-0 transition-opacity hover:opacity-85"
+            >
+              <h4 className="font-display font-semibold text-text-primary text-[18px] leading-tight">
+                {brand.name}
+              </h4>
+              <p className="text-[14px] text-text-secondary">
+                {brand.category}
+              </p>
+            </Link>
+          ))}
         </div>
       </section>
 
-      {/* 3. OFERTAS RELÁMPAGO (Flash Deals) */}
+      {/* 4. OFERTAS RELÁMPAGO (DARK CONTRAST SECTION - SCROLL RHYTHM) */}
       {flashDeals.length > 0 && (
-        <section className="space-y-4">
-          <div className="flex items-center justify-between">
+        <section className="bg-bg-dark-panel text-bg-base p-8 lg:p-12 rounded-[24px] border border-neutral-850 space-y-8 shadow-2xl">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center space-x-2">
-              <Flame className="w-5 h-5 text-red-500 fill-red-500 animate-bounce" />
-              <h3 className="text-lg font-black text-navy uppercase tracking-wider">Ofertas Relámpago</h3>
+              <TrendingUp className="w-6 h-6 text-accent-signature animate-pulse" />
+              <h2 className="text-[28px] font-display font-semibold text-bg-base tracking-tight">Ofertas Relámpago</h2>
             </div>
-            <div className="bg-navy text-pure-white text-[10px] sm:text-xs font-bold px-3 py-1 rounded-full flex items-center space-x-1.5 shadow-sm">
-              <span className="w-2 h-2 rounded-full bg-emerald animate-ping"></span>
-              <span>Finaliza en: 02h 45m</span>
+            <div className="bg-[#1E2530] border border-neutral-800 text-bg-base/90 text-[11px] font-mono font-bold px-3 py-1.5 rounded-lg flex items-center space-x-1.5 self-start sm:self-auto">
+              <span className="w-1.5 h-1.5 rounded-full bg-accent-alert animate-ping"></span>
+              <span>TERMINAN EN: 02H 45M</span>
             </div>
           </div>
 
@@ -133,115 +185,111 @@ export default async function HomePage({ searchParams }: PageProps) {
               return (
                 <div
                   key={product.id}
-                  className="bg-pure-white rounded-2xl border border-gray-200 overflow-hidden flex flex-col group hover:shadow-lg transition-shadow relative"
+                  className="bg-[#1E2530] rounded-2xl border border-neutral-800/80 overflow-hidden flex flex-col group hover:scale-[1.02] hover:shadow-2xl transition-all duration-150 ease-out relative"
                 >
                   {/* Etiqueta de descuento */}
                   {discount > 0 && (
-                    <span className="absolute top-3 left-3 bg-emerald text-navy text-[10px] font-black px-2 py-0.5 rounded-full z-10 shadow-sm">
+                    <span className="absolute top-4 left-4 bg-[#12161F] border border-neutral-800 text-bg-base text-[13px] font-mono font-bold px-2.5 py-0.5 rounded-md z-10 shadow-sm">
                       -{discount}%
                     </span>
                   )}
 
-                  {/* Etiqueta de prestigio */}
-                  {product.is_prestige && (
-                    <span className="absolute top-3 right-3 bg-navy text-emerald text-[9px] font-black px-2.5 py-0.5 rounded-full z-10 shadow-sm border border-emerald/20 flex items-center">
-                      👑 Prestige
-                    </span>
-                  )}
+                  {/* Yield Chip de Retorno */}
+                  <span className="absolute top-4 right-4 z-10 group-hover:scale-[1.08] transition-transform duration-300 ease-in-out">
+                    <YieldChip 
+                      rate={profile?.membership_tier === 'premium' ? (product.return_rate_premium ?? 10.0) : (product.return_rate_basic ?? 2.0)} 
+                      tier={profile?.membership_tier === 'premium' ? 'premium' : 'basic'} 
+                    />
+                  </span>
 
                   {/* Imagen */}
-                  <div className="relative aspect-square w-full bg-gray-100 overflow-hidden">
+                  <div className="relative aspect-square w-full bg-[#12161F] overflow-hidden border-b border-neutral-800/60">
                     {product.image_url ? (
                       <img
                         src={product.image_url}
                         alt={product.title}
-                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.01]"
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-gray-400">
+                      <div className="w-full h-full flex items-center justify-center text-text-secondary text-xs">
                         No Image
                       </div>
                     )}
                   </div>
 
                   {/* Detalles */}
-                  <div className="p-4 flex-1 flex flex-col justify-between space-y-3">
-                    <div className="space-y-1 text-left">
-                      <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider block">
+                  <div className="p-5 flex-1 flex flex-col justify-between space-y-5">
+                    <div className="space-y-1.5 text-left">
+                      <span className="text-[10px] uppercase font-bold text-text-secondary tracking-wider block">
                         {product.category}
                       </span>
                       {product.rating_avg !== undefined && product.rating_count !== undefined && product.rating_count > 0 && (
                         <div className="flex items-center space-x-1.5 mt-0.5">
-                          <div className="flex items-center text-amber-400">
+                          <div className="flex items-center text-accent-signature">
                             {[...Array(5)].map((_, i) => (
                               <Star 
                                 key={i} 
-                                className={`w-3 h-3 fill-current ${
-                                  i < Math.round(product.rating_avg || 0) ? 'text-amber-400' : 'text-gray-200'
+                                className={`w-3.5 h-3.5 fill-current ${
+                                  i < Math.round(product.rating_avg || 0) ? 'text-accent-signature' : 'text-neutral-700'
                                 }`} 
                               />
                             ))}
                           </div>
-                          <span className="text-[10px] text-gray-400 font-bold">
+                          <span className="text-[11px] text-text-secondary font-mono font-bold">
                             {product.rating_avg.toFixed(1)} ({product.rating_count})
                           </span>
                         </div>
                       )}
-                      <h4 className="font-bold text-navy text-sm line-clamp-2 min-h-[40px] group-hover:text-emerald-hover transition-colors">
+                      <h4 className="font-display font-semibold text-bg-base text-[17px] leading-snug line-clamp-2 min-h-[48px] group-hover:text-accent-signature transition-colors">
                         {product.title}
                       </h4>
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-4">
                       {/* Precios */}
                       <div>
                         <div className="flex items-baseline space-x-2">
-                          <span className="text-base font-black text-navy">
+                          <span className="text-[22px] font-bold font-mono text-bg-base">
                             ${product.price.toLocaleString('es-MX')}
                           </span>
                           {product.original_price && (
-                            <span className="text-xs text-gray-400 line-through">
+                            <span className="text-xs font-mono text-text-secondary line-through">
                               ${product.original_price.toLocaleString('es-MX')}
                             </span>
                           )}
                         </div>
-                        <span className="text-[9px] font-semibold text-emerald uppercase block">
-                          Envío gratis 📦
+                        <span className="text-[10px] font-bold text-accent-acceso uppercase tracking-wider block mt-0.5">
+                          Envío gratis
                         </span>
                       </div>
 
-                      {/* Retorno Activo e Invitación a Membresía */}
-                      <div className="bg-slate-50 p-2 rounded-xl border border-slate-100 text-left space-y-0.5">
-                        <span className="text-[9px] text-gray-400 font-bold uppercase tracking-wider block">Retorno Activo</span>
-                        <div className="text-xs font-semibold">
-                          {profile?.membership_tier === 'premium' ? (
-                            <p className="font-extrabold text-emerald">
-                              Ganas ${(product.price * (product.return_rate_premium || 10.0) / 100).toLocaleString('es-MX', { minimumFractionDigits: 2 })}
-                            </p>
-                          ) : profile?.membership_tier === 'basic' ? (
-                            <div className="space-y-0.5">
-                              <p className="font-bold text-navy/70">
-                                Ganas ${(product.price * (product.return_rate_basic || 2.0) / 100).toLocaleString('es-MX', { minimumFractionDigits: 2 })}
-                              </p>
-                              <p className="text-[9px] text-emerald font-bold leading-none">
-                                Con Signature: ${(product.price * (product.return_rate_premium || 10.0) / 100).toLocaleString('es-MX', { minimumFractionDigits: 2 })}
-                              </p>
-                            </div>
-                          ) : (
-                            <p className="text-[9px] text-gray-500 leading-tight">
-                              Signature te da: <span className="font-bold text-emerald">${(product.price * (product.return_rate_premium || 10.0) / 100).toLocaleString('es-MX', { minimumFractionDigits: 2 })}</span>
-                            </p>
-                          )}
+                      {/* Retorno Activo Info */}
+                      <div className="bg-[#12161F] p-3 rounded-xl border border-neutral-800 text-left space-y-1.5">
+                        <span className="text-[10px] text-text-secondary font-bold uppercase tracking-wider block">Retorno Activo</span>
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-[11px] text-text-secondary">Acumulas:</span>
+                          <span className="font-mono font-bold text-accent-acceso">
+                            ${(product.price * (profile?.membership_tier === 'premium' ? (product.return_rate_premium || 10.0) : (product.return_rate_basic || 2.0)) / 100).toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                          </span>
                         </div>
+                        {profile?.membership_tier !== 'premium' && (
+                          <div className="text-[10px] text-text-secondary border-t border-neutral-800/40 pt-1.5 flex justify-between">
+                            <span>Con Signature:</span>
+                            <span className="font-mono font-semibold text-accent-signature">
+                              ${(product.price * (product.return_rate_premium || 10.0) / 100).toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                            </span>
+                          </div>
+                        )}
                       </div>
 
                       {/* Botón comprar / Restricción */}
                       {product.is_prestige && profile?.membership_tier !== 'premium' ? (
                         <Link
                           href="/memberships"
-                          className="w-full block text-center bg-navy hover:bg-navy-light text-pure-white text-xs font-black uppercase py-2.5 px-4 rounded-xl transition-all shadow hover:shadow-md"
+                          className="w-full py-3 px-4 rounded-xl text-[11px] font-bold uppercase tracking-wider text-accent-alert bg-accent-alert/5 border border-accent-alert/20 hover:bg-accent-alert/10 transition-colors flex items-center justify-center space-x-1.5"
                         >
-                          👑 Signature Exclusivo
+                          <Lock className="w-4 h-4" />
+                          <span>Requiere Signature</span>
                         </Link>
                       ) : (
                         <AddToCartButton productId={product.id} inventory={product.inventory} />
@@ -255,12 +303,12 @@ export default async function HomePage({ searchParams }: PageProps) {
         </section>
       )}
 
-      {/* 4. MÁS VENDIDOS (Best Sellers) */}
+      {/* 5. LOS MÁS VENDIDOS */}
       {bestSellers.length > 0 && (
-        <section className="space-y-4">
+        <section className="space-y-6">
           <div className="flex items-center space-x-2">
-            <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
-            <h3 className="text-lg font-black text-navy uppercase tracking-wider">Los Más Vendidos</h3>
+            <ShieldCheck className="w-6 h-6 text-accent-signature" />
+            <h2 className="text-[28px] font-display font-semibold text-text-primary tracking-tight">Los Más Vendidos</h2>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
@@ -272,111 +320,111 @@ export default async function HomePage({ searchParams }: PageProps) {
               return (
                 <div
                   key={product.id}
-                  className="bg-pure-white rounded-2xl border border-gray-200 overflow-hidden flex flex-col group hover:shadow-lg transition-shadow relative"
+                  className="bg-bg-surface rounded-2xl border border-border-hairline overflow-hidden flex flex-col group hover:scale-[1.02] hover:shadow-lg transition-all duration-150 ease-out relative"
                 >
+                  {/* Etiqueta de descuento */}
                   {discount > 0 && (
-                    <span className="absolute top-3 left-3 bg-emerald text-navy text-[10px] font-black px-2 py-0.5 rounded-full z-10 shadow-sm">
+                    <span className="absolute top-4 left-4 bg-bg-surface border border-border-hairline text-text-primary text-[13px] font-mono font-bold px-2.5 py-0.5 rounded-md z-10 shadow-sm">
                       -{discount}%
                     </span>
                   )}
 
-                  {/* Etiqueta de prestigio */}
-                  {product.is_prestige && (
-                    <span className="absolute top-3 right-3 bg-navy text-emerald text-[9px] font-black px-2.5 py-0.5 rounded-full z-10 shadow-sm border border-emerald/20 flex items-center">
-                      👑 Prestige
-                    </span>
-                  )}
+                  {/* Yield Chip de Retorno */}
+                  <span className="absolute top-4 right-4 z-10 group-hover:scale-[1.08] transition-transform duration-300 ease-in-out">
+                    <YieldChip 
+                      rate={profile?.membership_tier === 'premium' ? (product.return_rate_premium ?? 10.0) : (product.return_rate_basic ?? 2.0)} 
+                      tier={profile?.membership_tier === 'premium' ? 'premium' : 'basic'} 
+                    />
+                  </span>
 
-                  <div className="relative aspect-square w-full bg-gray-100 overflow-hidden">
+                  {/* Imagen */}
+                  <div className="relative aspect-square w-full bg-bg-base overflow-hidden border-b border-border-hairline/60">
                     {product.image_url ? (
                       <img
                         src={product.image_url}
                         alt={product.title}
-                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.01]"
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-gray-400">
+                      <div className="w-full h-full flex items-center justify-center text-text-secondary text-xs">
                         No Image
                       </div>
                     )}
                   </div>
 
-                  <div className="p-4 flex-1 flex flex-col justify-between space-y-3">
-                    <div className="space-y-1 text-left">
-                      <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider block">
+                  {/* Detalles */}
+                  <div className="p-6 flex-1 flex flex-col justify-between space-y-5">
+                    <div className="space-y-1.5 text-left">
+                      <span className="text-[10px] uppercase font-bold text-text-secondary tracking-wider block">
                         {product.category}
                       </span>
                       {product.rating_avg !== undefined && product.rating_count !== undefined && product.rating_count > 0 && (
                         <div className="flex items-center space-x-1.5 mt-0.5">
-                          <div className="flex items-center text-amber-400">
+                          <div className="flex items-center text-accent-signature">
                             {[...Array(5)].map((_, i) => (
                               <Star 
                                 key={i} 
-                                className={`w-3 h-3 fill-current ${
-                                  i < Math.round(product.rating_avg || 0) ? 'text-amber-400' : 'text-gray-200'
+                                className={`w-3.5 h-3.5 fill-current ${
+                                  i < Math.round(product.rating_avg || 0) ? 'text-accent-signature' : 'text-border-hairline'
                                 }`} 
                               />
                             ))}
                           </div>
-                          <span className="text-[10px] text-gray-400 font-bold">
+                          <span className="text-[11px] text-text-secondary font-mono font-bold">
                             {product.rating_avg.toFixed(1)} ({product.rating_count})
                           </span>
                         </div>
                       )}
-                      <h4 className="font-bold text-navy text-sm line-clamp-2 min-h-[40px]">
+                      <h4 className="font-display font-semibold text-text-primary text-[17px] leading-snug line-clamp-2 min-h-[48px] group-hover:text-accent-signature transition-colors">
                         {product.title}
                       </h4>
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-4">
+                      {/* Precios */}
                       <div>
                         <div className="flex items-baseline space-x-2">
-                          <span className="text-base font-black text-navy">
+                          <span className="text-[22px] font-bold font-mono text-text-primary">
                             ${product.price.toLocaleString('es-MX')}
                           </span>
                           {discount > 0 && product.original_price && (
-                            <span className="text-xs text-gray-400 line-through">
+                            <span className="text-xs font-mono text-text-secondary line-through">
                               ${product.original_price.toLocaleString('es-MX')}
                             </span>
                           )}
                         </div>
-                        <span className="text-[9px] font-semibold text-emerald uppercase block">
-                          Envío gratis 📦
+                        <span className="text-[10px] font-bold text-accent-acceso uppercase tracking-wider block mt-0.5">
+                          Envío gratis
                         </span>
                       </div>
 
-                      {/* Retorno Activo e Invitación a Membresía */}
-                      <div className="bg-slate-50 p-2 rounded-xl border border-slate-100 text-left space-y-0.5">
-                        <span className="text-[9px] text-gray-400 font-bold uppercase tracking-wider block">Retorno Activo</span>
-                        <div className="text-xs font-semibold">
-                          {profile?.membership_tier === 'premium' ? (
-                            <p className="font-extrabold text-emerald">
-                              Ganas ${(product.price * (product.return_rate_premium || 10.0) / 100).toLocaleString('es-MX', { minimumFractionDigits: 2 })}
-                            </p>
-                          ) : profile?.membership_tier === 'basic' ? (
-                            <div className="space-y-0.5">
-                              <p className="font-bold text-navy/70">
-                                Ganas ${(product.price * (product.return_rate_basic || 2.0) / 100).toLocaleString('es-MX', { minimumFractionDigits: 2 })}
-                              </p>
-                              <p className="text-[9px] text-emerald font-bold leading-none">
-                                Con Signature: ${(product.price * (product.return_rate_premium || 10.0) / 100).toLocaleString('es-MX', { minimumFractionDigits: 2 })}
-                              </p>
-                            </div>
-                          ) : (
-                            <p className="text-[9px] text-gray-500 leading-tight">
-                              Signature te da: <span className="font-bold text-emerald">${(product.price * (product.return_rate_premium || 10.0) / 100).toLocaleString('es-MX', { minimumFractionDigits: 2 })}</span>
-                            </p>
-                          )}
+                      {/* Retorno Activo Info */}
+                      <div className="bg-bg-base p-3 rounded-xl border border-border-hairline text-left space-y-1.5">
+                        <span className="text-[10px] text-text-secondary font-bold uppercase tracking-wider block">Retorno Activo</span>
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-[11px] text-text-secondary">Acumulas:</span>
+                          <span className="font-mono font-bold text-accent-acceso">
+                            ${(product.price * (profile?.membership_tier === 'premium' ? (product.return_rate_premium || 10.0) : (product.return_rate_basic || 2.0)) / 100).toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                          </span>
                         </div>
+                        {profile?.membership_tier !== 'premium' && (
+                          <div className="text-[10px] text-text-secondary border-t border-border-hairline/40 pt-1.5 flex justify-between">
+                            <span>Con Signature:</span>
+                            <span className="font-mono font-semibold text-accent-signature">
+                              ${(product.price * (product.return_rate_premium || 10.0) / 100).toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                            </span>
+                          </div>
+                        )}
                       </div>
 
                       {/* Botón comprar / Restricción */}
                       {product.is_prestige && profile?.membership_tier !== 'premium' ? (
                         <Link
                           href="/memberships"
-                          className="w-full block text-center bg-navy hover:bg-navy-light text-pure-white text-xs font-black uppercase py-2.5 px-4 rounded-xl transition-all shadow hover:shadow-md"
+                          className="w-full py-3 px-4 rounded-xl text-[11px] font-bold uppercase tracking-wider text-accent-alert bg-accent-alert/5 border border-accent-alert/20 hover:bg-accent-alert/10 transition-colors flex items-center justify-center space-x-1.5"
                         >
-                          👑 Signature Exclusivo
+                          <Lock className="w-4 h-4" />
+                          <span>Requiere Signature</span>
                         </Link>
                       ) : (
                         <AddToCartButton productId={product.id} inventory={product.inventory} />
@@ -390,13 +438,13 @@ export default async function HomePage({ searchParams }: PageProps) {
         </section>
       )}
 
-      {/* Si no hay resultados de búsqueda */}
+      {/* Si no hay resultados */}
       {allProducts.length === 0 && (
-        <div className="text-center py-20 bg-pure-white rounded-2xl border border-gray-200 shadow-sm space-y-4">
-          <p className="text-gray-400 text-lg">No encontramos productos que coincidan con tu búsqueda.</p>
+        <div className="text-center py-20 bg-bg-surface rounded-3xl border border-border-hairline space-y-4">
+          <p className="text-text-secondary text-sm">No encontramos productos que coincidan con tu búsqueda.</p>
           <Link
             href="/"
-            className="inline-block bg-navy hover:bg-navy-light text-pure-white font-bold px-6 py-2.5 rounded-lg text-sm transition-colors"
+            className="inline-block bg-bg-base hover:bg-bg-base/80 border border-border-hairline text-text-primary text-xs font-bold uppercase tracking-wider py-2.5 px-6 rounded-xl transition-all"
           >
             Ver todos los productos
           </Link>

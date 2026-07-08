@@ -20,7 +20,6 @@ export default function MembershipsView({ initialProfile }: MembershipsViewProps
     try {
       const res = await subscribeToMembershipAction(tier)
       if (res.success) {
-        // Actualizar el perfil localmente en el cliente
         setProfile(prev => {
           if (!prev) return null
           return {
@@ -37,7 +36,6 @@ export default function MembershipsView({ initialProfile }: MembershipsViewProps
             : 'Tu membresía ha sido cancelada con éxito.'
         })
         
-        // Recargar la ventana para actualizar el navbar
         window.location.reload()
       } else {
         setMessage({ type: 'error', text: res.error || 'Ocurrió un error inesperado.' })
@@ -52,88 +50,125 @@ export default function MembershipsView({ initialProfile }: MembershipsViewProps
   const currentTier = profile?.membership_tier
 
   return (
-    <div className="max-w-6xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+    <div className="max-w-6xl mx-auto py-16 px-4 sm:px-6 lg:px-8 space-y-24">
       {/* Header */}
-      <div className="text-center max-w-3xl mx-auto mb-16">
-        <span className="text-xs uppercase bg-emerald/20 text-emerald font-black tracking-widest px-3 py-1 rounded-full">
-          Membresías Exclusivas
-        </span>
-        <h1 className="text-4xl sm:text-5xl font-black text-navy mt-4 mb-6 leading-tight tracking-tight">
-          Maximiza tus Compras y Conviértelas en <span className="bg-gradient-to-r from-emerald to-teal-500 bg-clip-text text-transparent">Activos de Inversión</span>
+      <div className="text-left max-w-3xl space-y-6">
+        <h1 className="text-[36px] lg:text-[56px] font-display font-semibold tracking-tight text-text-primary leading-[1.1]">
+          Tasas de membresía y élite patrimonial.
         </h1>
-        <p className="text-lg text-gray-600">
-          En Club de Marcas no solo adquieres productos premium de lujo; cada compra te devuelve **Activos Club** que puedes hacer crecer en nuestra Bóveda de Inversión a plazos.
+        <p className="text-[17px] text-text-secondary leading-relaxed max-w-xl">
+          En Club de Marcas no solo adquieres artículos premium de lujo a precios outlet; cada compra te devuelve Activos Club en tu cuenta que puedes hacer crecer en nuestra Bóveda de Rendimiento a plazo fijo.
         </p>
       </div>
 
       {/* Alertas */}
       {message && (
-        <div className={`mb-10 p-4 rounded-xl border text-sm font-semibold flex items-center justify-between shadow-sm animate-fade-in ${
-          message.type === 'success' ? 'bg-emerald/10 border-emerald/30 text-emerald-800' : 'bg-rose-50 border-rose-200 text-rose-800'
+        <div className={`p-4 rounded-xl border text-sm font-semibold flex items-center justify-between shadow-sm animate-fade-in ${
+          message.type === 'success' ? 'bg-accent-acceso-tint border-accent-acceso/30 text-accent-acceso' : 'bg-accent-alert/10 border-accent-alert/30 text-accent-alert'
         }`}>
           <div className="flex items-center space-x-3">
-            <span className="text-lg">{message.type === 'success' ? '🛡️' : '⚠️'}</span>
             <span>{message.text}</span>
           </div>
-          <button onClick={() => setMessage(null)} className="text-gray-400 hover:text-gray-600 transition-colors ml-4">✕</button>
+          <button onClick={() => setMessage(null)} className="text-text-secondary hover:text-text-primary transition-colors ml-4">✕</button>
         </div>
       )}
 
-      {/* Grid de Membresías */}
+      {/* Comparativa Gráfica SVG */}
+      <div className="bg-bg-surface border border-border-hairline rounded-2xl p-6 lg:p-8 space-y-6">
+        <div className="border-b border-border-hairline pb-4">
+          <span className="text-[10px] text-text-secondary uppercase tracking-wider font-bold">Proyección Visual</span>
+          <h4 className="font-display font-semibold text-text-primary text-[18px]">Rendimiento Comparativo: Acceso vs Signature</h4>
+        </div>
+        <div className="relative py-4 flex items-center justify-center min-h-[160px]">
+          <svg className="w-full h-32 overflow-visible" viewBox="0 0 500 120" fill="none">
+            <line x1="0" y1="90" x2="500" y2="90" stroke="#E4E7EC" strokeDasharray="3 3" />
+            <line x1="0" y1="50" x2="500" y2="50" stroke="#E4E7EC" strokeDasharray="3 3" />
+            <line x1="0" y1="10" x2="500" y2="10" stroke="#E4E7EC" strokeDasharray="3 3" />
+            
+            {/* Línea de Acceso */}
+            <path d="M 20 90 L 250 70 L 480 50" stroke="var(--accent-acceso)" strokeWidth="2" strokeLinecap="round" />
+            {/* Línea de Signature */}
+            <path d="M 20 70 L 250 30 L 480 10" stroke="var(--accent-signature)" strokeWidth="2.5" strokeLinecap="round" />
+            
+            <circle cx="20" cy="90" r="4.5" fill="var(--accent-acceso)" />
+            <text x="28" y="94" fill="var(--accent-acceso)" className="font-mono text-[9px] font-bold">2% Retorno</text>
+            
+            <circle cx="250" cy="70" r="4.5" fill="var(--accent-acceso)" />
+            <text x="258" y="74" fill="var(--accent-acceso)" className="font-mono text-[9px] font-bold">5% Retorno Máx</text>
+            
+            <circle cx="480" cy="50" r="4.5" fill="var(--accent-acceso)" />
+            <text x="390" y="58" fill="var(--accent-acceso)" className="font-mono text-[9px] font-bold">15% Bóveda Máx</text>
+            
+            <circle cx="20" cy="70" r="4.5" fill="var(--accent-signature)" />
+            <text x="28" y="66" fill="var(--accent-signature)" className="font-mono text-[9px] font-bold">10% Retorno</text>
+            
+            <circle cx="250" cy="30" r="4.5" fill="var(--accent-signature)" />
+            <text x="258" y="26" fill="var(--accent-signature)" className="font-mono text-[9px] font-bold">15% Retorno Máx</text>
+            
+            <circle cx="480" cy="10" r="4.5" fill="var(--accent-signature)" />
+            <text x="380" y="18" fill="var(--accent-signature)" className="font-mono text-[9px] font-bold">17% Bóveda Máx</text>
+          </svg>
+        </div>
+        <div className="flex flex-col sm:flex-row gap-4 sm:items-center justify-between text-xs text-text-secondary font-mono pt-2">
+          <span className="flex items-center gap-1.5">
+            <span className="w-2.5 h-2.5 bg-accent-acceso rounded-full"></span> Socio Acceso: Retorno de compras base + Inversiones en Bóveda hasta 15%
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="w-2.5 h-2.5 bg-accent-signature rounded-full"></span> Socio Signature: Retorno Premium de hasta 15% + Bóveda hasta 17%
+          </span>
+        </div>
+      </div>
+
+      {/* Grid de Membresías (Term sheets) */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 items-stretch max-w-4xl mx-auto">
         
-        {/* MEMBRESÍA ACCESO (BARATA) */}
-        <div className={`relative flex flex-col justify-between p-8 rounded-3xl bg-pure-white border-2 transition-all duration-300 hover:shadow-xl ${
-          currentTier === 'basic' 
-            ? 'border-navy shadow-lg ring-4 ring-navy/5' 
-            : 'border-gray-200 hover:border-gray-300'
+        {/* MEMBRESÍA ACCESO */}
+        <div className={`relative flex flex-col justify-between p-8 rounded-2xl bg-bg-surface border border-border-hairline transition-all duration-300 ${
+          currentTier === 'basic' ? 'ring-2 ring-accent-acceso/30 border-accent-acceso/50' : 'hover:border-text-secondary/20'
         }`}>
           {currentTier === 'basic' && (
-            <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-navy text-pure-white text-[10px] font-black uppercase tracking-widest py-1 px-4 rounded-full flex items-center shadow-md">
-              <Check className="w-3.5 h-3.5 text-emerald mr-1" /> Tu Membresía Activa
+            <span className="absolute -top-3 left-6 bg-accent-acceso-tint border border-accent-acceso/35 text-accent-acceso text-[10px] font-mono font-bold uppercase tracking-wider py-0.5 px-3 rounded">
+              Socio Activo
             </span>
           )}
           
           <div>
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center justify-between mb-8">
               <div>
-                <h3 className="text-2xl font-bold text-navy">Membresía Acceso</h3>
-                <p className="text-xs text-gray-400 mt-1">El inicio inteligente en el club</p>
+                <h3 className="text-2xl font-display font-semibold text-text-primary">Acceso</h3>
+                <p className="text-xs text-text-secondary mt-1">El inicio inteligente en el club</p>
               </div>
-              <div className="p-3 bg-slate-100 rounded-2xl">
-                <Landmark className="w-6 h-6 text-slate-600" />
+              <div className="p-3 bg-bg-base border border-border-hairline rounded-xl">
+                <Landmark className="w-5 h-5 text-text-secondary" />
               </div>
             </div>
 
-            <div className="flex items-baseline mb-8">
-              <span className="text-4xl font-extrabold text-navy">$99</span>
-              <span className="text-gray-500 font-semibold ml-1">MXN / mes</span>
+            <div className="flex items-baseline mb-8 border-b border-border-hairline/60 pb-6">
+              <span className="text-[36px] font-bold font-mono text-text-primary">$99</span>
+              <span className="text-text-secondary font-semibold ml-1 text-sm">MXN / mes</span>
             </div>
 
-            <p className="text-sm text-gray-600 mb-8">
-              Ideal para quienes desean comprar artículos cotidianos participantes y comenzar a acumular activos de forma inteligente.
+            <p className="text-sm text-text-secondary mb-8">
+              Ideal para quienes desean adquirir artículos participantes con retornos estándar y comenzar a acumular rendimiento a plazos.
             </p>
 
-            <div className="border-t border-gray-100 pt-8 mb-8">
-              <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Beneficios de Acceso</h4>
-              <ul className="space-y-4 text-sm text-slate-700">
-                <li className="flex items-start">
-                  <Check className="w-5 h-5 text-emerald mr-3 flex-shrink-0" />
-                  <span>Retorno Activo estándar (hasta **5%** en compras)</span>
-                </li>
-                <li className="flex items-start">
-                  <Check className="w-5 h-5 text-emerald mr-3 flex-shrink-0" />
-                  <span>Acceso al catálogo de categorías y marcas estándar</span>
-                </li>
-                <li className="flex items-start">
-                  <Check className="w-5 h-5 text-emerald mr-3 flex-shrink-0" />
-                  <span>Inversión a plazos fijos con tasas base (desde **5%** hasta **15%** anualizado)</span>
-                </li>
-                <li className="flex items-start">
-                  <Check className="w-5 h-5 text-emerald mr-3 flex-shrink-0" />
-                  <span>Soporte por WhatsApp en horario laboral</span>
-                </li>
-              </ul>
+            <div className="space-y-4 mb-8 text-[14px]">
+              <div className="flex items-center justify-between py-2 border-b border-border-hairline/40">
+                <span className="text-text-secondary">Retorno de Compra</span>
+                <span className="font-mono font-bold text-text-primary">Hasta 5%</span>
+              </div>
+              <div className="flex items-center justify-between py-2 border-b border-border-hairline/40">
+                <span className="text-text-secondary">Catálogo Disponible</span>
+                <span className="font-mono font-bold text-text-primary">Estándar</span>
+              </div>
+              <div className="flex items-center justify-between py-2 border-b border-border-hairline/40">
+                <span className="text-text-secondary">Tasa en Bóveda</span>
+                <span className="font-mono font-bold text-text-primary">5% - 15%</span>
+              </div>
+              <div className="flex items-center justify-between py-2">
+                <span className="text-text-secondary">Soporte Tecnológico</span>
+                <span className="font-mono font-bold text-text-primary">WhatsApp</span>
+              </div>
             </div>
           </div>
 
@@ -142,85 +177,73 @@ export default function MembershipsView({ initialProfile }: MembershipsViewProps
               <button
                 onClick={() => handleSubscribe(null)}
                 disabled={actionLoading !== null}
-                className="w-full py-4 px-6 rounded-2xl border border-gray-300 hover:border-red-300 text-gray-600 hover:text-red-500 hover:bg-red-55 font-bold transition-all text-sm disabled:opacity-50"
+                className="w-full py-3 px-6 rounded-xl border border-accent-alert/20 text-accent-alert bg-accent-alert/5 hover:bg-accent-alert/10 font-bold transition-all text-xs uppercase tracking-wider disabled:opacity-50"
               >
-                {actionLoading === 'cancel' ? 'Cancelando...' : 'Cancelar Membresía'}
+                {actionLoading === 'cancel' ? 'Cancelando...' : 'Cancelar Suscripción'}
               </button>
             ) : (
               <button
                 onClick={() => handleSubscribe('basic')}
                 disabled={actionLoading !== null}
-                className="w-full py-4 px-6 rounded-2xl bg-navy hover:bg-navy-light text-pure-white font-bold transition-all text-sm shadow-md hover:shadow-lg disabled:opacity-50"
+                className="w-full py-3 px-6 rounded-xl bg-text-primary hover:bg-text-primary/90 text-bg-surface font-bold transition-all text-xs uppercase tracking-wider disabled:opacity-50 animate-shine-sweep shadow-md"
               >
-                {actionLoading === 'basic' ? 'Procesando...' : 'Suscribirse a Acceso'}
+                {actionLoading === 'basic' ? 'Procesando...' : 'Adquirir Acceso'}
               </button>
             )}
           </div>
         </div>
 
-        {/* MEMBRESÍA SIGNATURE (CARA - PRESTIGIO) */}
-        <div className={`relative flex flex-col justify-between p-8 rounded-3xl bg-navy text-pure-white border-2 overflow-hidden transition-all duration-300 hover:shadow-2xl ${
-          currentTier === 'premium' 
-            ? 'border-emerald shadow-emerald/10 shadow-2xl ring-4 ring-emerald/20' 
-            : 'border-transparent hover:border-emerald/40'
+        {/* MEMBRESÍA SIGNATURE */}
+        <div className={`relative flex flex-col justify-between p-8 rounded-2xl bg-bg-surface border border-border-hairline transition-all duration-300 ${
+          currentTier === 'premium' ? 'ring-2 ring-accent-signature/30 border-accent-signature/50' : 'hover:border-text-secondary/20'
         }`}>
-          {/* Fondo luminoso decorativo */}
-          <div className="absolute -top-24 -right-24 w-48 h-48 rounded-full bg-emerald/20 blur-3xl"></div>
-          
           {currentTier === 'premium' ? (
-            <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-emerald text-navy text-[10px] font-black uppercase tracking-widest py-1 px-4 rounded-full flex items-center shadow-md">
-              <Check className="w-3.5 h-3.5 text-navy mr-1" /> Tu Membresía Activa
+            <span className="absolute -top-3 left-6 bg-accent-signature-tint border border-accent-signature/35 text-accent-signature text-[10px] font-mono font-bold uppercase tracking-wider py-0.5 px-3 rounded">
+              Socio Activo
             </span>
           ) : (
-            <span className="absolute top-4 right-4 bg-gradient-to-r from-yellow-400 to-amber-500 text-navy text-[9px] font-black uppercase tracking-wider py-1 px-2.5 rounded-lg flex items-center shadow-md">
-              <Sparkles className="w-3 h-3 mr-1 fill-navy" /> Recomendada
+            <span className="absolute -top-3 left-6 bg-accent-signature-tint border border-accent-signature/35 text-accent-signature text-[10px] font-mono font-bold uppercase tracking-wider py-0.5 px-3 rounded">
+              Recomendada
             </span>
           )}
           
           <div>
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center justify-between mb-8">
               <div>
-                <h3 className="text-2xl font-bold text-pure-white">Membresía Signature</h3>
-                <p className="text-xs text-emerald font-semibold mt-1">El estatus de élite patrimonial</p>
+                <h3 className="text-2xl font-display font-semibold text-text-primary">Signature</h3>
+                <p className="text-xs text-text-secondary mt-1">El estatus de élite patrimonial</p>
               </div>
-              <div className="p-3 bg-navy-light rounded-2xl text-emerald">
-                <Crown className="w-6 h-6" />
+              <div className="p-3 bg-accent-signature-tint text-accent-signature rounded-xl">
+                <Crown className="w-5 h-5" />
               </div>
             </div>
 
-            <div className="flex items-baseline mb-8">
-              <span className="text-4xl font-extrabold text-pure-white">$399</span>
-              <span className="text-gray-300 font-semibold ml-1">MXN / mes</span>
+            <div className="flex items-baseline mb-8 border-b border-border-hairline/60 pb-6">
+              <span className="text-[36px] font-bold font-mono text-text-primary">$399</span>
+              <span className="text-text-secondary font-semibold ml-1 text-sm">MXN / mes</span>
             </div>
 
-            <p className="text-sm text-gray-300 mb-8">
-              Para inversionistas y compradores de marcas de prestigio que buscan maximizar el retorno de activos y gozar de los beneficios más altos del club.
+            <p className="text-sm text-text-secondary mb-8">
+              Para inversionistas y compradores de lujo que buscan maximizar el retorno de activos y gozar de privilegios exclusivos.
             </p>
 
-            <div className="border-t border-navy-light pt-8 mb-8">
-              <h4 className="text-xs font-bold text-emerald uppercase tracking-wider mb-4">Beneficios Exclusivos Signature</h4>
-              <ul className="space-y-4 text-sm text-gray-200">
-                <li className="flex items-start">
-                  <Check className="w-5 h-5 text-emerald mr-3 flex-shrink-0" />
-                  <span><b>Tasa Premium de Retorno:</b> **10% a 15%** en tus compras de marcas exclusivas</span>
-                </li>
-                <li className="flex items-start">
-                  <Check className="w-5 h-5 text-emerald mr-3 flex-shrink-0" />
-                  <span><b>Acceso Ilimitado Premium:</b> Desbloquea la compra de artículos de marcas de prestigio (exclusivos)</span>
-                </li>
-                <li className="flex items-start">
-                  <Check className="w-5 h-5 text-emerald mr-3 flex-shrink-0" />
-                  <span><b>Tasas Preferenciales:</b> **+2% adicional** en la Bóveda de Inversión (hasta **17%** anualizado)</span>
-                </li>
-                <li className="flex items-start">
-                  <Check className="w-5 h-5 text-emerald mr-3 flex-shrink-0" />
-                  <span><b>Envíos Asegurados Prioritarios Gratis</b> en todos tus pedidos sin compra mínima</span>
-                </li>
-                <li className="flex items-start">
-                  <Check className="w-5 h-5 text-emerald mr-3 flex-shrink-0" />
-                  <span>Soporte prioritario 24/7 con ejecutivo dedicado</span>
-                </li>
-              </ul>
+            <div className="space-y-4 mb-8 text-[14px]">
+              <div className="flex items-center justify-between py-2 border-b border-border-hairline/40">
+                <span className="text-text-secondary">Retorno de Compra</span>
+                <span className="font-mono font-bold text-accent-acceso">10% - 15%</span>
+              </div>
+              <div className="flex items-center justify-between py-2 border-b border-border-hairline/40">
+                <span className="text-text-secondary">Catálogo Disponible</span>
+                <span className="font-mono font-bold text-accent-signature">Prestige & Estándar</span>
+              </div>
+              <div className="flex items-center justify-between py-2 border-b border-border-hairline/40">
+                <span className="text-text-secondary">Tasa en Bóveda</span>
+                <span className="font-mono font-bold text-accent-acceso">7% - 17% (+2% Preferencial)</span>
+              </div>
+              <div className="flex items-center justify-between py-2">
+                <span className="text-text-secondary">Envíos Asegurados</span>
+                <span className="font-mono font-bold text-text-primary">Prioritario Gratis</span>
+              </div>
             </div>
           </div>
 
@@ -229,17 +252,17 @@ export default function MembershipsView({ initialProfile }: MembershipsViewProps
               <button
                 onClick={() => handleSubscribe(null)}
                 disabled={actionLoading !== null}
-                className="w-full py-4 px-6 rounded-2xl border border-navy-light hover:border-red-400 text-gray-300 hover:text-red-400 hover:bg-red-950/20 font-bold transition-all text-sm disabled:opacity-50"
+                className="w-full py-3 px-6 rounded-xl border border-accent-alert/20 text-accent-alert bg-accent-alert/5 hover:bg-accent-alert/10 font-bold transition-all text-xs uppercase tracking-wider disabled:opacity-50"
               >
-                {actionLoading === 'cancel' ? 'Cancelando...' : 'Cancelar Membresía'}
+                {actionLoading === 'cancel' ? 'Cancelando...' : 'Cancelar Suscripción'}
               </button>
             ) : (
               <button
                 onClick={() => handleSubscribe('premium')}
                 disabled={actionLoading !== null}
-                className="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-emerald to-teal-500 hover:from-emerald-light hover:to-teal-400 text-navy font-black transition-all text-sm shadow-lg shadow-emerald/20 hover:shadow-xl hover:shadow-emerald/30 disabled:opacity-50"
+                className="w-full py-3 px-6 rounded-xl bg-accent-signature hover:bg-accent-signature/90 text-bg-surface font-bold transition-all text-xs uppercase tracking-wider disabled:opacity-50 text-center animate-shine-sweep shadow-md"
               >
-                {actionLoading === 'premium' ? 'Procesando...' : (currentTier === 'basic' ? 'Hacer Upgrade a Signature' : 'Suscribirse a Signature')}
+                {actionLoading === 'premium' ? 'Procesando...' : (currentTier === 'basic' ? 'Upgrade a Signature' : 'Adquirir Signature')}
               </button>
             )}
           </div>
@@ -247,43 +270,28 @@ export default function MembershipsView({ initialProfile }: MembershipsViewProps
 
       </div>
 
-      {/* Sección Informativa Inferior (Fintech) */}
-      <div className="mt-20 bg-gradient-to-b from-slate-50 to-slate-100 rounded-3xl p-8 border border-gray-200">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="flex space-x-4">
-            <div className="p-3 bg-emerald/10 text-emerald rounded-2xl self-start">
-              <Sparkles className="w-6 h-6" />
-            </div>
-            <div>
-              <h4 className="font-bold text-navy text-base mb-2">Compras Premium</h4>
-              <p className="text-xs text-gray-500 leading-relaxed">
-                Adquiere tenis, relojes, gorras y más artículos de marcas de prestigio mundial a precios outlet insuperables.
-              </p>
-            </div>
+      {/* Sección Informativa Inferior (Sin cajas ni fondos) */}
+      <div className="pt-16 border-t border-border-hairline">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 text-left">
+          <div className="space-y-3">
+            <h4 className="font-display font-semibold text-text-primary text-lg">Compras Premium</h4>
+            <p className="text-sm text-text-secondary leading-relaxed">
+              Adquiere tenis, relojes, bolsas y más artículos de marcas de prestigio mundial a precios outlet insuperables con autenticación verificada.
+            </p>
           </div>
           
-          <div className="flex space-x-4">
-            <div className="p-3 bg-emerald/10 text-emerald rounded-2xl self-start">
-              <Landmark className="w-6 h-6" />
-            </div>
-            <div>
-              <h4 className="font-bold text-navy text-base mb-2">Acumula Activos Club</h4>
-              <p className="text-xs text-gray-500 leading-relaxed">
-                Recupera un porcentaje inmediato de cada compra abonado como Activos Club directo a tu cuenta en pesos.
-              </p>
-            </div>
+          <div className="space-y-3">
+            <h4 className="font-display font-semibold text-text-primary text-lg">Acumula Activos Club</h4>
+            <p className="text-sm text-text-secondary leading-relaxed">
+              Recupera un porcentaje inmediato de cada compra abonado como Activos Club directo a tu cuenta para uso en la plataforma.
+            </p>
           </div>
 
-          <div className="flex space-x-4">
-            <div className="p-3 bg-emerald/10 text-emerald rounded-2xl self-start">
-              <ShieldCheck className="w-6 h-6" />
-            </div>
-            <div>
-              <h4 className="font-bold text-navy text-base mb-2">Multiplica a Plazos</h4>
-              <p className="text-xs text-gray-500 leading-relaxed">
-                Congela tus activos a plazos en nuestra Bóveda de Rendimiento para generar intereses anuales con total seguridad.
-              </p>
-            </div>
+          <div className="space-y-3">
+            <h4 className="font-display font-semibold text-text-primary text-lg">Multiplica a Plazos</h4>
+            <p className="text-sm text-text-secondary leading-relaxed">
+              Congela tus activos a plazos fijos en nuestra Bóveda de Rendimiento para generar intereses anuales con total seguridad financiera.
+            </p>
           </div>
         </div>
       </div>

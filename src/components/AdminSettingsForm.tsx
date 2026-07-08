@@ -72,16 +72,16 @@ export default function AdminSettingsForm({ adminProfile, storeSettings, isSupab
   }
 
   return (
-    <div className="bg-pure-white border border-gray-200 rounded-3xl shadow-lg overflow-hidden">
+    <div className="bg-bg-surface border border-border-hairline rounded-3xl shadow-sm overflow-hidden font-sans">
       {/* TABS HEADER */}
-      <div className="flex border-b border-gray-200 bg-gray-50/50">
+      <div className="flex border-b border-border-hairline bg-bg-base/50">
         <button
           type="button"
           onClick={() => { setActiveTab('profile'); setStatus(null); }}
           className={`flex-1 py-4 text-center font-bold text-sm tracking-wider uppercase transition-all border-b-2 cursor-pointer ${
             activeTab === 'profile'
-              ? 'text-emerald border-emerald bg-pure-white'
-              : 'text-gray-400 border-transparent hover:text-navy'
+              ? 'text-accent-acceso border-accent-acceso bg-bg-surface font-semibold'
+              : 'text-text-secondary border-transparent hover:text-text-primary'
           }`}
         >
           Mi Perfil Admin
@@ -91,8 +91,8 @@ export default function AdminSettingsForm({ adminProfile, storeSettings, isSupab
           onClick={() => { setActiveTab('store'); setStatus(null); }}
           className={`flex-1 py-4 text-center font-bold text-sm tracking-wider uppercase transition-all border-b-2 cursor-pointer ${
             activeTab === 'store'
-              ? 'text-emerald border-emerald bg-pure-white'
-              : 'text-gray-400 border-transparent hover:text-navy'
+              ? 'text-accent-acceso border-accent-acceso bg-bg-surface font-semibold'
+              : 'text-text-secondary border-transparent hover:text-text-primary'
           }`}
         >
           Ajustes de la Tienda
@@ -105,14 +105,14 @@ export default function AdminSettingsForm({ adminProfile, storeSettings, isSupab
           <div
             className={`p-4 rounded-xl border flex items-start space-x-3 text-sm animate-fade-in ${
               status.type === 'success'
-                ? 'bg-emerald/10 border-emerald/30 text-emerald-800'
-                : 'bg-red-50 border-red-200 text-red-800'
+                ? 'bg-accent-acceso-tint border-accent-acceso/30 text-[#0EA372]'
+                : 'bg-red-50 border-red-200 text-[#C93B31]'
             }`}
           >
             {status.type === 'success' ? (
-              <CheckCircle className="w-5 h-5 flex-shrink-0 text-emerald" />
+              <CheckCircle className="w-5 h-5 flex-shrink-0 text-accent-acceso" />
             ) : (
-              <AlertCircle className="w-5 h-5 flex-shrink-0 text-red-500" />
+              <AlertCircle className="w-5 h-5 flex-shrink-0 text-[#C93B31]" />
             )}
             <span className="font-semibold">{status.message}</span>
           </div>
@@ -124,7 +124,7 @@ export default function AdminSettingsForm({ adminProfile, storeSettings, isSupab
             {/* FOTO DE PERFIL */}
             <div className="flex flex-col items-center justify-center space-y-4">
               <div className="relative group">
-                <div className="w-28 h-28 rounded-full overflow-hidden border-4 border-emerald/20 shadow-md bg-light-grey/30 flex items-center justify-center">
+                <div className="w-28 h-28 rounded-full overflow-hidden border-4 border-accent-acceso/20 shadow-sm bg-bg-base flex items-center justify-center">
                   {avatarPreview ? (
                     <img
                       src={avatarPreview}
@@ -132,12 +132,12 @@ export default function AdminSettingsForm({ adminProfile, storeSettings, isSupab
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <User className="w-14 h-14 text-gray-400" />
+                    <User className="w-14 h-14 text-text-secondary" />
                   )}
                 </div>
                 <label
                   htmlFor="avatar_file"
-                  className="absolute bottom-1 right-1 bg-emerald hover:bg-emerald-hover text-navy p-2.5 rounded-full cursor-pointer shadow-lg hover:scale-105 transition-all"
+                  className="absolute bottom-1 right-1 bg-accent-acceso hover:bg-accent-acceso/95 text-white p-2.5 rounded-full cursor-pointer shadow-lg hover:scale-105 transition-all"
                   title="Cambiar fotografía"
                 >
                   <Camera className="w-4 h-4 font-bold" />
@@ -156,12 +156,12 @@ export default function AdminSettingsForm({ adminProfile, storeSettings, isSupab
             <div className="space-y-4 text-left">
               {/* Nombre admin */}
               <div>
-                <label htmlFor="full_name" className="block text-xs font-black uppercase text-navy/70 tracking-wider mb-1.5">
+                <label htmlFor="full_name" className="block text-xs font-mono font-bold uppercase text-text-secondary tracking-wider mb-1.5">
                   Nombre Completo
                 </label>
                 <div className="relative rounded-xl shadow-sm">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <User className="h-5 w-5 text-gray-400" />
+                    <User className="h-5 w-5 text-text-secondary" />
                   </div>
                   <input
                     type="text"
@@ -169,7 +169,7 @@ export default function AdminSettingsForm({ adminProfile, storeSettings, isSupab
                     id="full_name"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
-                    className="block w-full pl-10 pr-4 py-3 bg-light-grey/30 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald/20 focus:border-emerald text-sm font-medium text-navy placeholder-gray-400"
+                    className="block w-full pl-10 pr-4 py-3 bg-bg-base border border-border-hairline rounded-xl focus:outline-none focus:ring-2 focus:ring-accent-acceso/20 focus:border-accent-acceso text-sm font-medium text-text-primary placeholder-gray-400"
                     placeholder="Ej. Administrador Principal"
                     required
                   />
@@ -178,12 +178,12 @@ export default function AdminSettingsForm({ adminProfile, storeSettings, isSupab
 
               {/* Teléfono celular */}
               <div>
-                <label htmlFor="phone" className="block text-xs font-black uppercase text-navy/70 tracking-wider mb-1.5">
+                <label htmlFor="phone" className="block text-xs font-mono font-bold uppercase text-text-secondary tracking-wider mb-1.5">
                   Celular
                 </label>
                 <div className="relative rounded-xl shadow-sm">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Phone className="h-5 w-5 text-gray-400" />
+                    <Phone className="h-5 w-5 text-text-secondary" />
                   </div>
                   <input
                     type="tel"
@@ -191,7 +191,7 @@ export default function AdminSettingsForm({ adminProfile, storeSettings, isSupab
                     id="phone"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    className="block w-full pl-10 pr-4 py-3 bg-light-grey/30 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald/20 focus:border-emerald text-sm font-medium text-navy placeholder-gray-400"
+                    className="block w-full pl-10 pr-4 py-3 bg-bg-base border border-border-hairline rounded-xl focus:outline-none focus:ring-2 focus:ring-accent-acceso/20 focus:border-accent-acceso text-sm font-medium text-text-primary placeholder-gray-400"
                     placeholder="Ej. 5512345678"
                   />
                 </div>
@@ -201,16 +201,16 @@ export default function AdminSettingsForm({ adminProfile, storeSettings, isSupab
             <button
               type="submit"
               disabled={isPending}
-              className="w-full flex items-center justify-center space-x-2 bg-navy hover:bg-navy-light text-pure-white py-3.5 px-4 rounded-xl font-bold text-sm shadow-md transition-all disabled:opacity-50 cursor-pointer"
+              className="w-full flex items-center justify-center space-x-2 bg-accent-signature hover:bg-accent-signature/95 text-white py-3.5 px-4 rounded-xl font-bold text-sm shadow-md transition-all disabled:opacity-50 cursor-pointer animate-shine-sweep"
             >
               {isPending ? (
                 <>
-                  <Loader2 className="w-5 h-5 animate-spin text-emerald" />
+                  <Loader2 className="w-5 h-5 animate-spin text-white" />
                   <span>Guardando...</span>
                 </>
               ) : (
                 <>
-                  <Save className="w-5 h-5 text-emerald" />
+                  <Save className="w-5 h-5 text-white" />
                   <span>Guardar Mi Perfil</span>
                 </>
               )}
@@ -224,12 +224,12 @@ export default function AdminSettingsForm({ adminProfile, storeSettings, isSupab
             <div className="space-y-4 text-left">
               {/* Nombre de la tienda */}
               <div>
-                <label htmlFor="store_name" className="block text-xs font-black uppercase text-navy/70 tracking-wider mb-1.5">
+                <label htmlFor="store_name" className="block text-xs font-mono font-bold uppercase text-text-secondary tracking-wider mb-1.5">
                   Nombre de la Tienda
                 </label>
                 <div className="relative rounded-xl shadow-sm">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Store className="h-5 w-5 text-gray-400" />
+                    <Store className="h-5 w-5 text-text-secondary" />
                   </div>
                   <input
                     type="text"
@@ -237,7 +237,7 @@ export default function AdminSettingsForm({ adminProfile, storeSettings, isSupab
                     id="store_name"
                     value={storeName}
                     onChange={(e) => setStoreName(e.target.value)}
-                    className="block w-full pl-10 pr-4 py-3 bg-light-grey/30 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald/20 focus:border-emerald text-sm font-medium text-navy placeholder-gray-400"
+                    className="block w-full pl-10 pr-4 py-3 bg-bg-base border border-border-hairline rounded-xl focus:outline-none focus:ring-2 focus:ring-accent-acceso/20 focus:border-accent-acceso text-sm font-medium text-text-primary placeholder-gray-400"
                     placeholder="Ej. Club de Marcas"
                     required
                   />
@@ -246,12 +246,12 @@ export default function AdminSettingsForm({ adminProfile, storeSettings, isSupab
 
               {/* WhatsApp de soporte */}
               <div>
-                <label htmlFor="support_whatsapp" className="block text-xs font-black uppercase text-navy/70 tracking-wider mb-1.5">
+                <label htmlFor="support_whatsapp" className="block text-xs font-mono font-bold uppercase text-text-secondary tracking-wider mb-1.5">
                   WhatsApp de Soporte
                 </label>
                 <div className="relative rounded-xl shadow-sm">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Phone className="h-5 w-5 text-gray-400" />
+                    <Phone className="h-5 w-5 text-text-secondary" />
                   </div>
                   <input
                     type="text"
@@ -259,7 +259,7 @@ export default function AdminSettingsForm({ adminProfile, storeSettings, isSupab
                     id="support_whatsapp"
                     value={whatsapp}
                     onChange={(e) => setWhatsapp(e.target.value)}
-                    className="block w-full pl-10 pr-4 py-3 bg-light-grey/30 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald/20 focus:border-emerald text-sm font-medium text-navy placeholder-gray-400"
+                    className="block w-full pl-10 pr-4 py-3 bg-bg-base border border-border-hairline rounded-xl focus:outline-none focus:ring-2 focus:ring-accent-acceso/20 focus:border-accent-acceso text-sm font-medium text-text-primary placeholder-gray-400"
                     placeholder="Ej. +52 (55) 1234-5678"
                     required
                   />
@@ -268,12 +268,12 @@ export default function AdminSettingsForm({ adminProfile, storeSettings, isSupab
 
               {/* Costo de envío */}
               <div>
-                <label htmlFor="shipping_cost" className="block text-xs font-black uppercase text-navy/70 tracking-wider mb-1.5">
+                <label htmlFor="shipping_cost" className="block text-xs font-mono font-bold uppercase text-text-secondary tracking-wider mb-1.5">
                   Costo de Envío ($ MXN)
                 </label>
                 <div className="relative rounded-xl shadow-sm">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <span className="text-gray-400 font-bold text-sm">$</span>
+                    <span className="text-text-secondary font-bold text-sm">$</span>
                   </div>
                   <input
                     type="number"
@@ -283,46 +283,46 @@ export default function AdminSettingsForm({ adminProfile, storeSettings, isSupab
                     step="any"
                     value={shippingCost}
                     onChange={(e) => setShippingCost(e.target.value)}
-                    className="block w-full pl-8 pr-4 py-3 bg-light-grey/30 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald/20 focus:border-emerald text-sm font-medium text-navy placeholder-gray-400"
+                    className="block w-full pl-8 pr-4 py-3 bg-bg-base border border-border-hairline rounded-xl focus:outline-none focus:ring-2 focus:ring-accent-acceso/20 focus:border-accent-acceso text-sm font-medium text-text-primary placeholder-gray-400"
                     placeholder="0.00 (Gratuito)"
                     required
                   />
                 </div>
-                <p className="text-[10px] text-gray-500 mt-1">
+                <p className="text-[10px] text-text-secondary font-mono mt-1">
                   Ingresa 0 para envío gratuito a nivel nacional.
                 </p>
               </div>
 
               {/* Estado de Base de datos */}
-              <div className="bg-light-grey/30 border border-gray-200 rounded-xl p-4 flex items-center justify-between">
+              <div className="bg-bg-base border border-border-hairline rounded-xl p-4 flex items-center justify-between">
                 <div className="flex items-center space-x-3">
-                  <Server className="w-5 h-5 text-navy" />
+                  <Server className="w-5 h-5 text-text-primary" />
                   <div>
-                    <div className="text-xs font-black uppercase text-navy leading-none mb-1">
+                    <div className="text-xs font-mono font-bold uppercase text-text-primary leading-none mb-1">
                       Conexión a Base de Datos
                     </div>
-                    <div className="text-[11px] text-gray-500 leading-none">
+                    <div className="text-[11px] text-text-secondary leading-none">
                       {isSupabaseConfigured ? 'Supabase Nube Activo' : 'Modo Simulación (Local)'}
                     </div>
                   </div>
                 </div>
-                <span className={`w-3 h-3 rounded-full ${isSupabaseConfigured ? 'bg-emerald shadow-lg shadow-emerald/30 animate-pulse' : 'bg-amber-500'}`}></span>
+                <span className={`w-3 h-3 rounded-full ${isSupabaseConfigured ? 'bg-accent-acceso shadow-lg shadow-accent-acceso/30 animate-pulse' : 'bg-accent-signature animate-pulse'}`}></span>
               </div>
             </div>
 
             <button
               type="submit"
               disabled={isPending}
-              className="w-full flex items-center justify-center space-x-2 bg-navy hover:bg-navy-light text-pure-white py-3.5 px-4 rounded-xl font-bold text-sm shadow-md transition-all disabled:opacity-50 cursor-pointer"
+              className="w-full flex items-center justify-center space-x-2 bg-accent-signature hover:bg-accent-signature/95 text-white py-3.5 px-4 rounded-xl font-bold text-sm shadow-md transition-all disabled:opacity-50 cursor-pointer animate-shine-sweep"
             >
               {isPending ? (
                 <>
-                  <Loader2 className="w-5 h-5 animate-spin text-emerald" />
+                  <Loader2 className="w-5 h-5 animate-spin text-white" />
                   <span>Guardando...</span>
                 </>
               ) : (
                 <>
-                  <Save className="w-5 h-5 text-emerald" />
+                  <Save className="w-5 h-5 text-white" />
                   <span>Guardar Ajustes</span>
                 </>
               )}

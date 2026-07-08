@@ -1,10 +1,13 @@
 import React from 'react'
 import Link from 'next/link'
-import { ShoppingCart, User, ShieldAlert, LogOut, LayoutDashboard, ShoppingBag, Wallet } from 'lucide-react'
+import Image from 'next/image'
+import { ShoppingCart, User, ShieldAlert, LogOut, LayoutDashboard, ShoppingBag, Wallet, Crown } from 'lucide-react'
 import { DataService } from '@/utils/data-service'
 import { signOutAction } from '@/app/actions'
 import SearchBar from '@/components/SearchBar'
 import CookieBanner from '@/components/CookieBanner'
+import YieldChip from '@/components/YieldChip'
+import NavbarBalance from '@/components/NavbarBalance'
 
 function isSupabaseConfigured() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -38,38 +41,38 @@ export default async function CustomerLayout({
   const dbConfigured = isSupabaseConfigured()
 
   return (
-    <div className="flex flex-col min-h-screen bg-light-grey">
+    <div className="flex flex-col min-h-screen bg-bg-base text-text-primary">
       {/* AVISO DE CONFIGURACIÓN DE BASE DE DATOS (MOCK MODE) */}
       {!dbConfigured && (
-        <div className="bg-amber-500 text-navy py-1.5 px-4 text-xs font-semibold text-center flex items-center justify-center space-x-2 shadow-inner z-50">
+        <div className="bg-bg-surface border-b border-border-hairline text-accent-signature py-2 px-4 text-xs font-mono text-center flex items-center justify-center space-x-2 z-50">
           <ShieldAlert className="w-4 h-4 animate-pulse flex-shrink-0" />
           <span>
-            Modo Simulación Activo: Usando almacenamiento local. Para conectar tu base de datos Supabase ejecuta <b>schema.sql</b> y configura tus variables .env
+            MODO SIMULACION ACTIVO · ALMACENAMIENTO LOCAL POR COOKIES
           </span>
         </div>
       )}
 
-      {/* NAVBAR PRINCIPAL (Estilo Mercado Libre premium) */}
-      <header className="sticky top-0 bg-navy text-pure-white shadow-md z-40">
+      {/* NAVBAR PRINCIPAL */}
+      <header className="sticky top-0 bg-bg-surface border-b border-border-hairline z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col py-3 md:flex-row md:items-center md:justify-between border-b border-navy-light/60">
+          <div className="flex flex-col py-3 md:flex-row md:items-center md:justify-between border-b border-border-hairline/40">
             {/* Logo */}
             <div className="flex items-center justify-between mb-3 md:mb-0">
-              <Link href="/" className="flex items-center space-x-2">
-                <span className="text-xl font-bold tracking-tight bg-gradient-to-r from-pure-white to-emerald bg-clip-text text-transparent">
-                  CLUB DE MARCAS
-                </span>
-                <span className="text-[10px] uppercase bg-emerald text-navy px-1.5 py-0.5 rounded font-black tracking-widest hidden sm:inline-block">
-                  Premium
-                </span>
+              <Link href="/" className="flex items-center group">
+                <img
+                  src="/Logo2_ClubdeMarcas.png"
+                  alt="Club de Marcas"
+                  className="h-8 md:h-10 w-auto object-contain flex-shrink-0"
+                />
               </Link>
+
 
               {/* Botones móviles rápidos */}
               <div className="flex items-center space-x-4 md:hidden">
                 <Link href="/cart" className="relative p-1">
-                  <ShoppingCart className="w-6 h-6" />
+                  <ShoppingCart className="w-6 h-6 text-text-primary" />
                   {cartCount > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-emerald text-navy text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center border-2 border-navy">
+                    <span className="absolute -top-1 -right-1 bg-accent-acceso text-bg-base text-[9px] font-mono font-bold rounded-full w-5 h-5 flex items-center justify-center">
                       {cartCount}
                     </span>
                   )}
@@ -77,7 +80,7 @@ export default async function CustomerLayout({
               </div>
             </div>
 
-            {/* Buscador predictivo masivo */}
+            {/* Buscador predictivo */}
             <div className="flex-1 md:mx-8 flex justify-center">
               <SearchBar products={allProducts} />
             </div>
@@ -89,9 +92,9 @@ export default async function CustomerLayout({
                   <Link
                     href="/profile"
                     title="Ver mi perfil de socio"
-                    className="flex items-center space-x-3 group text-gray-300 hover:text-emerald transition-all"
+                    className="flex items-center space-x-3 group text-text-secondary hover:text-text-primary transition-all"
                   >
-                    <div className="w-8 h-8 rounded-full overflow-hidden border border-navy-light/60 bg-navy-light flex items-center justify-center flex-shrink-0 group-hover:border-emerald transition-colors">
+                    <div className="w-8 h-8 rounded-full overflow-hidden border border-border-hairline bg-bg-base flex items-center justify-center flex-shrink-0 group-hover:border-accent-signature transition-colors">
                       {profile?.avatar_url ? (
                         <img
                           src={profile.avatar_url}
@@ -99,21 +102,27 @@ export default async function CustomerLayout({
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <User className="w-4 h-4 text-gray-400" />
+                        <User className="w-4 h-4 text-text-secondary" />
                       )}
                     </div>
                     <div className="flex flex-col text-left leading-tight">
-                      <span className="text-xs text-pure-white font-semibold truncate max-w-[120px] group-hover:text-emerald transition-colors">
+                      <span className="text-xs text-text-primary font-medium truncate max-w-[120px] group-hover:text-text-primary transition-colors">
                         {profile?.full_name || user.email}
                       </span>
-                      <span className="text-[10px] font-bold text-emerald uppercase tracking-wider">
+                      <span className={`text-[9px] font-bold font-mono uppercase tracking-wider mt-0.5 ${
+                        profile?.membership_tier === 'premium' 
+                          ? 'text-accent-signature' 
+                          : profile?.membership_tier === 'basic' 
+                            ? 'text-accent-acceso' 
+                            : 'text-text-secondary'
+                      }`}>
                         {profile?.role === 'admin' 
-                          ? 'Administrador' 
+                          ? 'ADMINISTRADOR' 
                           : profile?.membership_tier === 'premium' 
-                            ? 'Socio Signature' 
+                            ? 'SOCIO SIGNATURE' 
                             : profile?.membership_tier === 'basic' 
-                              ? 'Socio Acceso' 
-                              : 'Socio Standard'}
+                              ? 'SOCIO ACCESO' 
+                              : 'SOCIO STANDARD'}
                       </span>
                     </div>
                   </Link>
@@ -122,9 +131,9 @@ export default async function CustomerLayout({
                     <Link
                       href="/admin/dashboard"
                       title="Panel de Administración"
-                      className="text-gray-300 hover:text-emerald p-2 rounded-full hover:bg-navy-light transition-colors"
+                      className="text-text-secondary hover:text-text-primary p-2 rounded-full hover:bg-bg-base transition-colors"
                     >
-                      <LayoutDashboard className="w-5 h-5" />
+                      <LayoutDashboard className="w-4 h-4" />
                     </Link>
                   )}
 
@@ -132,18 +141,18 @@ export default async function CustomerLayout({
                     <button
                       type="submit"
                       title="Cerrar Sesión"
-                      className="text-gray-300 hover:text-red-400 p-2 rounded-full hover:bg-navy-light transition-colors"
+                      className="text-text-secondary hover:text-accent-alert p-2 rounded-full hover:bg-bg-base transition-colors"
                     >
-                      <LogOut className="w-5 h-5" />
+                      <LogOut className="w-4 h-4" />
                     </button>
                   </form>
                 </div>
               ) : (
                 <Link
                   href="/login"
-                  className="flex items-center space-x-1.5 text-sm font-semibold hover:text-emerald transition-colors"
+                  className="flex items-center space-x-1.5 text-xs font-bold uppercase tracking-wider text-text-secondary hover:text-text-primary transition-colors"
                 >
-                  <User className="w-5 h-5 text-gray-400" />
+                  <User className="w-4 h-4 text-text-secondary" />
                   <span>Ingresar</span>
                 </Link>
               )}
@@ -153,14 +162,19 @@ export default async function CustomerLayout({
                 <Link
                   href="/vault"
                   title="Ver mi Bóveda de Activos Club"
-                  className="flex items-center space-x-2 text-sm font-semibold text-pure-white hover:text-emerald transition-all"
+                  className="flex items-center space-x-2 text-sm font-semibold text-text-primary hover:text-text-primary transition-all"
                 >
-                  <div className="relative p-2 rounded-full bg-navy-light hover:bg-navy-light/80 transition-colors">
-                    <Wallet className="w-5 h-5 text-emerald" />
+                  <div className="relative p-2 rounded-full bg-bg-base border border-border-hairline text-accent-acceso">
+                    <Wallet className="w-4 h-4" />
                   </div>
                   <div className="flex flex-col leading-none">
-                    <span className="text-[10px] text-gray-400">Activos Club</span>
-                    <span className="text-xs font-semibold text-emerald">${(profile?.reward_balance || 0).toLocaleString('es-MX', { minimumFractionDigits: 2 })}</span>
+                    <span className="text-[9px] font-bold text-text-secondary uppercase tracking-wider">Activos Club</span>
+                    <div className="flex items-center space-x-1.5 mt-0.5">
+                      <NavbarBalance initialBalance={profile?.reward_balance || 0} />
+                      {profile?.membership_tier && (
+                        <YieldChip rate={profile.membership_tier === 'premium' ? 12.0 : 2.0} tier={profile.membership_tier} />
+                      )}
+                    </div>
                   </div>
                 </Link>
               )}
@@ -168,50 +182,85 @@ export default async function CustomerLayout({
               {/* Botón Carrito */}
               <Link
                 href="/cart"
-                className="relative flex items-center space-x-2 text-sm font-semibold text-pure-white hover:text-emerald transition-all"
+                className="relative flex items-center space-x-2 text-sm font-semibold text-text-primary hover:text-text-primary transition-all"
               >
-                <div className="relative p-2 rounded-full bg-navy-light hover:bg-navy-light/80 transition-colors">
-                  <ShoppingCart className="w-5 h-5" />
+                <div className="relative p-2 rounded-full bg-bg-base border border-border-hairline">
+                  <ShoppingCart className="w-4 h-4 text-text-secondary" />
                   {cartCount > 0 && (
-                    <span className="absolute -top-1.5 -right-1.5 bg-emerald text-navy text-[10px] font-black rounded-full w-5 h-5 flex items-center justify-center border-2 border-navy animate-pulse">
+                    <span className="absolute -top-1.5 -right-1.5 bg-accent-acceso text-bg-base text-[9px] font-mono font-bold rounded-full w-4 h-4 flex items-center justify-center">
                       {cartCount}
                     </span>
                   )}
                 </div>
                 <div className="flex flex-col leading-none">
-                  <span className="text-[10px] text-gray-400">Mi carrito</span>
-                  <span className="text-xs font-semibold">${cartItems.reduce((acc, item) => acc + (item.product?.price || 0) * item.quantity, 0).toLocaleString('es-MX')}</span>
+                  <span className="text-[9px] font-bold text-text-secondary uppercase tracking-wider">Mi carrito</span>
+                  <span className="text-xs font-mono font-bold text-text-primary mt-0.5">
+                    ${cartItems.reduce((acc, item) => acc + (item.product?.price || 0) * item.quantity, 0).toLocaleString('es-MX')}
+                  </span>
                 </div>
               </Link>
             </div>
           </div>
 
-          {/* Menú de categorías secundario (Mercado Libre style) */}
+          {/* Menú de categorías secundario */}
           <nav className="flex items-center justify-between py-2.5 overflow-x-auto scrollbar-none">
-            <div className="flex items-center space-x-6 text-sm font-medium text-gray-300 min-w-max">
-              <Link href="/" className="hover:text-pure-white transition-colors">
+            <div className="flex items-center space-x-6 text-[15px] font-bold uppercase tracking-[0.02em] text-text-secondary min-w-max">
+              <Link href="/" className="hover:text-text-primary transition-colors">
                 Inicio
               </Link>
-              <Link href="/memberships" className="hover:text-emerald transition-colors font-bold flex items-center">
-                👑 Membresías
+              <Link href="/memberships" className="hover:text-accent-signature transition-colors flex items-center gap-1.5">
+                <Crown className="w-4 h-4 text-accent-signature" />
+                <span>Membresías</span>
               </Link>
               {categories.map((cat) => (
                 <Link
                   key={cat.slug}
                   href={`/?category=${cat.slug}`}
-                  className="hover:text-pure-white transition-colors text-xs sm:text-sm"
+                  className="hover:text-text-primary transition-colors"
                 >
                   {cat.name}
                 </Link>
               ))}
             </div>
             
-            <div className="flex items-center space-x-4 text-xs font-semibold text-emerald min-w-max ml-4 uppercase tracking-wider">
+            <div className="flex items-center space-x-4 text-[10px] font-mono text-accent-acceso min-w-max ml-4 uppercase tracking-wider">
               <span>🇲🇽 Envíos a todo México gratis</span>
             </div>
           </nav>
         </div>
       </header>
+
+      {/* TICKER DE ACTIVIDAD FINTECH */}
+      <div className="relative w-full overflow-hidden bg-text-primary border-b border-border-hairline py-3 text-[13px] text-bg-base select-none z-30 shadow-inner">
+        <style>{`
+          @keyframes ticker {
+            0% { transform: translate3d(0, 0, 0); }
+            100% { transform: translate3d(-50%, 0, 0); }
+          }
+          .animate-ticker {
+            display: inline-flex;
+            white-space: nowrap;
+            animation: ticker 45s linear infinite;
+          }
+          .animate-ticker:hover {
+            animation-play-state: paused;
+          }
+        `}</style>
+        <div className="animate-ticker font-mono space-x-12 uppercase tracking-wider flex items-center">
+          <span>• ANA R. CONGELÓ <strong className="text-bg-base font-mono font-bold">$2,400.00</strong> A 12 MESES · <strong className="text-accent-acceso">+$408.00 ESPERADO</strong> · HACE 3 MIN</span>
+          <span>• CARLOS M. ADQUIRIÓ MEMBRESÍA <strong className="text-accent-signature font-bold">SIGNATURE</strong> · HACE 8 MIN</span>
+          <span>• SOFÍA T. RETORNÓ <strong className="text-accent-acceso">$1,150.00</strong> DE LA BÓVEDA · HACE 12 MIN</span>
+          <span>• DAVID G. CONGELÓ <strong className="text-bg-base font-mono font-bold">$8,500.00</strong> A 6 MESES · <strong className="text-accent-acceso">+$1,020.00 ESPERADO</strong> · HACE 18 MIN</span>
+          <span>• MARÍA H. HIZO UPGRADE A <strong className="text-accent-signature font-bold">SIGNATURE</strong> · HACE 25 MIN</span>
+          
+          {/* Duplicado para loop infinito fluido */}
+          <span>• ANA R. CONGELÓ <strong className="text-bg-base font-mono font-bold">$2,400.00</strong> A 12 MESES · <strong className="text-accent-acceso">+$408.00 ESPERADO</strong> · HACE 3 MIN</span>
+          <span>• CARLOS M. ADQUIRIÓ MEMBRESÍA <strong className="text-accent-signature font-bold">SIGNATURE</strong> · HACE 8 MIN</span>
+          <span>• SOFÍA T. RETORNÓ <strong className="text-accent-acceso">$1,150.00</strong> DE LA BÓVEDA · HACE 12 MIN</span>
+          <span>• DAVID G. CONGELÓ <strong className="text-bg-base font-mono font-bold">$8,500.00</strong> A 6 MESES · <strong className="text-accent-acceso">+$1,020.00 ESPERADO</strong> · HACE 18 MIN</span>
+          <span>• MARÍA H. HIZO UPGRADE A <strong className="text-accent-signature font-bold">SIGNATURE</strong> · HACE 25 MIN</span>
+        </div>
+      </div>
 
       {/* CONTENIDO PRINCIPAL */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -266,7 +315,7 @@ export default async function CustomerLayout({
             </div>
           </div>
           <div className="border-t border-navy-light/60 mt-8 pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs">
-            <p>&copy; {new Date().getFullYear()} Club de Marcas México. Todos los derechos reservados. Desarrollado con Next.js & Supabase.</p>
+            <p>&copy; {new Date().getFullYear()} Club de Marcas. Todos los derechos reservados.</p>
             <div className="flex flex-wrap justify-center gap-x-6 gap-y-2">
               <Link href="/terminos-y-condiciones" className="hover:text-emerald transition-colors font-medium">Términos y Condiciones</Link>
               <Link href="/aviso-de-privacidad" className="hover:text-emerald transition-colors font-medium">Aviso de Privacidad</Link>
