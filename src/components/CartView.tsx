@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Trash2, Plus, Minus, ShoppingBag, CreditCard, Truck, ChevronRight, Coins } from 'lucide-react'
 import { CartItem, type Profile } from '@/utils/data-service'
+import { updateCartItemAction, removeFromCartAction, createOrderAction } from '@/app/actions'
 
 interface CartViewProps {
   initialItems: CartItem[]
