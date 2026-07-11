@@ -11,26 +11,18 @@ interface SearchBarProps {
 
 export default function SearchBar({ products }: SearchBarProps) {
   const [query, setQuery] = useState('')
-  const [suggestions, setSuggestions] = useState<Product[]>([])
   const [isOpen, setIsOpen] = useState(false)
   const router = useRouter()
   const containerRef = useRef<HTMLDivElement>(null)
 
-  // Filtrar sugerencias
-  useEffect(() => {
-    if (query.trim().length === 0) {
-      setSuggestions([])
-      return
-    }
-
-    const filtered = products.filter(product =>
-      product.title.toLowerCase().includes(query.toLowerCase()) ||
-      product.category.toLowerCase().includes(query.toLowerCase()) ||
-      (product.description && product.description.toLowerCase().includes(query.toLowerCase()))
-    ).slice(0, 5) // Máximo 5 sugerencias
-
-    setSuggestions(filtered)
-  }, [query, products])
+  // Filtrar sugerencias durante el renderizado (sin efectos)
+  const suggestions = query.trim().length === 0
+    ? []
+    : products.filter(product =>
+        product.title.toLowerCase().includes(query.toLowerCase()) ||
+        product.category.toLowerCase().includes(query.toLowerCase()) ||
+        (product.description && product.description.toLowerCase().includes(query.toLowerCase()))
+      ).slice(0, 5) // Máximo 5 sugerencias
 
   // Cerrar sugerencias al hacer clic afuera
   useEffect(() => {
@@ -76,7 +68,6 @@ export default function SearchBar({ products }: SearchBarProps) {
               type="button"
               onClick={() => {
                 setQuery('')
-                setSuggestions([])
               }}
               className="text-gray-400 hover:text-navy p-1 rounded-full hover:bg-gray-100"
             >

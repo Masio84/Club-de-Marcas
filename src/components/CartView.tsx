@@ -276,11 +276,11 @@ export default function CartView({ initialItems, userEmail, profile }: CartViewP
                 <span className="font-bold font-mono text-accent-acceso uppercase text-xs">Gratis</span>
               </div>
               
-              {/* Activos Club Estimados */}
+              {/* Recompensas de Saldo Club Estimadas */}
               <div className="bg-bg-base p-4 rounded-xl border border-border-hairline space-y-2 text-left mt-2">
                 <div className="flex items-center justify-between text-[10px] text-text-secondary">
                   <span className="font-bold uppercase tracking-wider flex items-center text-text-primary gap-1">
-                    <Coins className="w-4 h-4 text-accent-acceso" /> Retorno Activo Estimado
+                    <Coins className="w-4 h-4 text-accent-acceso" /> Recompensa Estimada
                   </span>
                   {tier ? (
                     <span className="text-[9px] font-mono bg-accent-acceso-tint border border-accent-acceso/25 text-accent-acceso px-1.5 rounded font-bold uppercase">
@@ -299,7 +299,7 @@ export default function CartView({ initialItems, userEmail, profile }: CartViewP
                 
                 {!tier && (
                   <p className="text-[10px] text-text-secondary leading-normal">
-                    <Link href="/memberships" className="text-text-primary hover:text-accent-acceso font-bold underline">Suscribirse hoy</Link> para ganar activos de retorno en este pedido.
+                    <Link href="/memberships" className="text-text-primary hover:text-accent-acceso font-bold underline">Suscribirse hoy</Link> para ganar Saldo Club de recompensa en este pedido.
                   </p>
                 )}
                 {tier === 'basic' && (

@@ -227,15 +227,11 @@ export default function AdminProductManager({ products }: AdminProductManagerPro
                   <select
                     name="category"
                     required
-                    defaultValue={editingProduct?.category || 'Tenis'}
+                    defaultValue={editingProduct?.category || 'Calzado'}
                     className="w-full text-xs bg-bg-base text-text-primary p-2.5 rounded-lg border border-border-hairline focus:outline-none focus:border-accent-acceso focus:ring-1 focus:ring-accent-acceso"
                   >
-                    <option value="Tenis">Tenis</option>
-                    <option value="Relojes">Relojes</option>
-                    <option value="Gorras">Gorras</option>
-                    <option value="Lentes">Lentes</option>
-                    <option value="Bolsas">Bolsas</option>
-                    <option value="Cuidado Personal">Cuidado Personal</option>
+                    <option value="Ropa">Ropa</option>
+                    <option value="Calzado">Calzado</option>
                   </select>
                 </div>
                 <div className="space-y-1">
@@ -289,7 +285,7 @@ export default function AdminProductManager({ products }: AdminProductManagerPro
               {/* Opciones de Membresía y Retorno */}
               <div className="bg-bg-base p-4 rounded-xl border border-border-hairline space-y-4 text-left">
                 <span className="text-[10px] font-mono font-bold text-text-primary uppercase tracking-wider block">
-                  Configuración de Retorno (Bóveda)
+                  Configuración de Recompensas (Saldo Club)
                 </span>
                 
                 {/* Prestige Checkbox */}

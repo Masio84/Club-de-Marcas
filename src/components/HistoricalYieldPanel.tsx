@@ -6,7 +6,6 @@ export default function HistoricalYieldPanel() {
   const [count, setCount] = useState(0)
 
   useEffect(() => {
-    let start = 0
     const end = 17
     const duration = 1200 // 1.2s
     const startTime = performance.now()
@@ -34,8 +33,8 @@ export default function HistoricalYieldPanel() {
       {/* Encabezado del Panel */}
       <div className="flex items-center justify-between pb-4 border-b border-neutral-850">
         <div>
-          <span className="text-[10px] text-text-secondary uppercase tracking-wider font-bold">Rendimiento Histórico</span>
-          <h4 className="text-[17px] font-display text-bg-base font-semibold">Tasas Anualizadas de Bóveda</h4>
+          <span className="text-[10px] text-text-secondary uppercase tracking-wider font-bold">Bonificación Histórica</span>
+          <h4 className="text-[17px] font-display text-bg-base font-semibold">Bonificación por Permanencia</h4>
         </div>
         <span className="text-[13px] font-mono text-accent-signature bg-accent-signature-tint/10 px-2.5 py-0.5 rounded-md border border-accent-signature/20">
           Máx +17%
@@ -48,7 +47,7 @@ export default function HistoricalYieldPanel() {
           {count}%
         </div>
         <p className="text-[12px] text-text-secondary uppercase tracking-wider font-medium">
-          Rendimiento máximo anualizado
+          Bonificación máxima adicional
         </p>
       </div>
 

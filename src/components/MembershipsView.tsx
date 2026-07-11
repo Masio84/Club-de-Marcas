@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Check, ShieldCheck, Crown, Landmark, Sparkles } from 'lucide-react'
+import { Check, ShieldCheck, Crown, Landmark, Sparkles, AlertCircle } from 'lucide-react'
 import { subscribeToMembershipAction } from '@/app/actions'
 import { type Profile } from '@/utils/data-service'
 
@@ -54,10 +54,10 @@ export default function MembershipsView({ initialProfile }: MembershipsViewProps
       {/* Header */}
       <div className="text-left max-w-3xl space-y-6">
         <h1 className="text-[36px] lg:text-[56px] font-display font-semibold tracking-tight text-text-primary leading-[1.1]">
-          Tasas de membresía y élite patrimonial.
+          Tasas de membresía y beneficios Club.
         </h1>
         <p className="text-[17px] text-text-secondary leading-relaxed max-w-xl">
-          En Club de Marcas no solo adquieres artículos premium de lujo a precios outlet; cada compra te devuelve Activos Club en tu cuenta que puedes hacer crecer en nuestra Bóveda de Rendimiento a plazo fijo.
+          En Club de Marcas no solo adquieres artículos premium de lujo a precios outlet; cada compra te devuelve Saldo Club en tu cuenta que puedes acumular e incrementar mediante nuestro programa de permanencia.
         </p>
       </div>
 
@@ -74,10 +74,19 @@ export default function MembershipsView({ initialProfile }: MembershipsViewProps
       )}
 
       {/* Comparativa Gráfica SVG */}
-      <div className="bg-bg-surface border border-border-hairline rounded-2xl p-6 lg:p-8 space-y-6">
+      <div className="bg-bg-surface border border-border-hairline rounded-2xl p-6 lg:p-8 space-y-6 relative overflow-hidden">
+        {/* Overlay de inhabilitación por regularización de contratos */}
+        <div className="absolute inset-0 bg-bg-surface/85 backdrop-blur-[1px] flex flex-col items-center justify-center text-center p-6 z-10">
+          <AlertCircle className="w-10 h-10 text-accent-alert mb-2" />
+          <h4 className="font-display font-semibold text-text-primary text-[16px] uppercase tracking-wider">Permanencia Inactiva</h4>
+          <p className="text-xs text-text-secondary leading-relaxed max-w-sm mt-1">
+            La proyección de rendimientos y el programa de permanencia se encuentran inhabilitados temporalmente hasta la formalización de los contratos financieros correspondientes.
+          </p>
+        </div>
+
         <div className="border-b border-border-hairline pb-4">
           <span className="text-[10px] text-text-secondary uppercase tracking-wider font-bold">Proyección Visual</span>
-          <h4 className="font-display font-semibold text-text-primary text-[18px]">Rendimiento Comparativo: Acceso vs Signature</h4>
+          <h4 className="font-display font-semibold text-text-primary text-[18px]">Bonificaciones por Permanencia: Acceso vs Signature</h4>
         </div>
         <div className="relative py-4 flex items-center justify-center min-h-[160px]">
           <svg className="w-full h-32 overflow-visible" viewBox="0 0 500 120" fill="none">
@@ -91,35 +100,35 @@ export default function MembershipsView({ initialProfile }: MembershipsViewProps
             <path d="M 20 70 L 250 30 L 480 10" stroke="var(--accent-signature)" strokeWidth="2.5" strokeLinecap="round" />
             
             <circle cx="20" cy="90" r="4.5" fill="var(--accent-acceso)" />
-            <text x="28" y="94" fill="var(--accent-acceso)" className="font-mono text-[9px] font-bold">2% Retorno</text>
+            <text x="28" y="94" fill="var(--accent-acceso)" className="font-mono text-[9px] font-bold">2% Bonificación</text>
             
             <circle cx="250" cy="70" r="4.5" fill="var(--accent-acceso)" />
-            <text x="258" y="74" fill="var(--accent-acceso)" className="font-mono text-[9px] font-bold">5% Retorno Máx</text>
+            <text x="258" y="74" fill="var(--accent-acceso)" className="font-mono text-[9px] font-bold">5% Bonificación Máx</text>
             
             <circle cx="480" cy="50" r="4.5" fill="var(--accent-acceso)" />
-            <text x="390" y="58" fill="var(--accent-acceso)" className="font-mono text-[9px] font-bold">15% Bóveda Máx</text>
+            <text x="390" y="58" fill="var(--accent-acceso)" className="font-mono text-[9px] font-bold">15% Permanencia Máx</text>
             
             <circle cx="20" cy="70" r="4.5" fill="var(--accent-signature)" />
-            <text x="28" y="66" fill="var(--accent-signature)" className="font-mono text-[9px] font-bold">10% Retorno</text>
+            <text x="28" y="66" fill="var(--accent-signature)" className="font-mono text-[9px] font-bold">10% Bonificación</text>
             
             <circle cx="250" cy="30" r="4.5" fill="var(--accent-signature)" />
-            <text x="258" y="26" fill="var(--accent-signature)" className="font-mono text-[9px] font-bold">15% Retorno Máx</text>
+            <text x="258" y="26" fill="var(--accent-signature)" className="font-mono text-[9px] font-bold">15% Bonificación Máx</text>
             
             <circle cx="480" cy="10" r="4.5" fill="var(--accent-signature)" />
-            <text x="380" y="18" fill="var(--accent-signature)" className="font-mono text-[9px] font-bold">17% Bóveda Máx</text>
+            <text x="380" y="18" fill="var(--accent-signature)" className="font-mono text-[9px] font-bold">17% Permanencia Máx</text>
           </svg>
         </div>
         <div className="flex flex-col sm:flex-row gap-4 sm:items-center justify-between text-xs text-text-secondary font-mono pt-2">
           <span className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 bg-accent-acceso rounded-full"></span> Socio Acceso: Retorno de compras base + Inversiones en Bóveda hasta 15%
+            <span className="w-2.5 h-2.5 bg-accent-acceso rounded-full"></span> Socio Acceso: Bonificación base de compras + Permanencia hasta 15%
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 bg-accent-signature rounded-full"></span> Socio Signature: Retorno Premium de hasta 15% + Bóveda hasta 17%
+            <span className="w-2.5 h-2.5 bg-accent-signature rounded-full"></span> Socio Signature: Bonificación Premium de hasta 15% + Permanencia hasta 17%
           </span>
         </div>
       </div>
 
-      {/* Grid de Membresías (Term sheets) */}
+      {/* Grid de Membresías */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 items-stretch max-w-4xl mx-auto">
         
         {/* MEMBRESÍA ACCESO */}
@@ -149,21 +158,21 @@ export default function MembershipsView({ initialProfile }: MembershipsViewProps
             </div>
 
             <p className="text-sm text-text-secondary mb-8">
-              Ideal para quienes desean adquirir artículos participantes con retornos estándar y comenzar a acumular rendimiento a plazos.
+              Ideal para quienes desean adquirir artículos participantes con bonificaciones estándar y comenzar a reservar saldo por permanencia.
             </p>
 
             <div className="space-y-4 mb-8 text-[14px]">
               <div className="flex items-center justify-between py-2 border-b border-border-hairline/40">
-                <span className="text-text-secondary">Retorno de Compra</span>
+                <span className="text-text-secondary">Bonificación de Compra</span>
                 <span className="font-mono font-bold text-text-primary">Hasta 5%</span>
               </div>
               <div className="flex items-center justify-between py-2 border-b border-border-hairline/40">
                 <span className="text-text-secondary">Catálogo Disponible</span>
                 <span className="font-mono font-bold text-text-primary">Estándar</span>
               </div>
-              <div className="flex items-center justify-between py-2 border-b border-border-hairline/40">
-                <span className="text-text-secondary">Tasa en Bóveda</span>
-                <span className="font-mono font-bold text-text-primary">5% - 15%</span>
+              <div className="flex items-center justify-between py-2 border-b border-border-hairline/40 opacity-60">
+                <span className="text-text-secondary">Bono por Permanencia</span>
+                <span className="font-mono font-bold text-accent-alert">Inactivo</span>
               </div>
               <div className="flex items-center justify-between py-2">
                 <span className="text-text-secondary">Soporte Tecnológico</span>
@@ -211,7 +220,7 @@ export default function MembershipsView({ initialProfile }: MembershipsViewProps
             <div className="flex items-center justify-between mb-8">
               <div>
                 <h3 className="text-2xl font-display font-semibold text-text-primary">Signature</h3>
-                <p className="text-xs text-text-secondary mt-1">El estatus de élite patrimonial</p>
+                <p className="text-xs text-text-secondary mt-1">El estatus de socio distinguido</p>
               </div>
               <div className="p-3 bg-accent-signature-tint text-accent-signature rounded-xl">
                 <Crown className="w-5 h-5" />
@@ -224,21 +233,21 @@ export default function MembershipsView({ initialProfile }: MembershipsViewProps
             </div>
 
             <p className="text-sm text-text-secondary mb-8">
-              Para inversionistas y compradores de lujo que buscan maximizar el retorno de activos y gozar de privilegios exclusivos.
+              Para compradores de lujo que buscan maximizar la bonificación de su saldo y gozar de privilegios exclusivos.
             </p>
 
             <div className="space-y-4 mb-8 text-[14px]">
               <div className="flex items-center justify-between py-2 border-b border-border-hairline/40">
-                <span className="text-text-secondary">Retorno de Compra</span>
+                <span className="text-text-secondary">Bonificación de Compra</span>
                 <span className="font-mono font-bold text-accent-acceso">10% - 15%</span>
               </div>
               <div className="flex items-center justify-between py-2 border-b border-border-hairline/40">
                 <span className="text-text-secondary">Catálogo Disponible</span>
                 <span className="font-mono font-bold text-accent-signature">Prestige & Estándar</span>
               </div>
-              <div className="flex items-center justify-between py-2 border-b border-border-hairline/40">
-                <span className="text-text-secondary">Tasa en Bóveda</span>
-                <span className="font-mono font-bold text-accent-acceso">7% - 17% (+2% Preferencial)</span>
+              <div className="flex items-center justify-between py-2 border-b border-border-hairline/40 opacity-60">
+                <span className="text-text-secondary">Bono por Permanencia</span>
+                <span className="font-mono font-bold text-accent-alert">Inactivo</span>
               </div>
               <div className="flex items-center justify-between py-2">
                 <span className="text-text-secondary">Envíos Asegurados</span>
@@ -270,7 +279,7 @@ export default function MembershipsView({ initialProfile }: MembershipsViewProps
 
       </div>
 
-      {/* Sección Informativa Inferior (Sin cajas ni fondos) */}
+      {/* Sección Informativa Inferior */}
       <div className="pt-16 border-t border-border-hairline">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 text-left">
           <div className="space-y-3">
@@ -281,16 +290,18 @@ export default function MembershipsView({ initialProfile }: MembershipsViewProps
           </div>
           
           <div className="space-y-3">
-            <h4 className="font-display font-semibold text-text-primary text-lg">Acumula Activos Club</h4>
+            <h4 className="font-display font-semibold text-text-primary text-lg">Acumula Saldo Club</h4>
             <p className="text-sm text-text-secondary leading-relaxed">
-              Recupera un porcentaje inmediato de cada compra abonado como Activos Club directo a tu cuenta para uso en la plataforma.
+              Recupera un porcentaje inmediato de cada compra abonado como Saldo Club directo a tu cuenta para compras dentro de la plataforma.
             </p>
           </div>
 
-          <div className="space-y-3">
-            <h4 className="font-display font-semibold text-text-primary text-lg">Multiplica a Plazos</h4>
+          <div className="space-y-3 opacity-60">
+            <h4 className="font-display font-semibold text-text-primary text-lg flex items-center gap-1.5">
+              Multiplica por Permanencia <span className="text-[10px] text-accent-alert uppercase font-mono font-bold border border-accent-alert/20 bg-accent-alert/5 px-1.5 py-0.5 rounded">Inactivo</span>
+            </h4>
             <p className="text-sm text-text-secondary leading-relaxed">
-              Congela tus activos a plazos fijos en nuestra Bóveda de Rendimiento para generar intereses anuales con total seguridad financiera.
+              Reserva tu Saldo Club en el programa de permanencia para acumular saldo adicional (Funcionalidad temporalmente inhabilitada por regulación).
             </p>
           </div>
         </div>

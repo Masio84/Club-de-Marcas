@@ -11,6 +11,11 @@ export async function proxy(request: NextRequest) {
 
   // Proteger rutas de administración (/admin/*)
   if (path.startsWith('/admin')) {
+    const isProduction = process.env.NODE_ENV === 'production' || process.env.VERCEL_ENV === 'production'
+    if (isProduction && !isConfigured) {
+      return NextResponse.redirect(new URL('/login', request.url))
+    }
+
     if (isConfigured) {
       const { createServerClient } = await import('@supabase/ssr')
       const supabase = createServerClient(
@@ -41,6 +46,13 @@ export async function proxy(request: NextRequest) {
 
       if (!profile || profile.role !== 'admin' || profile.is_banned) {
         return NextResponse.redirect(new URL('/', request.url))
+      }
+    } else {
+      // Si no está configurado en desarrollo, validar sesión mock para admin
+      const mockAuthUser = request.cookies.get('mock_auth_user')?.value
+      const mockUserRole = request.cookies.get('mock_user_role')?.value
+      if (!mockAuthUser || mockUserRole !== 'admin') {
+        return NextResponse.redirect(new URL('/login', request.url))
       }
     }
   }

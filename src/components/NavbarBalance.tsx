@@ -11,7 +11,7 @@ export default function NavbarBalance({ initialBalance }: NavbarBalanceProps) {
 
   useEffect(() => {
     if (initialBalance <= 0) {
-      setBalance(0)
+      requestAnimationFrame(() => setBalance(0))
       return
     }
 

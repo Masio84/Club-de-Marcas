@@ -30,12 +30,8 @@ export default async function CustomerLayout({
   
   // Categorías de e-commerce solicitadas
   const categories = [
-    { name: 'Tenis', slug: 'Tenis' },
-    { name: 'Relojes', slug: 'Relojes' },
-    { name: 'Gorras', slug: 'Gorras' },
-    { name: 'Lentes', slug: 'Lentes' },
-    { name: 'Bolsas', slug: 'Bolsas' },
-    { name: 'Cuidado Personal', slug: 'Cuidado Personal' },
+    { name: 'Ropa', slug: 'Ropa' },
+    { name: 'Calzado', slug: 'Calzado' },
   ]
 
   const dbConfigured = isSupabaseConfigured()
@@ -43,11 +39,11 @@ export default async function CustomerLayout({
   return (
     <div className="flex flex-col min-h-screen bg-bg-base text-text-primary">
       {/* AVISO DE CONFIGURACIÓN DE BASE DE DATOS (MOCK MODE) */}
-      {!dbConfigured && (
+      {!dbConfigured && process.env.NODE_ENV !== 'production' && process.env.VERCEL_ENV !== 'production' && (
         <div className="bg-bg-surface border-b border-border-hairline text-accent-signature py-2 px-4 text-xs font-mono text-center flex items-center justify-center space-x-2 z-50">
           <ShieldAlert className="w-4 h-4 animate-pulse flex-shrink-0" />
           <span>
-            MODO SIMULACION ACTIVO · ALMACENAMIENTO LOCAL POR COOKIES
+            MODO SIMULACIÓN ACTIVO · ALMACENAMIENTO LOCAL POR COOKIES
           </span>
         </div>
       )}
@@ -157,18 +153,18 @@ export default async function CustomerLayout({
                 </Link>
               )}
 
-              {/* Botón Bóveda de Activos */}
+              {/* Botón Saldo Club */}
               {user && (
                 <Link
                   href="/vault"
-                  title="Ver mi Bóveda de Activos Club"
+                  title="Ver mi Saldo Club"
                   className="flex items-center space-x-2 text-sm font-semibold text-text-primary hover:text-text-primary transition-all"
                 >
                   <div className="relative p-2 rounded-full bg-bg-base border border-border-hairline text-accent-acceso">
                     <Wallet className="w-4 h-4" />
                   </div>
                   <div className="flex flex-col leading-none">
-                    <span className="text-[9px] font-bold text-text-secondary uppercase tracking-wider">Activos Club</span>
+                    <span className="text-[9px] font-bold text-text-secondary uppercase tracking-wider">Saldo Club</span>
                     <div className="flex items-center space-x-1.5 mt-0.5">
                       <NavbarBalance initialBalance={profile?.reward_balance || 0} />
                       {profile?.membership_tier && (
@@ -230,37 +226,43 @@ export default async function CustomerLayout({
         </div>
       </header>
 
-      {/* TICKER DE ACTIVIDAD FINTECH */}
-      <div className="relative w-full overflow-hidden bg-text-primary border-b border-border-hairline py-3 text-[13px] text-bg-base select-none z-30 shadow-inner">
-        <style>{`
-          @keyframes ticker {
-            0% { transform: translate3d(0, 0, 0); }
-            100% { transform: translate3d(-50%, 0, 0); }
-          }
-          .animate-ticker {
-            display: inline-flex;
-            white-space: nowrap;
-            animation: ticker 45s linear infinite;
-          }
-          .animate-ticker:hover {
-            animation-play-state: paused;
-          }
-        `}</style>
-        <div className="animate-ticker font-mono space-x-12 uppercase tracking-wider flex items-center">
-          <span>• ANA R. CONGELÓ <strong className="text-bg-base font-mono font-bold">$2,400.00</strong> A 12 MESES · <strong className="text-accent-acceso">+$408.00 ESPERADO</strong> · HACE 3 MIN</span>
-          <span>• CARLOS M. ADQUIRIÓ MEMBRESÍA <strong className="text-accent-signature font-bold">SIGNATURE</strong> · HACE 8 MIN</span>
-          <span>• SOFÍA T. RETORNÓ <strong className="text-accent-acceso">$1,150.00</strong> DE LA BÓVEDA · HACE 12 MIN</span>
-          <span>• DAVID G. CONGELÓ <strong className="text-bg-base font-mono font-bold">$8,500.00</strong> A 6 MESES · <strong className="text-accent-acceso">+$1,020.00 ESPERADO</strong> · HACE 18 MIN</span>
-          <span>• MARÍA H. HIZO UPGRADE A <strong className="text-accent-signature font-bold">SIGNATURE</strong> · HACE 25 MIN</span>
-          
-          {/* Duplicado para loop infinito fluido */}
-          <span>• ANA R. CONGELÓ <strong className="text-bg-base font-mono font-bold">$2,400.00</strong> A 12 MESES · <strong className="text-accent-acceso">+$408.00 ESPERADO</strong> · HACE 3 MIN</span>
-          <span>• CARLOS M. ADQUIRIÓ MEMBRESÍA <strong className="text-accent-signature font-bold">SIGNATURE</strong> · HACE 8 MIN</span>
-          <span>• SOFÍA T. RETORNÓ <strong className="text-accent-acceso">$1,150.00</strong> DE LA BÓVEDA · HACE 12 MIN</span>
-          <span>• DAVID G. CONGELÓ <strong className="text-bg-base font-mono font-bold">$8,500.00</strong> A 6 MESES · <strong className="text-accent-acceso">+$1,020.00 ESPERADO</strong> · HACE 18 MIN</span>
-          <span>• MARÍA H. HIZO UPGRADE A <strong className="text-accent-signature font-bold">SIGNATURE</strong> · HACE 25 MIN</span>
+      {/* TICKER DE ACTIVIDAD DE SOCIOS - INHABILITADO HASTA TENER CONTRATOS REGULATORIOS */}
+      {false && (
+        <div className="relative w-full overflow-hidden bg-text-primary border-b border-border-hairline py-3 text-[13px] text-bg-base select-none z-30 shadow-inner">
+          <style>{`
+            @keyframes ticker {
+              0% { transform: translate3d(0, 0, 0); }
+              100% { transform: translate3d(-50%, 0, 0); }
+            }
+            .animate-ticker {
+              display: inline-flex;
+              white-space: nowrap;
+              animation: ticker 45s linear infinite;
+            }
+            .animate-ticker:hover {
+              animation-play-state: paused;
+            }
+          `}</style>
+          <div className="animate-ticker font-mono space-x-12 uppercase tracking-wider flex items-center">
+            <span>• 🇲🇽 ENVÍOS EXPRESS GRATIS EN COMPRAS MAYORES A $1,500 MXN</span>
+            <span>• 💎 GARANTÍA DE AUTENTICIDAD: PRODUCTOS 100% ORIGINALES DE DISEÑADOR</span>
+            <span>• 🛍️ SOFÍA T. ADQUIRIÓ BOLSA <strong className="text-accent-signature font-bold">COACH NEW YORK</strong> CON -40% OUTLET · HACE 4 MIN</span>
+            <span>• 👑 CONVIÉRTETE EN SOCIO SIGNATURE Y LOGRA HASTA <strong className="text-accent-signature font-bold">17% DE CASHBACK</strong> EN CADA COMPRA</span>
+            <span>• ⏱️ HÉCTOR M. AHORRÓ <strong className="text-accent-acceso">$2,450.00</strong> EN RELOJ SEIKO AUTOMÁTICO · HACE 10 MIN</span>
+            <span>• 🕶️ LENTES RAY-BAN CON HASTA -30% DE DESCUENTO MÁS ACUMULACIÓN DE SALDO CLUB</span>
+            <span>• 👟 ADRIANA L. OBTUVO <strong className="text-accent-acceso">$450.00</strong> DE CASHBACK EN TENIS ADIDAS PREMIUM · HACE 15 MIN</span>
+            
+            {/* Duplicado para loop infinito fluido */}
+            <span>• 🇲🇽 ENVÍOS EXPRESS GRATIS EN COMPRAS MAYORES A $1,500 MXN</span>
+            <span>• 💎 GARANTÍA DE AUTENTICIDAD: PRODUCTOS 100% ORIGINALES DE DISEÑADOR</span>
+            <span>• 🛍️ SOFÍA T. ADQUIRIÓ BOLSA <strong className="text-accent-signature font-bold">COACH NEW YORK</strong> CON -40% OUTLET · HACE 4 MIN</span>
+            <span>• 👑 CONVIÉRTETE EN SOCIO SIGNATURE Y LOGRA HASTA <strong className="text-accent-signature font-bold">17% DE CASHBACK</strong> EN CADA COMPRA</span>
+            <span>• ⏱️ HÉCTOR M. AHORRÓ <strong className="text-accent-acceso">$2,450.00</strong> EN RELOJ SEIKO AUTOMÁTICO · HACE 10 MIN</span>
+            <span>• 🕶️ LENTES RAY-BAN CON HASTA -30% DE DESCUENTO MÁS ACUMULACIÓN DE SALDO CLUB</span>
+            <span>• 👟 ADRIANA L. OBTUVO <strong className="text-accent-acceso">$450.00</strong> DE CASHBACK EN TENIS ADIDAS PREMIUM · HACE 15 MIN</span>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* CONTENIDO PRINCIPAL */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">

@@ -1,11 +1,11 @@
 import React from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Watch, Sparkles, ShoppingBag, Flame, Star, Glasses, Footprints, RotateCcw, Lock, ArrowRight, TrendingUp, ShieldCheck } from 'lucide-react'
+import { Watch, Sparkles, ShoppingBag, Flame, Star, Glasses, Footprints, RotateCcw, Lock, ArrowRight, TrendingUp, ShieldCheck, Truck, Award, Shirt } from 'lucide-react'
 import { DataService } from '@/utils/data-service'
 import AddToCartButton from '@/components/AddToCartButton'
 import YieldChip from '@/components/YieldChip'
-import HistoricalYieldPanel from '@/components/HistoricalYieldPanel'
+import HeroCarousel from '@/components/HeroCarousel'
 
 interface PageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
@@ -16,9 +16,15 @@ export default async function HomePage({ searchParams }: PageProps) {
   const category = resolvedParams.category as string | undefined
   const search = resolvedParams.search as string | undefined
 
-  // Obtener sesión y perfil para personalizar Activos y restricciones
+  // Obtener sesión y perfil para personalizar Saldo Club y restricciones
   const user = await DataService.getCurrentUser()
   const profile = await DataService.getCurrentUserProfile()
+
+  const isPremium = profile?.membership_tier === 'premium'
+  const isExpired = profile?.membership_expires_at 
+    ? new Date(profile.membership_expires_at) <= new Date() 
+    : true
+  const isSignatureActive = isPremium && !isExpired
 
   // Obtener productos filtrados
   let allProducts = await DataService.getProducts()
@@ -44,69 +50,53 @@ export default async function HomePage({ searchParams }: PageProps) {
 
   // Categorías con sus respectivos iconos de Lucide
   const categoriesList = [
-    { name: 'Tenis', slug: 'Tenis', icon: Footprints },
-    { name: 'Relojes', slug: 'Relojes', icon: Watch },
-    { name: 'Gorras', slug: 'Gorras', icon: ShoppingBag },
-    { name: 'Lentes', slug: 'Lentes', icon: Glasses },
-    { name: 'Bolsas', slug: 'Bolsas', icon: ShoppingBag },
-    { name: 'Cuidado Personal', slug: 'Cuidado Personal', icon: Sparkles },
+    { name: 'Ropa', slug: 'Ropa', icon: Shirt },
+    { name: 'Calzado', slug: 'Calzado', icon: Footprints },
   ]
 
   return (
     <div className="space-y-24 my-10">
-      {/* 1. HERO PRINCIPAL (EDITORIAL STYLE, NO BOX WRAPPER, SCALED FONTS) */}
+      {/* 1. HERO PRINCIPAL CARRUSEL + PROPUESTAS DE VALOR (ESTILO EDITORIAL OUTLET DE LUJO) */}
       {!category && !search && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 py-6 items-center">
-          {/* Columna Izquierda: Texto */}
-          <div className="lg:col-span-6 text-left space-y-8">
-            <h1 className="text-[36px] lg:text-[56px] font-display tracking-tight text-text-primary leading-[1.1]">
-              <span className="font-medium block">Tus compras de lujo,</span>
-              <span className="font-extrabold block">convertidas en activos de inversión.</span>
-            </h1>
-            <p className="text-[17px] text-text-secondary leading-relaxed max-w-lg">
-              Adquiere marcas exclusivas a precios outlet y recibe Activos Club de retorno inmediato en tu cuenta. Inmoviliza tus saldos en nuestra Bóveda de Inversión a plazo fijo para generar hasta un 17% anualizado.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 pt-2">
-              <Link
-                href="/memberships"
-                className="bg-text-primary hover:bg-text-primary/95 text-bg-surface text-xs font-bold uppercase tracking-wider py-3.5 px-6 rounded-xl text-center transition-colors flex items-center justify-center gap-2 animate-shine-sweep shadow-md"
-              >
-                Adquirir Membresía <ArrowRight className="w-4 h-4 text-accent-signature" />
-              </Link>
-              <Link
-                href="/vault"
-                className="bg-bg-surface hover:bg-bg-base border border-border-hairline text-text-primary text-xs font-bold uppercase tracking-wider py-3.5 px-6 rounded-xl text-center transition-all flex items-center justify-center gap-2"
-              >
-                Explorar Bóveda
-              </Link>
-            </div>
-          </div>
-
-          {/* Columna Derecha: Widget Curve + Imagen de producto (Ronda 5) */}
-          <div className="lg:col-span-6 grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch">
-            {/* Panel de Rendimiento Histórico (7/12) */}
-            <div className="md:col-span-7">
-              <HistoricalYieldPanel />
-            </div>
-
-            {/* Imagen de Producto de Lujo (5/12) */}
-            <div className="md:col-span-5 relative rounded-[20px] overflow-hidden border border-border-hairline bg-bg-surface flex flex-col justify-between shadow-lg group min-h-[360px]">
-              <div className="absolute inset-0 bg-gradient-to-t from-text-primary/10 to-transparent z-10 pointer-events-none"></div>
-              <div className="p-5 z-20">
-                <span className="text-[9px] uppercase font-mono bg-accent-signature-tint border border-accent-signature/20 text-accent-signature px-2 py-0.5 rounded font-bold tracking-wider">
-                  Edición Limitada
-                </span>
+        <div className="space-y-8">
+          <HeroCarousel />
+          
+          {/* BARRA DE PROPUESTA DE VALOR / GANCHO COMERCIAL */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 p-6 md:p-8 bg-bg-surface rounded-2xl border border-border-hairline shadow-sm relative z-20">
+            <div className="flex items-center space-x-3.5 text-left">
+              <div className="p-3 bg-accent-signature-tint/15 border border-accent-signature/10 rounded-xl text-accent-signature flex-shrink-0">
+                <Award className="w-5 h-5 text-accent-signature" />
               </div>
-              <div className="relative flex-1 w-full h-full overflow-hidden min-h-[220px]">
-                <img
-                  src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500&auto=format&fit=crop&q=80"
-                  alt="Reloj de Lujo"
-                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                />
+              <div>
+                <h4 className="font-display font-bold text-sm text-text-primary">100% Originales</h4>
+                <p className="text-xs text-text-secondary mt-0.5">Marcas de diseñador certificadas</p>
               </div>
-              <div className="p-5 z-20 bg-bg-surface border-t border-border-hairline/60">
-                <h5 className="font-display font-semibold text-text-primary text-[14px] leading-tight">Miras analógicas</h5>
-                <p className="text-[11px] text-text-secondary mt-0.5 font-mono">Alta Relojería</p>
+            </div>
+            <div className="flex items-center space-x-3.5 text-left">
+              <div className="p-3 bg-accent-acceso-tint/15 border border-accent-acceso/10 rounded-xl text-accent-acceso flex-shrink-0">
+                <Truck className="w-5 h-5" />
+              </div>
+              <div>
+                <h4 className="font-display font-bold text-sm text-text-primary">Envío Express Gratis</h4>
+                <p className="text-xs text-text-secondary mt-0.5">Asegurado en todo México</p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-3.5 text-left">
+              <div className="p-3 bg-accent-signature-tint/15 border border-accent-signature/10 rounded-xl text-accent-signature flex-shrink-0">
+                <Sparkles className="w-5 h-5" />
+              </div>
+              <div>
+                <h4 className="font-display font-bold text-sm text-text-primary">Hasta 17% Cashback</h4>
+                <p className="text-xs text-text-secondary mt-0.5">Saldo Club para futuras compras</p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-3.5 text-left">
+              <div className="p-3 bg-accent-acceso-tint/15 border border-accent-acceso/10 rounded-xl text-accent-acceso flex-shrink-0">
+                <RotateCcw className="w-5 h-5" />
+              </div>
+              <div>
+                <h4 className="font-display font-bold text-sm text-text-primary">Devoluciones Fáciles</h4>
+                <p className="text-xs text-text-secondary mt-0.5">Sin complicaciones en 14 días</p>
               </div>
             </div>
           </div>
@@ -139,12 +129,12 @@ export default async function HomePage({ searchParams }: PageProps) {
         <h2 className="text-[28px] font-display font-semibold text-text-primary tracking-tight">Marcas de Prestigio</h2>
         <div className="flex overflow-x-auto scrollbar-none pb-4 -mx-4 px-4 sm:mx-0 sm:px-0 items-center">
           {[
-            { name: 'Adidas Premium', category: 'Tenis de Alto Rendimiento', slug: 'Tenis' },
-            { name: 'Seiko Watches', category: 'Relojería Fina Japonesa', slug: 'Relojes' },
-            { name: 'Coach New York', category: 'Bolsas & Accesorios de Piel', slug: 'Bolsas' },
-            { name: 'Ray-Ban Eyewear', category: 'Lentes de Sol Exclusivos', slug: 'Lentes' },
-            { name: 'Nike Sportswear', category: 'Colecciones Especiales', slug: 'Tenis' },
-            { name: 'Aroma Lujo', category: 'Cuidado Personal y Perfumería', slug: 'Cuidado Personal' }
+            { name: 'Nike Sportswear', category: 'Calzado & Moda Sport', slug: 'Calzado' },
+            { name: 'Adidas Premium', category: 'Calzado Deportivo Premium', slug: 'Calzado' },
+            { name: 'Essentials FOG', category: 'Ropa Streetwear de Lujo', slug: 'Ropa' },
+            { name: 'The North Face', category: 'Ropa Térmica y Outdoor', slug: 'Ropa' },
+            { name: 'Balenciaga', category: 'Alta Costura y Moda Urbana', slug: 'Ropa' },
+            { name: 'Moncler', category: 'Chamarras y Plumones Premium', slug: 'Ropa' }
           ].map((brand) => (
             <Link
               key={brand.name}
@@ -197,11 +187,11 @@ export default async function HomePage({ searchParams }: PageProps) {
                   {/* Yield Chip de Retorno */}
                   <span className="absolute top-4 right-4 z-10 group-hover:scale-[1.08] transition-transform duration-300 ease-in-out">
                     <YieldChip 
-                      rate={profile?.membership_tier === 'premium' ? (product.return_rate_premium ?? 10.0) : (product.return_rate_basic ?? 2.0)} 
-                      tier={profile?.membership_tier === 'premium' ? 'premium' : 'basic'} 
+                      rate={isSignatureActive ? (product.return_rate_premium ?? 10.0) : (product.return_rate_basic ?? 2.0)} 
+                      tier={isSignatureActive ? 'premium' : 'basic'} 
                     />
                   </span>
-
+ 
                   {/* Imagen */}
                   <div className="relative aspect-square w-full bg-[#12161F] overflow-hidden border-b border-neutral-800/60">
                     {product.image_url ? (
@@ -216,7 +206,7 @@ export default async function HomePage({ searchParams }: PageProps) {
                       </div>
                     )}
                   </div>
-
+ 
                   {/* Detalles */}
                   <div className="p-5 flex-1 flex flex-col justify-between space-y-5">
                     <div className="space-y-1.5 text-left">
@@ -244,7 +234,7 @@ export default async function HomePage({ searchParams }: PageProps) {
                         {product.title}
                       </h4>
                     </div>
-
+ 
                     <div className="space-y-4">
                       {/* Precios */}
                       <div>
@@ -262,17 +252,17 @@ export default async function HomePage({ searchParams }: PageProps) {
                           Envío gratis
                         </span>
                       </div>
-
+ 
                       {/* Retorno Activo Info */}
                       <div className="bg-[#12161F] p-3 rounded-xl border border-neutral-800 text-left space-y-1.5">
-                        <span className="text-[10px] text-text-secondary font-bold uppercase tracking-wider block">Retorno Activo</span>
+                        <span className="text-[10px] text-text-secondary font-bold uppercase tracking-wider block">Bonificación Club</span>
                         <div className="flex items-center justify-between text-xs">
                           <span className="text-[11px] text-text-secondary">Acumulas:</span>
                           <span className="font-mono font-bold text-accent-acceso">
-                            ${(product.price * (profile?.membership_tier === 'premium' ? (product.return_rate_premium || 10.0) : (product.return_rate_basic || 2.0)) / 100).toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                            ${(product.price * (isSignatureActive ? (product.return_rate_premium || 10.0) : (product.return_rate_basic || 2.0)) / 100).toLocaleString('es-MX', { minimumFractionDigits: 2 })}
                           </span>
                         </div>
-                        {profile?.membership_tier !== 'premium' && (
+                        {!isSignatureActive && (
                           <div className="text-[10px] text-text-secondary border-t border-neutral-800/40 pt-1.5 flex justify-between">
                             <span>Con Signature:</span>
                             <span className="font-mono font-semibold text-accent-signature">
@@ -281,15 +271,15 @@ export default async function HomePage({ searchParams }: PageProps) {
                           </div>
                         )}
                       </div>
-
+ 
                       {/* Botón comprar / Restricción */}
-                      {product.is_prestige && profile?.membership_tier !== 'premium' ? (
+                      {product.is_prestige && !isSignatureActive ? (
                         <Link
                           href="/memberships"
                           className="w-full py-3 px-4 rounded-xl text-[11px] font-bold uppercase tracking-wider text-accent-alert bg-accent-alert/5 border border-accent-alert/20 hover:bg-accent-alert/10 transition-colors flex items-center justify-center space-x-1.5"
                         >
                           <Lock className="w-4 h-4" />
-                          <span>Requiere Signature</span>
+                          <span>Exclusivo Signature</span>
                         </Link>
                       ) : (
                         <AddToCartButton productId={product.id} inventory={product.inventory} />
@@ -332,8 +322,8 @@ export default async function HomePage({ searchParams }: PageProps) {
                   {/* Yield Chip de Retorno */}
                   <span className="absolute top-4 right-4 z-10 group-hover:scale-[1.08] transition-transform duration-300 ease-in-out">
                     <YieldChip 
-                      rate={profile?.membership_tier === 'premium' ? (product.return_rate_premium ?? 10.0) : (product.return_rate_basic ?? 2.0)} 
-                      tier={profile?.membership_tier === 'premium' ? 'premium' : 'basic'} 
+                      rate={isSignatureActive ? (product.return_rate_premium ?? 10.0) : (product.return_rate_basic ?? 2.0)} 
+                      tier={isSignatureActive ? 'premium' : 'basic'} 
                     />
                   </span>
 
@@ -400,14 +390,14 @@ export default async function HomePage({ searchParams }: PageProps) {
 
                       {/* Retorno Activo Info */}
                       <div className="bg-bg-base p-3 rounded-xl border border-border-hairline text-left space-y-1.5">
-                        <span className="text-[10px] text-text-secondary font-bold uppercase tracking-wider block">Retorno Activo</span>
+                        <span className="text-[10px] text-text-secondary font-bold uppercase tracking-wider block">Bonificación Club</span>
                         <div className="flex items-center justify-between text-xs">
                           <span className="text-[11px] text-text-secondary">Acumulas:</span>
                           <span className="font-mono font-bold text-accent-acceso">
-                            ${(product.price * (profile?.membership_tier === 'premium' ? (product.return_rate_premium || 10.0) : (product.return_rate_basic || 2.0)) / 100).toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                            ${(product.price * (isSignatureActive ? (product.return_rate_premium || 10.0) : (product.return_rate_basic || 2.0)) / 100).toLocaleString('es-MX', { minimumFractionDigits: 2 })}
                           </span>
                         </div>
-                        {profile?.membership_tier !== 'premium' && (
+                        {!isSignatureActive && (
                           <div className="text-[10px] text-text-secondary border-t border-border-hairline/40 pt-1.5 flex justify-between">
                             <span>Con Signature:</span>
                             <span className="font-mono font-semibold text-accent-signature">
@@ -418,13 +408,13 @@ export default async function HomePage({ searchParams }: PageProps) {
                       </div>
 
                       {/* Botón comprar / Restricción */}
-                      {product.is_prestige && profile?.membership_tier !== 'premium' ? (
+                      {product.is_prestige && !isSignatureActive ? (
                         <Link
                           href="/memberships"
                           className="w-full py-3 px-4 rounded-xl text-[11px] font-bold uppercase tracking-wider text-accent-alert bg-accent-alert/5 border border-accent-alert/20 hover:bg-accent-alert/10 transition-colors flex items-center justify-center space-x-1.5"
                         >
                           <Lock className="w-4 h-4" />
-                          <span>Requiere Signature</span>
+                          <span>Exclusivo Signature</span>
                         </Link>
                       ) : (
                         <AddToCartButton productId={product.id} inventory={product.inventory} />

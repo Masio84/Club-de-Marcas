@@ -19,31 +19,40 @@ export default function HeroCarousel() {
 
   const slides: Slide[] = [
     {
-      title: 'OUTLET DE TENIS PREMIUM',
-      subtitle: 'Hasta 50% de descuento en Nike, Adidas y Puma. Modelos seleccionados con envío gratis.',
-      tag: '🔥 Oferta del Mes',
+      title: 'CALZADO PREMIUM OUTLET',
+      subtitle: 'Hasta 50% de descuento en Nike, Adidas, Puma y Jordan. Envío gratis garantizado.',
+      tag: '🔥 Lo Más Vendido',
       image: 'https://images.unsplash.com/photo-1556906781-9a412961c28c?w=1600&auto=format&fit=crop&q=80',
-      link: '/?category=Tenis',
-      cta: 'Ver Tenis en Oferta',
+      link: '/?category=Calzado',
+      cta: 'Ver Calzado en Oferta',
       color: 'from-navy via-navy/95 to-transparent'
     },
     {
-      title: 'RELOJES AUTOMÁTICOS Y G-SHOCK',
-      subtitle: 'Precisión y estilo indestructible. 12 Meses Sin Intereses con tarjetas participantes.',
+      title: 'ROPA DE DISEÑADOR Y MARCAS',
+      subtitle: 'Essentials, The North Face, Moncler y Balenciaga. Descubre prendas de alta costura a precios outlet.',
       tag: '💎 Exclusividad',
-      image: 'https://images.unsplash.com/photo-1509048191080-d2984bad6ae5?w=1600&auto=format&fit=crop&q=80',
-      link: '/?category=Relojes',
-      cta: 'Explorar Relojes',
+      image: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=1600&auto=format&fit=crop&q=80',
+      link: '/?category=Ropa',
+      cta: 'Explorar Ropa',
       color: 'from-black via-black/90 to-transparent'
     },
     {
-      title: 'ACCESORIOS DE TEMPORADA',
-      subtitle: 'Lentes Ray-Ban y Gorras New Era originales. Dale el toque final a tu estilo diario.',
+      title: 'COLECCIONES DE TEMPORADA',
+      subtitle: 'Chamarras, hoodies, playeras y jeans con descuentos exclusivos y autenticidad 100% garantizada.',
       tag: '✨ Nuevos Arribos',
-      image: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=1600&auto=format&fit=crop&q=80',
-      link: '/?category=Lentes',
-      cta: 'Ver Accesorios',
+      image: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1600&auto=format&fit=crop&q=80',
+      link: '/?category=Ropa',
+      cta: 'Ver Ropa y Abrigos',
       color: 'from-navy-light via-navy-light/95 to-transparent'
+    },
+    {
+      title: 'BENEFICIOS VIP SIGNATURE',
+      subtitle: 'Obtén hasta 15% de Cashback en cada compra, envíos express gratis y acceso exclusivo a productos Prestige de edición limitada.',
+      tag: '👑 Membresía Elite',
+      image: 'https://images.unsplash.com/photo-1441984969893-c534e9749e48?w=1600&auto=format&fit=crop&q=80',
+      link: '/memberships',
+      cta: 'Unirse a Signature',
+      color: 'from-[#1F160A] via-[#1F160A]/95 to-transparent'
     }
   ]
 

@@ -248,7 +248,7 @@ export default function ProfileForm({ initialProfile, initialOrders, initialRevi
             </div>
           )}
 
-          {/* TARJETA DE MEMBRESÍA Y ACTIVOS CLUB */}
+          {/* TARJETA DE MEMBRESÍA Y SALDO CLUB */}
           <div className="bg-gradient-to-br from-slate-50 to-slate-100 p-6 rounded-2xl border border-gray-200 grid grid-cols-1 md:grid-cols-2 gap-6 items-center text-left">
             <div className="space-y-2">
               <div className="flex items-center space-x-2">
@@ -279,7 +279,7 @@ export default function ProfileForm({ initialProfile, initialOrders, initialRevi
                   ? 'Tienes retornos premium del 10% al 15% y acceso total a marcas de prestigio.'
                   : initialProfile.membership_tier === 'basic'
                     ? 'Tienes retornos base del 2% al 5%. Pásate a Signature para obtener más retorno y acceso premium.'
-                    : 'Suscríbete a una membresía para empezar a acumular Activos Club invertibles.'}
+                    : 'Suscríbete a una membresía para empezar a acumular Saldo Club.'}
               </p>
               <Link href="/memberships" className="inline-flex items-center text-xs font-bold text-navy hover:text-emerald transition-colors underline pt-1">
                 {initialProfile.membership_tier ? 'Cambiar plan de membresía' : 'Adquirir membresía ahora'} →
@@ -288,11 +288,11 @@ export default function ProfileForm({ initialProfile, initialOrders, initialRevi
 
             <div className="bg-pure-white p-4 rounded-xl border border-gray-200 flex items-center justify-between">
               <div>
-                <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Balance de Activos Club</span>
+                <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Balance de Saldo Club</span>
                 <p className="text-2xl font-black text-navy mt-1">${(initialProfile.reward_balance || 0).toLocaleString('es-MX', { minimumFractionDigits: 2 })}</p>
               </div>
               <Link href="/vault" className="bg-navy hover:bg-navy-light text-pure-white text-xs font-black uppercase tracking-wider py-2.5 px-4 rounded-xl shadow transition-all hover:scale-102 flex items-center space-x-1">
-                <span>Mi Bóveda</span>
+                <span>Mi Saldo Club</span>
               </Link>
             </div>
           </div>

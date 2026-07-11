@@ -15,7 +15,7 @@ export default function YieldChip({ rate, tier }: YieldChipProps) {
 
   return (
     <span className={`inline-flex items-center gap-0.5 px-2 py-0.5 rounded font-mono text-[13px] font-bold tracking-tight ${colorClass}`}>
-      ▲ {rate.toFixed(1)}%
+      +{rate.toFixed(1).replace('.0', '')}% Cashback
     </span>
   )
 }

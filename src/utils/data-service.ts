@@ -3,7 +3,27 @@ import { cookies } from 'next/headers'
 
 function isSupabaseConfigured() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const isProduction = 
+    process.env.NODE_ENV === 'production' || 
+    process.env.VERCEL_ENV === 'production' ||
+    process.env.APP_ENV === 'production'
+
+  if (isProduction) {
+    // En producción, forzar el uso de Supabase (bloquear mock)
+    return true
+  }
   return !!url && url !== '' && url !== 'https://placeholder.supabase.co'
+}
+
+function assertMockAllowed() {
+  if (
+    process.env.NODE_ENV === 'production' || 
+    process.env.VERCEL_ENV === 'production' ||
+    process.env.APP_ENV === 'production'
+  ) {
+    console.error('[CRITICAL] Intento de usar el modo simulación (mock) en producción.');
+    throw new Error('El modo simulación por cookies está estrictamente deshabilitado en producción.');
+  }
 }
 
 // ==========================================
@@ -36,7 +56,7 @@ export interface Product {
   price: number
   original_price?: number
   inventory: number
-  category: 'Tenis' | 'Relojes' | 'Gorras' | 'Lentes' | 'Bolsas' | 'Cuidado Personal'
+  category: 'Ropa' | 'Calzado'
   image_url?: string
   created_at: string
   rating_avg?: number
@@ -46,27 +66,41 @@ export interface Product {
   return_rate_premium?: number
 }
 
-export interface TermInvestment {
+export interface RewardReservation {
   id: string
   user_id: string
   amount: number
   term_months: number
-  annual_rate: number
+  bonus_rate: number
   start_date: string
-  end_date: string
-  expected_yield: number
-  status: 'active' | 'completed'
+  release_date: string
+  expected_bonus: number
+  status: 'active' | 'released' | 'cancelled' | 'expired'
   created_at: string
+  membership_tier_at_creation?: string | null
+  calculation_formula_version?: string
+  idempotency_key?: string
 }
+
+// Alias legacy para compatibilidad
+export type TermInvestment = RewardReservation;
 
 export interface RewardTransaction {
   id: string
   user_id: string
   amount: number
-  type: 'purchase_reward' | 'investment_locked' | 'investment_returned' | 'admin_adjustment'
+  type: 'purchase_reward' | 'investment_locked' | 'investment_returned' | 'admin_adjustment' |
+        'reward_earned' | 'reward_reserved' | 'reward_released' | 'reward_used' | 'reward_reversed' | 'reward_expired' | 'reward_cancelled'
   reference_id?: string
   description: string
   created_at: string
+  status?: 'pending' | 'available' | 'reserved' | 'released' | 'used' | 'reversed' | 'expired' | 'cancelled'
+  order_id?: string
+  order_item_id?: string
+  reservation_id?: string
+  refund_id?: string
+  payment_id?: string
+  idempotency_key?: string
 }
 
 export interface ProductReview {
@@ -114,11 +148,11 @@ const SEED_PRODUCTS: Product[] = [
   {
     id: 'prod-1',
     title: 'Nike Air Max 90 White',
-    description: 'Los icónicos tenis de correr con amortiguación Air Max visible, ideales para el uso diario.',
+    description: 'Los icónicos tenis de correr con amortiguación Air Max visible, de alta comodidad para el uso diario.',
     price: 2499.00,
     original_price: 3199.00,
     inventory: 25,
-    category: 'Tenis',
+    category: 'Calzado',
     image_url: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&auto=format&fit=crop',
     is_prestige: false,
     return_rate_basic: 2.00,
@@ -132,7 +166,7 @@ const SEED_PRODUCTS: Product[] = [
     price: 3499.00,
     original_price: 4299.00,
     inventory: 18,
-    category: 'Tenis',
+    category: 'Calzado',
     image_url: 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=600&auto=format&fit=crop',
     is_prestige: true,
     return_rate_basic: 3.00,
@@ -144,8 +178,9 @@ const SEED_PRODUCTS: Product[] = [
     title: 'Puma Slipstream Classic',
     description: 'Tenis retro de básquetbol de piel con un diseño limpio y moderno para el estilo de vida urbano.',
     price: 1899.00,
+    original_price: 2200.00,
     inventory: 15,
-    category: 'Tenis',
+    category: 'Calzado',
     image_url: 'https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?w=600&auto=format&fit=crop',
     is_prestige: false,
     return_rate_basic: 2.00,
@@ -154,86 +189,100 @@ const SEED_PRODUCTS: Product[] = [
   },
   {
     id: 'prod-4',
-    title: 'Seiko 5 Sports Automatic',
-    description: 'Reloj automático japonés con caja de acero inoxidable, carátula negra y resistencia al agua de 100m.',
-    price: 5800.00,
-    original_price: 7200.00,
+    title: 'Air Jordan 1 Retro High OG',
+    description: 'La silueta legendaria en piel premium, colores clásicos y un ajuste óptimo para coleccionistas.',
+    price: 4399.00,
+    original_price: 5299.00,
+    inventory: 10,
+    category: 'Calzado',
+    image_url: 'https://images.unsplash.com/photo-1556906781-9a412961c28c?w=600&auto=format&fit=crop',
+    is_prestige: true,
+    return_rate_basic: 3.00,
+    return_rate_premium: 15.00,
+    created_at: new Date().toISOString()
+  },
+  {
+    id: 'prod-5',
+    title: 'New Balance 550 White Green',
+    description: 'Calzado casual retro inspirado en el básquetbol de los 80 con acabados de piel y gamuza.',
+    price: 2899.00,
+    original_price: 3299.00,
+    inventory: 20,
+    category: 'Calzado',
+    image_url: 'https://images.unsplash.com/photo-1608231387042-66d1773070a5?w=600&auto=format&fit=crop',
+    is_prestige: false,
+    return_rate_basic: 2.00,
+    return_rate_premium: 10.00,
+    created_at: new Date().toISOString()
+  },
+  {
+    id: 'prod-6',
+    title: 'Sudadera Essentials Hoodie Moss',
+    description: 'Sudadera de cuello redondo con capucha, confección de felpa pesada y logo Essentials engomado.',
+    price: 1999.00,
+    original_price: 2699.00,
+    inventory: 15,
+    category: 'Ropa',
+    image_url: 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=600&auto=format&fit=crop',
+    is_prestige: false,
+    return_rate_basic: 2.00,
+    return_rate_premium: 8.00,
+    created_at: new Date().toISOString()
+  },
+  {
+    id: 'prod-7',
+    title: 'Chamarra The North Face Nuptse 1996',
+    description: 'La chamarra de plumón icónica con corte cuadrado, tejido ripstop brillante y gorro empacable.',
+    price: 6499.00,
+    original_price: 8199.00,
     inventory: 8,
-    category: 'Relojes',
-    image_url: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&auto=format&fit=crop',
+    category: 'Ropa',
+    image_url: 'https://images.unsplash.com/photo-1608063615781-e2ef8c73d114?w=600&auto=format&fit=crop',
     is_prestige: true,
     return_rate_basic: 4.00,
     return_rate_premium: 15.00,
     created_at: new Date().toISOString()
   },
   {
-    id: 'prod-5',
-    title: 'Casio G-Shock GA-2100',
-    description: 'El famoso "CasiOak" con estructura de carbono octagonal, ultra resistente y ligero.',
-    price: 2199.00,
-    original_price: 2699.00,
-    inventory: 30,
-    category: 'Relojes',
-    image_url: 'https://images.unsplash.com/photo-1547996160-81dfa63595aa?w=600&auto=format&fit=crop',
+    id: 'prod-8',
+    title: 'Jeans Levi\'s 501 Original Fit',
+    description: 'Los pantalones de mezclilla clásicos con corte recto y bragueta de botones originales de Levi\'s.',
+    price: 1499.00,
+    original_price: 1999.00,
+    inventory: 35,
+    category: 'Ropa',
+    image_url: 'https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=600&auto=format&fit=crop',
     is_prestige: false,
     return_rate_basic: 2.00,
-    return_rate_premium: 8.50,
-    created_at: new Date().toISOString()
-  },
-  {
-    id: 'prod-6',
-    title: 'New Era 59FIFTY NY Yankees',
-    description: 'Gorra cerrada clásica estructurada con el logotipo bordado de los Yankees de Nueva York.',
-    price: 799.00,
-    original_price: 999.00,
-    inventory: 40,
-    category: 'Gorras',
-    image_url: 'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=600&auto=format&fit=crop',
-    is_prestige: false,
-    return_rate_basic: 1.50,
-    return_rate_premium: 6.00,
-    created_at: new Date().toISOString()
-  },
-  {
-    id: 'prod-7',
-    title: 'Ray-Ban Wayfarer Classic',
-    description: 'Lentes de sol icónicos con armazón de acetato negro brillante y micas verdes clásicas G-15.',
-    price: 2999.00,
-    original_price: 3799.00,
-    inventory: 12,
-    category: 'Lentes',
-    image_url: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=600&auto=format&fit=crop',
-    is_prestige: true,
-    return_rate_basic: 3.50,
-    return_rate_premium: 12.00,
-    created_at: new Date().toISOString()
-  },
-  {
-    id: 'prod-8',
-    title: 'Coach Charter Crossbody',
-    description: 'Bolsa cruzada de piel granulada con compartimentos con cierre y correa ajustable para hombro.',
-    price: 5600.00,
-    original_price: 6800.00,
-    inventory: 6,
-    category: 'Bolsas',
-    image_url: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=600&auto=format&fit=crop',
-    is_prestige: true,
-    return_rate_basic: 4.00,
-    return_rate_premium: 14.00,
+    return_rate_premium: 8.00,
     created_at: new Date().toISOString()
   },
   {
     id: 'prod-9',
-    title: 'Minoxidil Kirkland 5% (Paquete de 3)',
-    description: 'Tratamiento de crecimiento de cabello y barba para hombres, suministro para 3 meses.',
-    price: 699.00,
-    original_price: 999.00,
-    inventory: 50,
-    category: 'Cuidado Personal',
-    image_url: 'https://images.unsplash.com/photo-1608248597279-f99d160bfcbc?w=600&auto=format&fit=crop',
-    is_prestige: false,
-    return_rate_basic: 1.00,
-    return_rate_premium: 5.00,
+    title: 'Playera Balenciaga Oversized Black',
+    description: 'Playera de corte holgado de algodón orgánico con bordado Balenciaga minimalista en el pecho.',
+    price: 4100.00,
+    original_price: 5500.00,
+    inventory: 12,
+    category: 'Ropa',
+    image_url: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=600&auto=format&fit=crop',
+    is_prestige: true,
+    return_rate_basic: 3.50,
+    return_rate_premium: 14.00,
+    created_at: new Date().toISOString()
+  },
+  {
+    id: 'prod-10',
+    title: 'Chamarra Plumón Moncler Maya Black',
+    description: 'Chamarra de nailon laqué brillante acolchada con plumón, silueta clásica Moncler y parche en manga.',
+    price: 18999.00,
+    original_price: 24500.00,
+    inventory: 3,
+    category: 'Ropa',
+    image_url: 'https://images.unsplash.com/photo-1544923246-77307dd654cb?w=600&auto=format&fit=crop',
+    is_prestige: true,
+    return_rate_basic: 5.00,
+    return_rate_premium: 17.00,
     created_at: new Date().toISOString()
   }
 ]
@@ -677,6 +726,34 @@ export const DataService = {
     const user = await this.getCurrentUser()
     if (!user) return null
 
+    // 1. Obtener y validar productos en venta
+    const productIds = items.map(i => i.product_id)
+    let dbProducts: Product[] = []
+    
+    if (isSupabaseConfigured()) {
+      const supabase = await createClient()
+      const { data } = await supabase.from('products').select('*').in('id', productIds)
+      dbProducts = (data || []) as Product[]
+    } else {
+      assertMockAllowed()
+      const mockProds = await getCookieData<Product[]>('mock_products', SEED_PRODUCTS)
+      dbProducts = mockProds.filter(p => productIds.includes(p.id))
+    }
+
+    // Validar membresía Signature activa y vigente si hay algún producto exclusivo (Prestige)
+    const hasPrestigeProduct = dbProducts.some(p => p.is_prestige)
+    if (hasPrestigeProduct) {
+      const profile = await this.getCurrentUserProfile()
+      const isPremium = profile?.membership_tier === 'premium'
+      const isExpired = profile?.membership_expires_at 
+        ? new Date(profile.membership_expires_at) <= new Date() 
+        : true
+        
+      if (!isPremium || isExpired) {
+        throw new Error('Operación bloqueada en el servidor: Se requiere una membresía Signature activa y vigente para comprar productos exclusivos Prestige.')
+      }
+    }
+
     if (isSupabaseConfigured()) {
       const supabase = await createClient()
       
@@ -720,42 +797,12 @@ export const DataService = {
         }
       }
 
-      // 4. Calcular y acreditar Activos Club (Recompensas)
-      let rewardEarned = 0
-      const profile = await this.getCurrentUserProfile()
-      const tier = profile?.membership_tier
-
-      if (tier) {
-        const productIds = items.map(i => i.product_id)
-        const { data: dbProducts } = await supabase.from('products').select('*').in('id', productIds)
-        if (dbProducts) {
-          items.forEach(item => {
-            const prod = dbProducts.find(p => p.id === item.product_id)
-            if (prod) {
-              const rate = tier === 'premium' ? (prod.return_rate_premium || 10.00) : (prod.return_rate_basic || 2.00)
-              rewardEarned += Number((item.price * item.quantity * (rate / 100)).toFixed(2))
-            }
-          })
-        }
-      }
-
-      if (rewardEarned > 0) {
-        const newBalance = Number(((profile?.reward_balance || 0) + rewardEarned).toFixed(2))
-        await supabase.from('profiles').update({ reward_balance: newBalance }).eq('id', user.id)
-        await supabase.from('reward_transactions').insert({
-          user_id: user.id,
-          amount: rewardEarned,
-          type: 'purchase_reward',
-          reference_id: order.id,
-          description: `Retorno Activo generado por la compra del pedido #${order.id.slice(0, 8)}`
-        })
-      }
-
-      // 5. Limpiar el carrito
+      // 4. Limpiar el carrito (las recompensas se acreditarán al confirmarse el pago)
       await this.clearCart()
 
       return order as Order
     } else {
+      assertMockAllowed()
       const orders = await getCookieData<Order[]>('mock_orders', [])
       const products = await this.getProducts()
       
@@ -793,40 +840,6 @@ export const DataService = {
       })
       await setCookieData('mock_products', mockProducts)
 
-      // Calcular y acreditar Activos Club (Recompensas)
-      let rewardEarned = 0
-      const profiles = await getCookieData<Profile[]>('mock_profiles', [])
-      const profileIdx = profiles.findIndex(p => p.id === user.id)
-      const profile = profileIdx !== -1 ? profiles[profileIdx] : null
-      const tier = profile?.membership_tier
-
-      if (tier && profile) {
-        items.forEach(item => {
-          const prod = products.find(p => p.id === item.product_id)
-          if (prod) {
-            const rate = tier === 'premium' ? (prod.return_rate_premium || 10.00) : (prod.return_rate_basic || 2.00)
-            rewardEarned += Number((item.price * item.quantity * (rate / 100)).toFixed(2))
-          }
-        })
-      }
-
-      if (rewardEarned > 0 && profile && profileIdx !== -1) {
-        profile.reward_balance = Number(((profile.reward_balance || 0) + rewardEarned).toFixed(2))
-        await setCookieData('mock_profiles', profiles)
-
-        const transactions = await getCookieData<RewardTransaction[]>('mock_reward_transactions', [])
-        transactions.push({
-          id: 'tx-' + Math.random().toString(36).substr(2, 9),
-          user_id: user.id,
-          amount: rewardEarned,
-          type: 'purchase_reward',
-          reference_id: newOrderId,
-          description: `Retorno Activo generado por la compra del pedido #${newOrderId.slice(0, 8)}`,
-          created_at: new Date().toISOString()
-        })
-        await setCookieData('mock_reward_transactions', transactions)
-      }
-
       // Limpiar el carrito del usuario
       await this.clearCart()
 
@@ -837,20 +850,185 @@ export const DataService = {
   async updateOrderStatus(orderId: string, status: 'pending' | 'shipped' | 'completed'): Promise<boolean> {
     if (isSupabaseConfigured()) {
       const supabase = await createClient()
-      const { error } = await supabase
+
+      // 1. Obtener estado actual del pedido para ver si hay cambios relevantes
+      const { data: order, error: orderErr } = await supabase
+        .from('orders')
+        .select('*, items:order_items(*, product:products(*))')
+        .eq('id', orderId)
+        .single()
+
+      if (orderErr || !order) return false
+      const oldStatus = order.status
+
+      if (oldStatus === status) return true // Sin cambios
+
+      // 2. Actualizar el estado del pedido
+      const { error: updateErr } = await supabase
         .from('orders')
         .update({ status })
         .eq('id', orderId)
-      return !error
+
+      if (updateErr) return false
+
+      // 3. Manejo de recompensas
+      if (status === 'completed' && oldStatus !== 'completed') {
+        // Idempotencia: Verificar si ya existe una transacción de recompensa para este pedido
+        const { data: existingTx } = await supabase
+          .from('reward_transactions')
+          .select('id')
+          .eq('order_id', orderId)
+          .eq('type', 'reward_earned')
+          .maybeSingle()
+
+        if (!existingTx) {
+          // Obtener perfil del usuario
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', order.user_id)
+            .single()
+
+          const tier = profile?.membership_tier
+          if (tier && profile) {
+            let rewardEarned = 0
+            order.items.forEach((item: any) => {
+              const prod = item.product
+              if (prod) {
+                const rate = tier === 'premium' ? (prod.return_rate_premium || 10.00) : (prod.return_rate_basic || 2.00)
+                rewardEarned += Number((item.price * item.quantity * (rate / 100)).toFixed(2))
+              }
+            })
+
+            if (rewardEarned > 0) {
+              const newBalance = Number(((profile.reward_balance || 0) + rewardEarned).toFixed(2))
+              // Acreditación atómica
+              await supabase.from('profiles').update({ reward_balance: newBalance }).eq('id', order.user_id)
+              await supabase.from('reward_transactions').insert({
+                user_id: order.user_id,
+                amount: rewardEarned,
+                type: 'reward_earned',
+                status: 'available',
+                order_id: orderId,
+                description: `Saldo Club acreditado por compra confirmada en pedido #${orderId.slice(0, 8)}`
+              })
+            }
+          }
+        }
+      } else if (oldStatus === 'completed' && status !== 'completed') {
+        // Reversión de recompensa (pedido cancelado o devuelto)
+        const { data: existingTx } = await supabase
+          .from('reward_transactions')
+          .select('*')
+          .eq('order_id', orderId)
+          .eq('type', 'reward_earned')
+          .maybeSingle()
+
+        if (existingTx) {
+          const rewardAmount = Number(existingTx.amount)
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', order.user_id)
+            .single()
+
+          if (profile) {
+            const newBalance = Math.max(0, Number(((profile.reward_balance || 0) - rewardAmount).toFixed(2)))
+            await supabase.from('profiles').update({ reward_balance: newBalance }).eq('id', order.user_id)
+            await supabase.from('reward_transactions').insert({
+              user_id: order.user_id,
+              amount: -rewardAmount,
+              type: 'reward_reversed',
+              status: 'reversed',
+              order_id: orderId,
+              description: `Saldo Club reversado por cambio de estado en pedido #${orderId.slice(0, 8)}`
+            })
+          }
+        }
+      }
+
+      return true
     } else {
+      assertMockAllowed()
       const orders = await getCookieData<Order[]>('mock_orders', [])
       const index = orders.findIndex(o => o.id === orderId)
-      if (index !== -1) {
-        orders[index].status = status
-        await setCookieData('mock_orders', orders)
-        return true
+      if (index === -1) return false
+
+      const order = orders[index]
+      const oldStatus = order.status
+      if (oldStatus === status) return true
+
+      order.status = status
+      await setCookieData('mock_orders', orders)
+
+      if (status === 'completed' && oldStatus !== 'completed') {
+        const transactions = await getCookieData<RewardTransaction[]>('mock_reward_transactions', [])
+        const existingTx = transactions.find(t => t.order_id === orderId && t.type === 'reward_earned')
+
+        if (!existingTx) {
+          const profiles = await getCookieData<Profile[]>('mock_profiles', [])
+          const profileIdx = profiles.findIndex(p => p.id === order.user_id)
+          const profile = profileIdx !== -1 ? profiles[profileIdx] : null
+          const tier = profile?.membership_tier
+
+          if (tier && profile) {
+            let rewardEarned = 0
+            const products = await this.getProducts()
+            order.items?.forEach((item: any) => {
+              const prod = products.find(p => p.id === item.product_id)
+              if (prod) {
+                const rate = tier === 'premium' ? (prod.return_rate_premium || 10.00) : (prod.return_rate_basic || 2.00)
+                rewardEarned += Number((item.price * item.quantity * (rate / 100)).toFixed(2))
+              }
+            })
+
+            if (rewardEarned > 0 && profileIdx !== -1) {
+              profile.reward_balance = Number(((profile.reward_balance || 0) + rewardEarned).toFixed(2))
+              await setCookieData('mock_profiles', profiles)
+
+              transactions.push({
+                id: 'tx-' + Math.random().toString(36).substr(2, 9),
+                user_id: order.user_id!,
+                amount: rewardEarned,
+                type: 'reward_earned',
+                status: 'available',
+                order_id: orderId,
+                description: `Saldo Club acreditado por compra confirmada en pedido #${orderId.slice(0, 8)}`,
+                created_at: new Date().toISOString()
+              })
+              await setCookieData('mock_reward_transactions', transactions)
+            }
+          }
+        }
+      } else if (oldStatus === 'completed' && status !== 'completed') {
+        const transactions = await getCookieData<RewardTransaction[]>('mock_reward_transactions', [])
+        const existingTx = transactions.find(t => t.order_id === orderId && t.type === 'reward_earned')
+
+        if (existingTx) {
+          const rewardAmount = Number(existingTx.amount)
+          const profiles = await getCookieData<Profile[]>('mock_profiles', [])
+          const profileIdx = profiles.findIndex(p => p.id === order.user_id)
+          const profile = profileIdx !== -1 ? profiles[profileIdx] : null
+
+          if (profile && profileIdx !== -1) {
+            profile.reward_balance = Math.max(0, Number(((profile.reward_balance || 0) - rewardAmount).toFixed(2)))
+            await setCookieData('mock_profiles', profiles)
+
+            transactions.push({
+              id: 'tx-' + Math.random().toString(36).substr(2, 9),
+              user_id: order.user_id!,
+              amount: -rewardAmount,
+              type: 'reward_reversed',
+              status: 'reversed',
+              order_id: orderId,
+              description: `Saldo Club reversado por cambio de estado en pedido #${orderId.slice(0, 8)}`,
+              created_at: new Date().toISOString()
+            })
+            await setCookieData('mock_reward_transactions', transactions)
+          }
+        }
       }
-      return false
+      return true
     }
   },
 
@@ -1129,28 +1307,83 @@ export const DataService = {
     }
   },
 
-  async getActiveInvestments(): Promise<TermInvestment[]> {
+  async getActiveReservations(): Promise<RewardReservation[]> {
     const user = await this.getCurrentUser()
     if (!user) return []
 
     if (isSupabaseConfigured()) {
       const supabase = await createClient()
-      const { data, error } = await supabase
-        .from('term_investments')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
-      if (error || !data) return []
-      return data as TermInvestment[]
+      
+      try {
+        const { data, error } = await supabase
+          .from('reward_reservations')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+
+        if (error) {
+          if (process.env.NODE_ENV !== 'production') {
+            console.warn('[DataService Fallback Warning]: Error fetching from "reward_reservations", trying legacy table "term_investments".', error);
+          }
+          const { data: legacyData, error: legacyError } = await supabase
+            .from('term_investments')
+            .select('*')
+            .eq('user_id', user.id)
+            .order('created_at', { ascending: false })
+
+          if (legacyError) {
+            console.error('[DataService Fallback Error]: Both "reward_reservations" and "term_investments" failed to load.', legacyError);
+            return []
+          }
+          return (legacyData || []).map((legacy: { id: string; user_id: string; amount: number; term_months: number; annual_rate: number; start_date: string; end_date: string; expected_yield: number; status: string; created_at: string }) => ({
+            id: legacy.id,
+            user_id: legacy.user_id,
+            amount: Number(legacy.amount),
+            term_months: legacy.term_months,
+            bonus_rate: Number(legacy.annual_rate),
+            start_date: legacy.start_date,
+            release_date: legacy.end_date,
+            expected_bonus: Number(legacy.expected_yield),
+            status: (legacy.status === 'completed' ? 'released' : legacy.status) as 'active' | 'released' | 'cancelled' | 'expired',
+            created_at: legacy.created_at
+          }))
+        }
+        return data as RewardReservation[]
+      } catch (err) {
+        console.error('[DataService Critical Error] in getActiveReservations:', err)
+        return []
+      }
     } else {
-      const invs = await getCookieData<TermInvestment[]>('mock_term_investments', [])
-      return invs
+      assertMockAllowed()
+      // En modo simulación, intentar leer de mock_reward_reservations y si no hay, de mock_term_investments
+      let resvs = await getCookieData<RewardReservation[]>('mock_reward_reservations', [])
+      if (resvs.length === 0) {
+        const legacyMock = await getCookieData<{ id: string; user_id: string; amount: number; term_months: number; annual_rate: number; start_date: string; end_date: string; expected_yield: number; status: string; created_at: string }[]>('mock_term_investments', [])
+        resvs = legacyMock.map(legacy => ({
+          id: legacy.id,
+          user_id: legacy.user_id,
+          amount: Number(legacy.amount),
+          term_months: legacy.term_months,
+          bonus_rate: Number(legacy.annual_rate),
+          start_date: legacy.start_date,
+          release_date: legacy.end_date,
+          expected_bonus: Number(legacy.expected_yield),
+          status: (legacy.status === 'completed' ? 'released' : legacy.status) as 'active' | 'released' | 'cancelled' | 'expired',
+          created_at: legacy.created_at
+        }))
+      }
+      return resvs
         .filter(i => i.user_id === user.id)
         .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
     }
   },
 
-  async createInvestment(amount: number, termMonths: number): Promise<{ success: boolean; message: string }> {
+  // Alias para mantener compatibilidad con imports existentes
+  async getActiveInvestments(): Promise<TermInvestment[]> {
+    return this.getActiveReservations()
+  },
+
+  async createReservation(amount: number, termMonths: number): Promise<{ success: boolean; message: string }> {
     const user = await this.getCurrentUser()
     if (!user) return { success: false, message: 'Usuario no autenticado' }
 
@@ -1159,35 +1392,56 @@ export const DataService = {
 
     const currentBalance = profile.reward_balance || 0
     if (currentBalance < amount) {
-      return { success: false, message: 'Saldo de Activos insuficiente' }
+      return { success: false, message: 'Saldo Club insuficiente' }
     }
 
-    // Definición de tasas anuales por membresía
-    // Acceso (basic): 1m = 5%, 3m = 8%, 6m = 12%, 12m = 15%
-    // Signature (premium): 1m = 7%, 3m = 10%, 6m = 14%, 12m = 17%
+    // Obtener tasa de bonificación basada en la membresía y el periodo
+    let bonusRate = 5
     const isPremium = profile.membership_tier === 'premium'
-    let annualRate = 5
-    if (termMonths === 1) annualRate = isPremium ? 7 : 5
-    else if (termMonths === 3) annualRate = isPremium ? 10 : 8
-    else if (termMonths === 6) annualRate = isPremium ? 14 : 12
-    else if (termMonths === 12) annualRate = isPremium ? 17 : 15
+    
+    if (isSupabaseConfigured()) {
+      const supabase = await createClient()
+      const { data: rule } = await supabase
+        .from('reward_bonus_rules')
+        .select('bonus_rate')
+        .eq('membership_tier', profile.membership_tier || 'basic')
+        .eq('term_months', termMonths)
+        .eq('is_active', true)
+        .maybeSingle()
+      if (rule) {
+        bonusRate = Number(rule.bonus_rate)
+      } else {
+        if (termMonths === 1) bonusRate = isPremium ? 7 : 5
+        else if (termMonths === 3) bonusRate = isPremium ? 10 : 8
+        else if (termMonths === 6) bonusRate = isPremium ? 14 : 12
+        else if (termMonths === 12) bonusRate = isPremium ? 17 : 15
+      }
+    } else {
+      assertMockAllowed()
+      if (termMonths === 1) bonusRate = isPremium ? 7 : 5
+      else if (termMonths === 3) bonusRate = isPremium ? 10 : 8
+      else if (termMonths === 6) bonusRate = isPremium ? 14 : 12
+      else if (termMonths === 12) bonusRate = isPremium ? 17 : 15
+    }
 
-    const expectedYield = Number((amount * (annualRate / 100) * (termMonths / 12)).toFixed(2))
+    const expectedBonus = Number((amount * (bonusRate / 100) * (termMonths / 12)).toFixed(2))
     const startDate = new Date().toISOString()
-    const endDate = new Date(Date.now() + termMonths * 30 * 24 * 60 * 60 * 1000).toISOString()
-    const investmentId = 'inv-' + Math.random().toString(36).substr(2, 9)
+    const releaseDate = new Date(Date.now() + termMonths * 30 * 24 * 60 * 60 * 1000).toISOString()
+    const reservationId = 'res-' + Math.random().toString(36).substr(2, 9)
 
-    const newInvestment: TermInvestment = {
-      id: investmentId,
+    const newReservation: RewardReservation = {
+      id: reservationId,
       user_id: user.id,
       amount,
       term_months: termMonths,
-      annual_rate: annualRate,
+      bonus_rate: bonusRate,
       start_date: startDate,
-      end_date: endDate,
-      expected_yield: expectedYield,
+      release_date: releaseDate,
+      expected_bonus: expectedBonus,
       status: 'active',
-      created_at: startDate
+      created_at: startDate,
+      membership_tier_at_creation: profile.membership_tier,
+      calculation_formula_version: 'v1'
     }
 
     const newBalance = Number((currentBalance - amount).toFixed(2))
@@ -1200,40 +1454,86 @@ export const DataService = {
         .update({ reward_balance: newBalance })
         .eq('id', user.id)
 
-      if (profileError) return { success: false, message: 'Error actualizando saldo' }
+      if (profileError) return { success: false, message: 'Error al actualizar balance de recompensas' }
 
-      const { error: invError, data: invData } = await supabase
-        .from('term_investments')
+      // Intentar insertar primero en la nueva tabla
+      const { error: resError, data: resData } = await supabase
+        .from('reward_reservations')
         .insert({
           user_id: user.id,
           amount,
           term_months: termMonths,
-          annual_rate: annualRate,
-          end_date: endDate,
-          expected_yield: expectedYield,
-          status: 'active'
+          bonus_rate: bonusRate,
+          release_date: releaseDate,
+          expected_bonus: expectedBonus,
+          status: 'active',
+          membership_tier_at_creation: profile.membership_tier,
+          calculation_formula_version: 'v1'
         })
         .select()
         .single()
 
-      if (invError) {
-        // Revertir saldo
+      if (resError) {
+        // Fallback si la tabla nueva no existe
+        if (resError.code === '42P01') {
+          if (process.env.NODE_ENV !== 'production') {
+            console.warn('[DataService Fallback]: Table "reward_reservations" does not exist. Saving to legacy "term_investments" table.');
+          }
+          const { error: legacyError, data: legacyData } = await supabase
+            .from('term_investments')
+            .insert({
+              user_id: user.id,
+              amount,
+              term_months: termMonths,
+              annual_rate: bonusRate,
+              end_date: releaseDate,
+              expected_yield: expectedBonus,
+              status: 'active'
+            })
+            .select()
+            .single()
+
+          if (legacyError) {
+            // Revertir balance
+            await supabase.from('profiles').update({ reward_balance: currentBalance }).eq('id', user.id)
+            return { success: false, message: 'Error al crear reserva (legacy)' }
+          }
+
+          // Acreditación atómica de transacción de retiro/bloqueo
+          await supabase
+            .from('reward_transactions')
+            .insert({
+              user_id: user.id,
+              amount: -amount,
+              type: 'reward_reserved',
+              status: 'reserved',
+              reference_id: legacyData.id,
+              description: `Saldo Club reservado por periodo de permanencia a ${termMonths} mes(es) al ${bonusRate}%`
+            })
+
+          return { success: true, message: 'Saldo reservado con éxito (modo legacy)' }
+        }
+
+        // Revertir balance si falló por otra causa
         await supabase.from('profiles').update({ reward_balance: currentBalance }).eq('id', user.id)
-        return { success: false, message: 'Error creando la inversión' }
+        return { success: false, message: 'Error al crear la reserva de saldo' }
       }
 
+      // Transacción de auditoría atómica
       await supabase
         .from('reward_transactions')
         .insert({
           user_id: user.id,
           amount: -amount,
-          type: 'investment_locked',
-          reference_id: invData.id,
-          description: `Inversión congelada a ${termMonths} mes(es) al ${annualRate}% anual`
+          type: 'reward_reserved',
+          status: 'reserved',
+          reference_id: resData.id,
+          description: `Saldo Club reservado por periodo de permanencia a ${termMonths} mes(es) al ${bonusRate}%`
         })
 
-      return { success: true, message: 'Inversión creada con éxito' }
+      return { success: true, message: 'Saldo reservado con éxito' }
     } else {
+      assertMockAllowed()
       // Mock local
       const profiles = await getCookieData<Profile[]>('mock_profiles', [])
       const updatedProfiles = profiles.map(p => {
@@ -1244,46 +1544,104 @@ export const DataService = {
       })
       await setCookieData('mock_profiles', updatedProfiles)
 
-      const investments = await getCookieData<TermInvestment[]>('mock_term_investments', [])
-      investments.push(newInvestment)
-      await setCookieData('mock_term_investments', investments)
+      const reservations = await getCookieData<RewardReservation[]>('mock_reward_reservations', [])
+      reservations.push(newReservation)
+      await setCookieData('mock_reward_reservations', reservations)
 
       const transactions = await getCookieData<RewardTransaction[]>('mock_reward_transactions', [])
-      const newTransaction: RewardTransaction = {
+      transactions.push({
         id: 'tx-' + Math.random().toString(36).substr(2, 9),
         user_id: user.id,
         amount: -amount,
-        type: 'investment_locked',
-        reference_id: investmentId,
-        description: `Inversión congelada a ${termMonths} mes(es) al ${annualRate}% anual`,
+        type: 'reward_reserved',
+        status: 'reserved',
+        reference_id: reservationId,
+        description: `Saldo Club reservado por periodo de permanencia a ${termMonths} mes(es) al ${bonusRate}%`,
         created_at: new Date().toISOString()
-      }
-      transactions.push(newTransaction)
+      })
       await setCookieData('mock_reward_transactions', transactions)
 
-      return { success: true, message: 'Inversión creada con éxito' }
+      return { success: true, message: 'Saldo reservado con éxito' }
     }
   },
 
-  async simulateTermCompletion(investmentId: string): Promise<{ success: boolean; message: string }> {
+  // Alias legacy para compatibilidad
+  async createInvestment(amount: number, termMonths: number): Promise<{ success: boolean; message: string }> {
+    return this.createReservation(amount, termMonths)
+  },
+
+  async simulateRelease(reservationId: string): Promise<{ success: boolean; message: string }> {
     const user = await this.getCurrentUser()
     if (!user) return { success: false, message: 'Usuario no autenticado' }
 
     if (isSupabaseConfigured()) {
       const supabase = await createClient()
-      const { data: inv, error: invError } = await supabase
-        .from('term_investments')
+      
+      // Intentar primero consultar la nueva tabla
+      const { data: resv, error: resvError } = await supabase
+        .from('reward_reservations')
         .select('*')
-        .eq('id', investmentId)
+        .eq('id', reservationId)
         .single()
 
-      if (invError || !inv) return { success: false, message: 'Inversión no encontrada' }
-      if (inv.status === 'completed') return { success: false, message: 'La inversión ya fue completada' }
+      if (resvError) {
+        // Fallback si la tabla nueva no existe
+        if (resvError.code === '42P01') {
+          if (process.env.NODE_ENV !== 'production') {
+            console.warn('[DataService Fallback]: Table "reward_reservations" does not exist. Releasing legacy "term_investments" record.');
+          }
+          const { data: legacyInv, error: legacyErr } = await supabase
+            .from('term_investments')
+            .select('*')
+            .eq('id', reservationId)
+            .single()
 
-      const totalReturn = Number((inv.amount + inv.expected_yield).toFixed(2))
+          if (legacyErr || !legacyInv) return { success: false, message: 'Colocación legacy no encontrada' }
+          if (legacyInv.status === 'completed') return { success: false, message: 'Esta colocación ya fue liberada' }
 
+          const totalReturn = Number((Number(legacyInv.amount) + Number(legacyInv.expected_yield)).toFixed(2))
+          const profile = await this.getCurrentUserProfile()
+          if (!profile) return { success: false, message: 'Perfil no encontrado' }
+          
+          const newBalance = Number(((profile.reward_balance || 0) + totalReturn).toFixed(2))
+
+          const { error: profileError } = await supabase
+            .from('profiles')
+            .update({ reward_balance: newBalance })
+            .eq('id', user.id)
+
+          if (profileError) return { success: false, message: 'Error al acreditar saldo' }
+
+          const { error: updateLegacyError } = await supabase
+            .from('term_investments')
+            .update({ status: 'completed' })
+            .eq('id', reservationId)
+
+          if (updateLegacyError) return { success: false, message: 'Error al cambiar estatus legacy' }
+
+          await supabase
+            .from('reward_transactions')
+            .insert({
+              user_id: user.id,
+              amount: totalReturn,
+              type: 'reward_released',
+              status: 'released',
+              reference_id: reservationId,
+              description: `Liberación de permanencia de saldo acreditado (+${legacyInv.expected_yield} bonificación)`
+            })
+
+          return { success: true, message: 'Saldo de permanencia liberado con éxito (modo legacy)' }
+        }
+
+        return { success: false, message: 'Reserva no encontrada' }
+      }
+
+      if (resv.status === 'released') return { success: false, message: 'La reserva ya fue liberada anteriormente.' }
+
+      const totalReturn = Number((Number(resv.amount) + Number(resv.expected_bonus)).toFixed(2))
       const profile = await this.getCurrentUserProfile()
       if (!profile) return { success: false, message: 'Perfil no encontrado' }
+      
       const newBalance = Number(((profile.reward_balance || 0) + totalReturn).toFixed(2))
 
       const { error: profileError } = await supabase
@@ -1291,63 +1649,100 @@ export const DataService = {
         .update({ reward_balance: newBalance })
         .eq('id', user.id)
 
-      if (profileError) return { success: false, message: 'Error actualizando saldo de activos' }
+      if (profileError) return { success: false, message: 'Error al acreditar saldo de bonificación' }
 
-      const { error: updateInvError } = await supabase
-        .from('term_investments')
-        .update({ status: 'completed' })
-        .eq('id', investmentId)
+      const { error: updateResError } = await supabase
+        .from('reward_reservations')
+        .update({ status: 'released', updated_at: new Date().toISOString() })
+        .eq('id', reservationId)
 
-      if (updateInvError) return { success: false, message: 'Error actualizando estado de inversión' }
+      if (updateResError) return { success: false, message: 'Error al actualizar estatus de reserva' }
 
       await supabase
         .from('reward_transactions')
         .insert({
           user_id: user.id,
           amount: totalReturn,
-          type: 'investment_returned',
-          reference_id: investmentId,
-          description: `Retorno de inversión a plazo más rendimiento generado (+${inv.expected_yield})`
+          type: 'reward_released',
+          status: 'released',
+          reference_id: reservationId,
+          description: `Liberación de permanencia de saldo acreditado (+${resv.expected_bonus} bonificación)`
         })
 
-      return { success: true, message: 'Plazo completado con éxito, rendimiento acreditado' }
+      return { success: true, message: 'Saldo de permanencia liberado con éxito' }
     } else {
-      const investments = await getCookieData<TermInvestment[]>('mock_term_investments', [])
-      const invIndex = investments.findIndex(i => i.id === investmentId)
-      if (invIndex === -1) return { success: false, message: 'Inversión no encontrada' }
-      
-      const inv = investments[invIndex]
-      if (inv.status === 'completed') return { success: false, message: 'La inversión ya fue completada' }
+      assertMockAllowed()
+      // Mock local
+      const reservations = await getCookieData<any[]>('mock_reward_reservations', [])
+      const idx = reservations.findIndex(r => r.id === reservationId)
+      if (idx === -1) {
+        // Buscar en legacy mock
+        const legacyMock = await getCookieData<any[]>('mock_term_investments', [])
+        const lIdx = legacyMock.findIndex(l => l.id === reservationId)
+        if (lIdx === -1) return { success: false, message: 'Reserva no encontrada' }
 
-      inv.status = 'completed'
-      await setCookieData('mock_term_investments', investments)
+        const legacyInv = legacyMock[lIdx]
+        if (legacyInv.status === 'completed') return { success: false, message: 'Esta reserva ya fue liberada' }
 
-      const totalReturn = Number((inv.amount + inv.expected_yield).toFixed(2))
+        legacyInv.status = 'completed'
+        await setCookieData('mock_term_investments', legacyMock)
 
-      const profiles = await getCookieData<Profile[]>('mock_profiles', [])
-      const updatedProfiles = profiles.map(p => {
-        if (p.id === user.id) {
-          const prevBalance = p.reward_balance || 0
-          return { ...p, reward_balance: Number((prevBalance + totalReturn).toFixed(2)) }
+        const totalReturn = Number((Number(legacyInv.amount) + Number(legacyInv.expected_yield)).toFixed(2))
+        const profiles = await getCookieData<Profile[]>('mock_profiles', [])
+        const profileIdx = profiles.findIndex(p => p.id === user.id)
+        if (profileIdx !== -1) {
+          profiles[profileIdx].reward_balance = Number(((profiles[profileIdx].reward_balance || 0) + totalReturn).toFixed(2))
+          await setCookieData('mock_profiles', profiles)
         }
-        return p
-      })
-      await setCookieData('mock_profiles', updatedProfiles)
+
+        const transactions = await getCookieData<RewardTransaction[]>('mock_reward_transactions', [])
+        transactions.push({
+          id: 'tx-' + Math.random().toString(36).substr(2, 9),
+          user_id: user.id,
+          amount: totalReturn,
+          type: 'reward_released',
+          status: 'released',
+          reference_id: reservationId,
+          description: `Liberación de permanencia de saldo acreditado (+${legacyInv.expected_yield} bonificación)`,
+          created_at: new Date().toISOString()
+        })
+        await setCookieData('mock_reward_transactions', transactions)
+        return { success: true, message: 'Saldo liberado con éxito' }
+      }
+
+      const resv = reservations[idx]
+      if (resv.status === 'released') return { success: false, message: 'Esta reserva ya fue liberada' }
+
+      resv.status = 'released'
+      await setCookieData('mock_reward_reservations', reservations)
+
+      const totalReturn = Number((Number(resv.amount) + Number(resv.expected_bonus)).toFixed(2))
+      const profiles = await getCookieData<Profile[]>('mock_profiles', [])
+      const profileIdx = profiles.findIndex(p => p.id === user.id)
+      if (profileIdx !== -1) {
+        profiles[profileIdx].reward_balance = Number(((profiles[profileIdx].reward_balance || 0) + totalReturn).toFixed(2))
+        await setCookieData('mock_profiles', profiles)
+      }
 
       const transactions = await getCookieData<RewardTransaction[]>('mock_reward_transactions', [])
-      const newTransaction: RewardTransaction = {
+      transactions.push({
         id: 'tx-' + Math.random().toString(36).substr(2, 9),
         user_id: user.id,
         amount: totalReturn,
-        type: 'investment_returned',
-        reference_id: investmentId,
-        description: `Retorno de inversión a plazo más rendimiento generado (+${inv.expected_yield})`,
+        type: 'reward_released',
+        status: 'released',
+        reference_id: reservationId,
+        description: `Liberación de permanencia de saldo acreditado (+${resv.expected_bonus} bonificación)`,
         created_at: new Date().toISOString()
-      }
-      transactions.push(newTransaction)
+      })
       await setCookieData('mock_reward_transactions', transactions)
 
-      return { success: true, message: 'Plazo completado con éxito, rendimiento acreditado' }
+      return { success: true, message: 'Saldo liberado con éxito' }
     }
+  },
+
+  // Alias legacy para compatibilidad
+  async simulateTermCompletion(investmentId: string): Promise<{ success: boolean; message: string }> {
+    return this.simulateRelease(investmentId)
   }
 }

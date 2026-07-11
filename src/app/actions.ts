@@ -57,6 +57,11 @@ export async function signInAction(prevState: any, formData: FormData) {
     }
   } else {
     // Modo Simulación (Mock)
+    const isProduction = process.env.NODE_ENV === 'production' || process.env.VERCEL_ENV === 'production'
+    if (isProduction) {
+      return { error: 'El modo simulación está deshabilitado en producción.' }
+    }
+
     const cookieStore = await cookies()
     const mockProfiles = await DataService.getProfiles()
     
@@ -156,6 +161,11 @@ export async function signUpAction(prevState: any, formData: FormData) {
     return { success: 'Registro exitoso. Si se requiere confirmación por correo, revisa tu bandeja de entrada.' }
   } else {
     // Modo Simulación (Mock)
+    const isProduction = process.env.NODE_ENV === 'production' || process.env.VERCEL_ENV === 'production'
+    if (isProduction) {
+      return { error: 'El modo simulación está deshabilitado en producción.' }
+    }
+
     const cookieStore = await cookies()
     const mockProfiles = await DataService.getProfiles()
 
@@ -204,6 +214,11 @@ export async function signOutAction() {
     await supabase.auth.signOut()
   } else {
     // Modo Simulación
+    const isProduction = process.env.NODE_ENV === 'production' || process.env.VERCEL_ENV === 'production'
+    if (isProduction) {
+      nextRedirect('/login')
+    }
+
     const cookieStore = await cookies()
     cookieStore.delete('mock_auth_user')
     cookieStore.delete('mock_user_role')
@@ -512,24 +527,44 @@ export async function subscribeToMembershipAction(tier: 'basic' | 'premium' | nu
   return { success: false, error: result.error || 'No se pudo actualizar tu membresía. Intenta de nuevo.' }
 }
 
-export async function createInvestmentAction(amount: number, termMonths: number) {
-  const result = await DataService.createInvestment(amount, termMonths)
+export async function createReservationAction(amount: number, termMonths: number) {
+  return { success: false, error: 'Esta operación está temporalmente inhabilitada por falta de contratos financieros y regulación.' }
+  
+  // Código preservado para futura activación:
+  /*
+  const result = await DataService.createReservation(amount, termMonths)
   if (result.success) {
     revalidatePath('/profile')
     revalidatePath('/vault')
     return { success: true }
   }
   return { success: false, error: result.message }
+  */
 }
 
-export async function simulateTermCompletionAction(investmentId: string) {
-  const result = await DataService.simulateTermCompletion(investmentId)
+// Alias legacy para compatibilidad
+export async function createInvestmentAction(amount: number, termMonths: number) {
+  return createReservationAction(amount, termMonths)
+}
+
+export async function simulateReleaseAction(reservationId: string) {
+  return { success: false, error: 'La liberación de saldo y rendimientos está temporalmente inhabilitada por falta de contratos financieros.' }
+
+  // Código preservado para futura activación:
+  /*
+  const result = await DataService.simulateRelease(reservationId)
   if (result.success) {
     revalidatePath('/profile')
     revalidatePath('/vault')
     return { success: true }
   }
   return { success: false, error: result.message }
+  */
+}
+
+// Alias legacy para compatibilidad
+export async function simulateTermCompletionAction(investmentId: string) {
+  return simulateReleaseAction(investmentId)
 }
 
 

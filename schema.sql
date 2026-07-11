@@ -63,7 +63,7 @@ CREATE TABLE public.products (
     price NUMERIC(10, 2) NOT NULL CHECK (price >= 0),
     original_price NUMERIC(10, 2) CHECK (original_price >= price),
     inventory INTEGER NOT NULL DEFAULT 0 CHECK (inventory >= 0),
-    category TEXT NOT NULL CHECK (category IN ('Tenis', 'Relojes', 'Gorras', 'Lentes', 'Bolsas', 'Cuidado Personal')),
+    category TEXT NOT NULL CHECK (category IN ('Ropa', 'Calzado')),
     image_url TEXT,
     is_prestige BOOLEAN NOT NULL DEFAULT FALSE,
     return_rate_basic NUMERIC(5, 2) NOT NULL DEFAULT 2.00 CHECK (return_rate_basic >= 0),
@@ -138,7 +138,7 @@ CREATE TABLE public.orders (
     user_id UUID REFERENCES auth.users ON DELETE SET NULL,
     customer_email TEXT NOT NULL,
     shipping_address TEXT NOT NULL,
-    status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'shipped', 'completed')),
+    status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'shipped', 'completed', 'pending_payment', 'paid', 'processing', 'delivered', 'cancelled', 'refunded')),
     total NUMERIC(10, 2) NOT NULL CHECK (total >= 0),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
@@ -248,30 +248,19 @@ CREATE OR REPLACE TRIGGER on_auth_user_created
 
 INSERT INTO public.products (title, description, price, original_price, inventory, category, image_url)
 VALUES
--- Categoría: Tenis
-('Nike Air Max 90 White', 'Los icónicos tenis de correr con amortiguación Air Max visible, ideales para el uso diario.', 2499.00, 3199.00, 25, 'Tenis', 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&auto=format&fit=crop'),
-('Adidas Ultraboost Light', 'Tenis de running de alto rendimiento con retorno de energía Boost y comodidad Primeknit.', 3499.00, 4299.00, 18, 'Tenis', 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=600&auto=format&fit=crop'),
-('Puma Slipstream Classic', 'Tenis retro de básquetbol de piel con un diseño limpio y moderno para el estilo de vida urbano.', 1899.00, 1899.00, 15, 'Tenis', 'https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?w=600&auto=format&fit=crop'),
+-- Categoría: Calzado
+('Nike Air Max 90 White', 'Los icónicos tenis de correr con amortiguación Air Max visible, de alta comodidad para el uso diario.', 2499.00, 3199.00, 25, 'Calzado', 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&auto=format&fit=crop'),
+('Adidas Ultraboost Light', 'Tenis de running de alto rendimiento con retorno de energía Boost y comodidad Primeknit.', 3499.00, 4299.00, 18, 'Calzado', 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=600&auto=format&fit=crop'),
+('Puma Slipstream Classic', 'Tenis retro de básquetbol de piel con un diseño limpio y moderno para el estilo de vida urbano.', 1899.00, 2200.00, 15, 'Calzado', 'https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?w=600&auto=format&fit=crop'),
+('Air Jordan 1 Retro High OG', 'La silueta legendaria en piel premium, colores clásicos y un ajuste óptimo para coleccionistas.', 4399.00, 5299.00, 10, 'Calzado', 'https://images.unsplash.com/photo-1556906781-9a412961c28c?w=600&auto=format&fit=crop'),
+('New Balance 550 White Green', 'Calzado casual retro inspirado en el básquetbol de los 80 con acabados de piel y gamuza.', 2899.00, 3299.00, 20, 'Calzado', 'https://images.unsplash.com/photo-1608231387042-66d1773070a5?w=600&auto=format&fit=crop'),
 
--- Categoría: Relojes
-('Seiko 5 Sports Automatic', 'Reloj automático japonés con caja de acero inoxidable, carátula negra y resistencia al agua de 100m.', 5800.00, 7200.00, 8, 'Relojes', 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&auto=format&fit=crop'),
-('Casio G-Shock GA-2100', 'El famoso "CasiOak" con estructura de carbono octagonal, ultra resistente y ligero.', 2199.00, 2699.00, 30, 'Relojes', 'https://images.unsplash.com/photo-1547996160-81dfa63595aa?w=600&auto=format&fit=crop'),
-
--- Categoría: Gorras
-('New Era 59FIFTY NY Yankees', 'Gorra cerrada clásica estructurada con el logotipo bordado de los Yankees de Nueva York.', 799.00, 999.00, 40, 'Gorras', 'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=600&auto=format&fit=crop'),
-('Gorra Goorin Bros The Panther', 'Gorra tipo trucker con parche de pantera en el panel frontal y malla transpirable trasera.', 899.00, 899.00, 20, 'Gorras', 'https://images.unsplash.com/photo-1576871337622-98d48d4aa53e?w=600&auto=format&fit=crop'),
-
--- Categoría: Lentes
-('Ray-Ban Wayfarer Classic', 'Lentes de sol icónicos con armazón de acetato negro brillante y micas verdes clásicas G-15.', 2999.00, 3799.00, 12, 'Lentes', 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=600&auto=format&fit=crop'),
-('Oakley Frogskins Black', 'Lentes deportivos de estilo de vida con armazón ligero O Matter y micas Prizm Grey.', 2299.00, 2899.00, 10, 'Lentes', 'https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=600&auto=format&fit=crop'),
-
--- Categoría: Bolsas
-('Coach Charter Crossbody', 'Bolsa cruzada de piel granulada con compartimentos con cierre y correa ajustable para hombro.', 5600.00, 6800.00, 6, 'Bolsas', 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=600&auto=format&fit=crop'),
-('Longchamp Le Pliage Original', 'Bolsa de hombro de nylon plegable con detalles en piel marrón, un clásico francés ultra práctico.', 2400.00, 2400.00, 14, 'Bolsas', 'https://images.unsplash.com/photo-1590874103328-eac38a683ce7?w=600&auto=format&fit=crop'),
-
--- Categoría: Cuidado Personal
-('Minoxidil Kirkland 5% (Paquete de 3)', 'Tratamiento de crecimiento de cabello y barba para hombres, suministro para 3 meses.', 699.00, 999.00, 50, 'Cuidado Personal', 'https://images.unsplash.com/photo-1608248597279-f99d160bfcbc?w=600&auto=format&fit=crop'),
-('Cera Cabello Suavecito Pomade Firme Hold', 'Pomada para cabello a base de agua con fijación firme y brillo medio, aroma clásico de barbería.', 349.00, 420.00, 35, 'Cuidado Personal', 'https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?w=600&auto=format&fit=crop');
+-- Categoría: Ropa
+('Sudadera Essentials Hoodie Moss', 'Sudadera de cuello redondo con capucha, confección de felpa pesada y logo Essentials engomado.', 1999.00, 2699.00, 15, 'Ropa', 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=600&auto=format&fit=crop'),
+('Chamarra The North Face Nuptse 1996', 'La chamarra de plumón icónica con corte cuadrado, tejido ripstop brillante y gorro empacable.', 6499.00, 8199.00, 8, 'Ropa', 'https://images.unsplash.com/photo-1608063615781-e2ef8c73d114?w=600&auto=format&fit=crop'),
+('Jeans Levi''s 501 Original Fit', 'Los pantalones de mezclilla clásicos con corte recto y bragueta de botones originales de Levi''s.', 1499.00, 1999.00, 35, 'Ropa', 'https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=600&auto=format&fit=crop'),
+('Playera Balenciaga Oversized Black', 'Playera de corte holgado de algodón orgánico con bordado Balenciaga minimalista en el pecho.', 4100.00, 5500.00, 12, 'Ropa', 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=600&auto=format&fit=crop'),
+('Chamarra Plumón Moncler Maya Black', 'Chamarra de nailon laqué brillante acolchada con plumón, silueta clásica Moncler y parche en manga.', 18999.00, 24500.00, 3, 'Ropa', 'https://images.unsplash.com/photo-1544923246-77307dd654cb?w=600&auto=format&fit=crop');
 
 -- ==========================================
 -- TABLA DE AJUSTES GENERALES DE LA TIENDA
@@ -420,9 +409,19 @@ CREATE TABLE IF NOT EXISTS public.reward_transactions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
     amount NUMERIC(10, 2) NOT NULL,
-    type TEXT NOT NULL CHECK (type IN ('purchase_reward', 'investment_locked', 'investment_returned', 'admin_adjustment')),
+    type TEXT NOT NULL CHECK (type IN (
+        'purchase_reward', 'investment_locked', 'investment_returned', 'admin_adjustment',
+        'reward_earned', 'reward_reserved', 'reward_released', 'reward_used', 'reward_reversed', 'reward_expired', 'reward_cancelled'
+    )),
     reference_id UUID,
     description TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'available' CHECK (status IN ('pending', 'available', 'reserved', 'released', 'used', 'reversed', 'expired', 'cancelled')),
+    order_id UUID,
+    order_item_id UUID,
+    reservation_id UUID,
+    refund_id UUID,
+    payment_id UUID,
+    idempotency_key TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
@@ -437,5 +436,267 @@ CREATE POLICY "Permitir inserción de transacciones de activos propias" ON publi
     FOR INSERT WITH CHECK (auth.uid() = user_id);
 
 
+-- ==========================================================================================
+-- TABLA DE RESERVAS DE SALDO DE RECOMPENSA (reward_reservations) - REEMPLAZO SEGURO DE term_investments
+-- ==========================================================================================
+CREATE TABLE IF NOT EXISTS public.reward_reservations (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+    amount NUMERIC(10, 2) NOT NULL CHECK (amount > 0),
+    term_months INT NOT NULL CHECK (term_months IN (1, 3, 6, 12)),
+    bonus_rate NUMERIC(5, 2) NOT NULL CHECK (bonus_rate > 0),
+    start_date TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    release_date TIMESTAMP WITH TIME ZONE NOT NULL,
+    expected_bonus NUMERIC(10, 2) NOT NULL CHECK (expected_bonus >= 0),
+    status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'released', 'cancelled', 'expired')),
+    membership_tier_at_creation TEXT CHECK (membership_tier_at_creation IN ('basic', 'premium')),
+    calculation_formula_version TEXT DEFAULT 'v1',
+    idempotency_key TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- Habilitar RLS en reward_reservations
+ALTER TABLE public.reward_reservations ENABLE ROW LEVEL SECURITY;
+
+-- Políticas RLS para reward_reservations
+CREATE POLICY "Permitir lectura de reservas propias" ON public.reward_reservations 
+    FOR SELECT USING (auth.uid() = user_id);
+
+CREATE POLICY "Permitir inserción de reservas propias" ON public.reward_reservations 
+    FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Permitir actualización de reservas propias" ON public.reward_reservations 
+    FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
 
 
+-- ==========================================================================================
+-- TABLA DE REGLAS DE CONFIGURACIÓN DE BONIFICACIÓN (reward_bonus_rules)
+-- ==========================================================================================
+CREATE TABLE IF NOT EXISTS public.reward_bonus_rules (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    membership_tier TEXT NOT NULL CHECK (membership_tier IN ('basic', 'premium')),
+    term_months INT NOT NULL CHECK (term_months IN (1, 3, 6, 12)),
+    bonus_rate NUMERIC(5, 2) NOT NULL CHECK (bonus_rate >= 0),
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    UNIQUE(membership_tier, term_months)
+);
+
+-- Habilitar RLS en reward_bonus_rules
+ALTER TABLE public.reward_bonus_rules ENABLE ROW LEVEL SECURITY;
+
+-- Políticas RLS para reward_bonus_rules
+CREATE POLICY "Permitir lectura pública de reglas de bonificación" ON public.reward_bonus_rules
+    FOR SELECT USING (TRUE);
+
+CREATE POLICY "Permitir gestión de reglas solo a administradores" ON public.reward_bonus_rules
+    FOR ALL USING (
+      EXISTS (
+        SELECT 1 FROM public.profiles
+        WHERE profiles.id = auth.uid() AND profiles.role = 'admin'
+      )
+    ) WITH CHECK (
+      EXISTS (
+        SELECT 1 FROM public.profiles
+        WHERE profiles.id = auth.uid() AND profiles.role = 'admin'
+      )
+    );
+
+-- Insertar reglas por defecto
+INSERT INTO public.reward_bonus_rules (membership_tier, term_months, bonus_rate)
+VALUES
+    ('basic', 1, 5.00),
+    ('basic', 3, 8.00),
+    ('basic', 6, 12.00),
+    ('basic', 12, 15.00),
+    ('premium', 1, 7.00),
+    ('premium', 3, 10.00),
+    ('premium', 6, 14.00),
+    ('premium', 12, 17.00)
+ON CONFLICT (membership_tier, term_months) DO UPDATE SET bonus_rate = EXCLUDED.bonus_rate;
+-- ==========================================================================================
+-- ÍNDICES ÚNICOS DE IDEMPOTENCIA A NIVEL DE BASE DE DATOS
+-- ==========================================================================================
+CREATE UNIQUE INDEX IF NOT EXISTS reward_transactions_order_earned_unique 
+    ON public.reward_transactions (order_id, type) 
+    WHERE order_id IS NOT NULL AND type = 'reward_earned';
+
+CREATE UNIQUE INDEX IF NOT EXISTS reward_transactions_reservation_released_unique 
+    ON public.reward_transactions (reservation_id, type) 
+    WHERE reservation_id IS NOT NULL AND type = 'reward_released';
+
+CREATE UNIQUE INDEX IF NOT EXISTS reward_transactions_order_reversed_unique 
+    ON public.reward_transactions (order_id, type) 
+    WHERE order_id IS NOT NULL AND type = 'reward_reversed';
+
+CREATE UNIQUE INDEX IF NOT EXISTS reward_transactions_idempotency_key_unique 
+    ON public.reward_transactions (idempotency_key) 
+    WHERE idempotency_key IS NOT NULL;
+
+CREATE UNIQUE INDEX IF NOT EXISTS reward_reservations_idempotency_key_unique 
+    ON public.reward_reservations (idempotency_key) 
+    WHERE idempotency_key IS NOT NULL;
+
+
+-- ==========================================================================================
+-- FUNCIONES RPC ATÓMICAS DE BASE DE DATOS
+-- ==========================================================================================
+
+-- 1. Crear reserva de saldo de forma atómica
+CREATE OR REPLACE FUNCTION public.create_reward_reservation_atomic(
+    p_user_id UUID,
+    p_amount NUMERIC,
+    p_term_months INT,
+    p_bonus_rate NUMERIC,
+    p_release_date TIMESTAMP WITH TIME ZONE,
+    p_expected_bonus NUMERIC,
+    p_membership_tier TEXT,
+    p_idempotency_key TEXT DEFAULT NULL
+) RETURNS VOID AS $$
+DECLARE
+    v_reservation_id UUID;
+BEGIN
+    -- Descontar el saldo del perfil (el CHECK >= 0 en profiles evitará saldo negativo)
+    UPDATE public.profiles
+    SET reward_balance = reward_balance - p_amount
+    WHERE id = p_user_id;
+
+    -- Insertar la reserva
+    INSERT INTO public.reward_reservations (
+        user_id, amount, term_months, bonus_rate, release_date, expected_bonus, status, membership_tier_at_creation, idempotency_key
+    )
+    VALUES (
+        p_user_id, p_amount, p_term_months, p_bonus_rate, p_release_date, p_expected_bonus, 'active', p_membership_tier, p_idempotency_key
+    )
+    RETURNING id INTO v_reservation_id;
+
+    -- Registrar la transacción
+    INSERT INTO public.reward_transactions (
+        user_id, amount, type, reference_id, description, status, reservation_id, idempotency_key
+    )
+    VALUES (
+        p_user_id, -p_amount, 'reward_reserved', v_reservation_id, 
+        'Saldo Club reservado por periodo de permanencia a ' || p_term_months || ' mes(es) al ' || p_bonus_rate || '%', 
+        'reserved', v_reservation_id, p_idempotency_key
+    );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+
+-- 2. Liberar reserva de saldo de forma atómica
+CREATE OR REPLACE FUNCTION public.release_reward_reservation_atomic(
+    p_user_id UUID,
+    p_reservation_id UUID
+) RETURNS VOID AS $$
+DECLARE
+    v_amount NUMERIC;
+    v_expected_bonus NUMERIC;
+    v_status TEXT;
+    v_total_return NUMERIC;
+BEGIN
+    -- Obtener los detalles de la reserva y bloquear la fila para evitar race conditions
+    SELECT amount, expected_bonus, status 
+    INTO v_amount, v_expected_bonus, v_status
+    FROM public.reward_reservations
+    WHERE id = p_reservation_id AND user_id = p_user_id
+    FOR UPDATE;
+
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'Reserva no encontrada';
+    END IF;
+
+    IF v_status = 'released' THEN
+        RAISE EXCEPTION 'La reserva ya fue liberada anteriormente';
+    END IF;
+
+    v_total_return := v_amount + v_expected_bonus;
+
+    -- Actualizar estado de la reserva
+    UPDATE public.reward_reservations
+    SET status = 'released', updated_at = now()
+    WHERE id = p_reservation_id;
+
+    -- Acreditar el saldo al perfil
+    UPDATE public.profiles
+    SET reward_balance = reward_balance + v_total_return
+    WHERE id = p_user_id;
+
+    -- Registrar la transacción
+    INSERT INTO public.reward_transactions (
+        user_id, amount, type, reference_id, description, status, reservation_id
+    )
+    VALUES (
+        p_user_id, v_total_return, 'reward_released', p_reservation_id, 
+        'Liberación de permanencia de saldo acreditado (+' || v_expected_bonus || ' bonificación)', 
+        'released', p_reservation_id
+    );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+
+-- 3. Acreditar recompensa de pedido de forma atómica
+CREATE OR REPLACE FUNCTION public.credit_order_reward_atomic(
+    p_user_id UUID,
+    p_order_id UUID,
+    p_amount NUMERIC
+) RETURNS VOID AS $$
+BEGIN
+    -- Verificar si ya se acreditó la recompensa para evitar duplicados
+    IF EXISTS (
+        SELECT 1 FROM public.reward_transactions 
+        WHERE order_id = p_order_id AND type = 'reward_earned'
+    ) THEN
+        RETURN; -- Ya acreditado
+    END IF;
+
+    -- Acreditar balance
+    UPDATE public.profiles
+    SET reward_balance = reward_balance + p_amount
+    WHERE id = p_user_id;
+
+    -- Registrar transacción
+    INSERT INTO public.reward_transactions (
+        user_id, amount, type, order_id, description, status
+    )
+    VALUES (
+        p_user_id, p_amount, 'reward_earned', p_order_id, 
+        'Recompensa de Saldo Club acreditada por compra #' || p_order_id, 
+        'available'
+    );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+
+-- 4. Revertir recompensa de pedido de forma atómica
+CREATE OR REPLACE FUNCTION public.reverse_order_reward_atomic(
+    p_user_id UUID,
+    p_order_id UUID,
+    p_amount NUMERIC
+) RETURNS VOID AS $$
+BEGIN
+    -- Verificar si ya se reversó para evitar doble reversa
+    IF EXISTS (
+        SELECT 1 FROM public.reward_transactions 
+        WHERE order_id = p_order_id AND type = 'reward_reversed'
+    ) THEN
+        RETURN; -- Ya reversado
+    END IF;
+
+    -- Deducir balance (el check >= 0 en profiles evitará saldo negativo)
+    UPDATE public.profiles
+    SET reward_balance = reward_balance - p_amount
+    WHERE id = p_user_id;
+
+    -- Registrar transacción
+    INSERT INTO public.reward_transactions (
+        user_id, amount, type, order_id, description, status
+    )
+    VALUES (
+        p_user_id, -p_amount, 'reward_reversed', p_order_id, 
+        'Reversión de recompensa de Saldo Club por cancelación/devolución de compra #' || p_order_id, 
+        'reversed'
+    );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;

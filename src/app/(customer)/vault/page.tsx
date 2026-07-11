@@ -4,8 +4,8 @@ import { DataService } from '@/utils/data-service'
 import VaultView from '@/components/VaultView'
 
 export const metadata = {
-  title: 'Bóveda de Activos Club - Club de Marcas',
-  description: 'Gestiona tus retornos e inversiones a plazo fijo.'
+  title: 'Saldo Club - Club de Marcas',
+  description: 'Gestiona tu Saldo Club y programa de permanencia.'
 }
 
 export default async function VaultPage() {
