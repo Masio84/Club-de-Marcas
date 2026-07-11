@@ -527,7 +527,7 @@ export async function subscribeToMembershipAction(tier: 'basic' | 'premium' | nu
   return { success: false, error: result.error || 'No se pudo actualizar tu membresía. Intenta de nuevo.' }
 }
 
-export async function createReservationAction(amount: number, termMonths: number) {
+export async function createReservationAction(_amount: number, _termMonths: number) {
   return { success: false, error: 'Esta operación está temporalmente inhabilitada por falta de contratos financieros y regulación.' }
   
   // Código preservado para futura activación:
@@ -547,7 +547,7 @@ export async function createInvestmentAction(amount: number, termMonths: number)
   return createReservationAction(amount, termMonths)
 }
 
-export async function simulateReleaseAction(reservationId: string) {
+export async function simulateReleaseAction(_reservationId: string) {
   return { success: false, error: 'La liberación de saldo y rendimientos está temporalmente inhabilitada por falta de contratos financieros.' }
 
   // Código preservado para futura activación:

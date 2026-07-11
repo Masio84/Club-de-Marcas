@@ -45,7 +45,7 @@ export default function VaultView({ initialProfile, initialInvestments, initialT
   const [amount, setAmount] = useState<string>('')
   const [term, setTerm] = useState<number>(3) // 3 meses por defecto
   const [actionLoading, setActionLoading] = useState(false)
-  const [matureLoadingId, setMatureLoadingId] = useState<string | null>(null)
+  // const [matureLoadingId, setMatureLoadingId] = useState<string | null>(null)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
 
   const [now, setNow] = useState<number>(0)
@@ -116,6 +116,7 @@ export default function VaultView({ initialProfile, initialInvestments, initialT
     }
   }
 
+  /*
   const handleMature = async (invId: string) => {
     setMatureLoadingId(invId)
     setMessage(null)
@@ -134,6 +135,7 @@ export default function VaultView({ initialProfile, initialInvestments, initialT
       setMatureLoadingId(null)
     }
   }
+  */
 
   return (
     <div className="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8 space-y-24">
