@@ -6,7 +6,7 @@
 CREATE TABLE public.profiles (
     id UUID REFERENCES auth.users ON DELETE CASCADE PRIMARY KEY,
     email TEXT NOT NULL,
-    role TEXT NOT NULL DEFAULT 'client' CHECK (role IN ('client', 'admin')),
+    role TEXT NOT NULL DEFAULT 'client' CHECK (role IN ('client', 'admin', 'superadmin')),
     is_banned BOOLEAN NOT NULL DEFAULT FALSE,
     full_name TEXT,
     avatar_url TEXT,
@@ -32,7 +32,7 @@ RETURNS BOOLEAN SECURITY DEFINER AS $$
 BEGIN
     RETURN EXISTS (
         SELECT 1 FROM public.profiles
-        WHERE id = auth.uid() AND role = 'admin'
+        WHERE id = auth.uid() AND (role = 'admin' OR role = 'superadmin')
     );
 END;
 $$ LANGUAGE plpgsql;
@@ -700,3 +700,54 @@ BEGIN
     );
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
+
+
+-- ====================================================================
+-- 15. TABLA DE DIAPOSITIVAS DEL CARRUSEL (HERO CAROUSEL)
+-- ====================================================================
+
+CREATE TABLE public.carousel_slides (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    title TEXT NOT NULL,
+    subtitle TEXT,
+    tag TEXT,
+    image_url TEXT NOT NULL,
+    link TEXT NOT NULL,
+    cta TEXT NOT NULL DEFAULT 'Ver Detalles',
+    color TEXT NOT NULL DEFAULT 'from-navy via-navy/95 to-transparent',
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    published_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    expires_at TIMESTAMP WITH TIME ZONE,
+    image_cleaned_up BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- Habilitar RLS en carousel_slides
+ALTER TABLE public.carousel_slides ENABLE ROW LEVEL SECURITY;
+
+-- Políticas de RLS para carousel_slides
+CREATE POLICY "Permitir lectura pública de diapositivas" 
+ON public.carousel_slides FOR SELECT 
+USING (TRUE);
+
+CREATE POLICY "Permitir gestión total a administradores" 
+ON public.carousel_slides FOR ALL 
+USING (public.is_admin()) 
+WITH CHECK (public.is_admin());
+
+-- Configuración de Storage Bucket carousel-images en base de datos
+INSERT INTO storage.buckets (id, name, public) 
+VALUES ('carousel-images', 'carousel-images', TRUE) 
+ON CONFLICT (id) DO NOTHING;
+
+-- Políticas de RLS para storage de imágenes del carrusel
+CREATE POLICY "Permitir lectura pública de imágenes del carrusel"
+ON storage.objects FOR SELECT
+USING (bucket_id = 'carousel-images');
+
+CREATE POLICY "Permitir gestión de imágenes del carrusel a administradores"
+ON storage.objects FOR ALL
+TO authenticated
+USING (bucket_id = 'carousel-images' AND public.is_admin())
+WITH CHECK (bucket_id = 'carousel-images' AND public.is_admin());

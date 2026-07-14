@@ -17,6 +17,7 @@ export default function AdminSidebarMenu() {
   const menuItems = [
     { name: 'Métricas', href: '/admin/dashboard', icon: LayoutDashboard },
     { name: 'Productos', href: '/admin/products', icon: ShoppingBag },
+    { name: 'Carrusel', href: '/admin/carousel', icon: ClipboardList },
     { name: 'Usuarios', href: '/admin/users', icon: Users },
     { name: 'Pedidos', href: '/admin/orders', icon: ClipboardList },
     { name: 'Ajustes', href: '/admin/settings', icon: Settings },

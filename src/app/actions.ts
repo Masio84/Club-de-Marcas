@@ -567,4 +567,80 @@ export async function simulateTermCompletionAction(investmentId: string) {
   return simulateReleaseAction(investmentId)
 }
 
+export async function saveCarouselSlideAction(formData: FormData) {
+  const profile = await DataService.getCurrentUserProfile()
+  if (!profile || (profile.role !== 'admin' && profile.role !== 'superadmin')) {
+    return { error: 'No tienes permisos de administrador.' }
+  }
+
+  const id = formData.get('id') as string || undefined
+  const title = formData.get('title') as string
+  const subtitle = formData.get('subtitle') as string || undefined
+  const tag = formData.get('tag') as string || undefined
+  const link = formData.get('link') as string
+  const cta = formData.get('cta') as string || undefined
+  const color = formData.get('color') as string || undefined
+  const is_active = formData.get('is_active') === 'true'
+  const published_at = formData.get('published_at') as string
+  const expires_at = formData.get('expires_at') as string || null
+
+  const imageFile = formData.get('image_file') as File | null
+  let image_url = formData.get('image_url') as string || ''
+
+  if (!title || !link) {
+    return { error: 'El título y el enlace son requerimientos obligatorios.' }
+  }
+
+  try {
+    if (imageFile && imageFile.size > 0 && imageFile.name !== 'undefined') {
+      image_url = await DataService.uploadCarouselImage(imageFile)
+    }
+  } catch (e: any) {
+    return { error: e.message || 'Error al subir el archivo de imagen.' }
+  }
+
+  if (!image_url) {
+    return { error: 'Debes proporcionar una imagen (subir un archivo o URL).' }
+  }
+
+  const result = await DataService.saveCarouselSlide({
+    id,
+    title,
+    subtitle,
+    tag,
+    image_url,
+    link,
+    cta,
+    color,
+    is_active,
+    published_at,
+    expires_at: expires_at || null
+  })
+
+  if (result.success) {
+    revalidatePath('/')
+    revalidatePath('/admin/carousel')
+    return { success: result.message }
+  } else {
+    return { error: result.message }
+  }
+}
+
+export async function deleteCarouselSlideAction(id: string) {
+  const profile = await DataService.getCurrentUserProfile()
+  if (!profile || (profile.role !== 'admin' && profile.role !== 'superadmin')) {
+    return { error: 'No tienes permisos de administrador.' }
+  }
+
+  if (!id) return { error: 'Identificador faltante.' }
+
+  const result = await DataService.deleteCarouselSlide(id)
+  if (result.success) {
+    revalidatePath('/')
+    revalidatePath('/admin/carousel')
+    return { success: true }
+  }
+  return { error: result.message }
+}
+
 

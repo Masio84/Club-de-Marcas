@@ -44,6 +44,9 @@ export default async function HomePage({ searchParams }: PageProps) {
     )
   }
 
+  // Obtener publicaciones del carrusel dinámicas
+  const carouselSlides = await DataService.getCarouselSlides(true)
+
   // Dividir productos para las secciones
   const flashDeals = allProducts.filter((p) => p.original_price && p.original_price > p.price)
   const bestSellers = allProducts.filter((p) => p.inventory > 10)
@@ -59,7 +62,7 @@ export default async function HomePage({ searchParams }: PageProps) {
       {/* 1. HERO PRINCIPAL CARRUSEL + PROPUESTAS DE VALOR (ESTILO EDITORIAL BOUTIQUE DE CLUB) */}
       {!category && !search && (
         <div className="space-y-8">
-          <HeroCarousel />
+          <HeroCarousel initialSlides={carouselSlides} />
           
           {/* BARRA DE PROPUESTA DE VALOR / GANCHO COMERCIAL */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 p-6 md:p-8 bg-bg-surface rounded-2xl border border-border-hairline shadow-sm relative z-20">

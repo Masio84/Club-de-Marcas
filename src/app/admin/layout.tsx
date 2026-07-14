@@ -32,8 +32,8 @@ export default async function AdminLayout({
   const profile = await DataService.getCurrentUserProfile()
   const dbConfigured = isSupabaseConfigured()
 
-  // Si está configurada la base de datos y no es administrador, denegar acceso
-  if (dbConfigured && (!profile || profile.role !== 'admin' || profile.is_banned)) {
+  // Si está configurada la base de datos y no es administrador o superadministrador, denegar acceso
+  if (dbConfigured && (!profile || (profile.role !== 'admin' && profile.role !== 'superadmin') || profile.is_banned)) {
     redirect('/')
   }
 

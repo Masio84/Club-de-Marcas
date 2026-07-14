@@ -33,7 +33,7 @@ function assertMockAllowed() {
 export interface Profile {
   id: string
   email: string
-  role: 'client' | 'admin'
+  role: 'client' | 'admin' | 'superadmin'
   is_banned: boolean
   created_at: string
   full_name?: string
@@ -47,6 +47,23 @@ export interface Profile {
   membership_tier?: 'basic' | 'premium' | null
   membership_expires_at?: string | null
   reward_balance?: number
+}
+
+export interface CarouselSlide {
+  id: string
+  title: string
+  subtitle?: string
+  tag?: string
+  image_url: string
+  link: string
+  cta: string
+  color: string
+  is_active: boolean
+  published_at: string
+  expires_at?: string | null
+  image_cleaned_up: boolean
+  created_at: string
+  updated_at: string
 }
 
 export interface Product {
@@ -1738,6 +1755,293 @@ export const DataService = {
       await setCookieData('mock_reward_transactions', transactions)
 
       return { success: true, message: 'Saldo liberado con éxito' }
+    }
+  },
+
+  async cleanupExpiredSlidesImages(): Promise<void> {
+    if (isSupabaseConfigured()) {
+      const supabase = await createClient()
+      const now = new Date().toISOString()
+      
+      const { data: expiredSlides, error } = await supabase
+        .from('carousel_slides')
+        .select('*')
+        .lt('expires_at', now)
+        .eq('image_cleaned_up', false)
+
+      if (error || !expiredSlides || expiredSlides.length === 0) return
+
+      for (const slide of expiredSlides) {
+        try {
+          const parts = slide.image_url.split('/carousel-images/')
+          if (parts.length > 1) {
+            const fileName = parts[1]
+            await supabase.storage.from('carousel-images').remove([fileName])
+          }
+          
+          await supabase
+            .from('carousel_slides')
+            .update({ image_cleaned_up: true, is_active: false })
+            .eq('id', slide.id)
+        } catch (e) {
+          console.error('[cleanupExpiredSlidesImages] Error depurando slide:', slide.id, e)
+        }
+      }
+    } else {
+      assertMockAllowed()
+      const slides = await getCookieData<CarouselSlide[]>('mock_carousel_slides', [])
+      const now = new Date().getTime()
+      let modified = false
+      const updatedSlides = slides.map(s => {
+        if (s.expires_at && new Date(s.expires_at).getTime() < now && !s.image_cleaned_up) {
+          modified = true
+          return { ...s, image_cleaned_up: true, is_active: false }
+        }
+        return s
+      })
+      if (modified) {
+        await setCookieData('mock_carousel_slides', updatedSlides)
+      }
+    }
+  },
+
+  async getCarouselSlides(onlyActiveAndValid = false): Promise<CarouselSlide[]> {
+    if (onlyActiveAndValid) {
+      await this.cleanupExpiredSlidesImages()
+    }
+
+    let slides: CarouselSlide[] = []
+    if (isSupabaseConfigured()) {
+      const supabase = await createClient()
+      const { data, error } = await supabase
+        .from('carousel_slides')
+        .select('*')
+        .order('created_at', { ascending: true })
+      
+      if (error) {
+        console.error('[getCarouselSlides] Error:', error)
+        return []
+      }
+      slides = data || []
+    } else {
+      assertMockAllowed()
+      const initialSlides: CarouselSlide[] = [
+        {
+          id: 'slide-1',
+          title: 'CALZADO PREMIUM CLUB',
+          subtitle: 'Hasta 50% de descuento en Nike, Adidas, Puma y Jordan. Envío gratis garantizado.',
+          tag: '🔥 Lo Más Vendido',
+          image_url: 'https://images.unsplash.com/photo-1556906781-9a412961c28c?w=1600&auto=format&fit=crop&q=80',
+          link: '/?category=Calzado',
+          cta: 'Ver Calzado en Oferta',
+          color: 'from-navy via-navy/95 to-transparent',
+          is_active: true,
+          published_at: new Date(Date.now() - 86400000).toISOString(),
+          expires_at: null,
+          image_cleaned_up: false,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        },
+        {
+          id: 'slide-2',
+          title: 'ROPA DE DISEÑADOR Y MARCAS',
+          subtitle: 'Essentials, The North Face, Moncler y Balenciaga. Descubre prendas de alta costura con descuentos exclusivos de socio.',
+          tag: '💎 Exclusividad',
+          image_url: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=1600&auto=format&fit=crop&q=80',
+          link: '/?category=Ropa',
+          cta: 'Ver Ropa y Abrigos',
+          color: 'from-navy-light via-navy-light/95 to-transparent',
+          is_active: true,
+          published_at: new Date(Date.now() - 86400000).toISOString(),
+          expires_at: null,
+          image_cleaned_up: false,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        },
+        {
+          id: 'slide-3',
+          title: 'BENEFICIOS VIP SIGNATURE',
+          subtitle: 'Obtén hasta 15% de Cashback en cada compra, envíos express gratis y acceso exclusivo a productos Prestige de edición limitada.',
+          tag: '👑 Membresía Elite',
+          image_url: 'https://images.unsplash.com/photo-1441984969893-c534e9749e48?w=1600&auto=format&fit=crop&q=80',
+          link: '/memberships',
+          cta: 'Unirse a Signature',
+          color: 'from-[#1F160A] via-[#1F160A]/95 to-transparent',
+          is_active: true,
+          published_at: new Date(Date.now() - 86400000).toISOString(),
+          expires_at: null,
+          image_cleaned_up: false,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }
+      ]
+      slides = await getCookieData<CarouselSlide[]>('mock_carousel_slides', initialSlides)
+    }
+
+    if (onlyActiveAndValid) {
+      const now = new Date().getTime()
+      return slides.filter(s => 
+        s.is_active && 
+        new Date(s.published_at).getTime() <= now && 
+        (!s.expires_at || new Date(s.expires_at).getTime() > now)
+      )
+    }
+    return slides
+  }
+  ,
+
+  async uploadCarouselImage(file: File): Promise<string> {
+    if (isSupabaseConfigured()) {
+      const supabase = await createClient()
+      const fileExt = file.name.split('.').pop()
+      const fileName = `${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`
+      const filePath = fileName
+
+      const { error } = await supabase.storage
+        .from('carousel-images')
+        .upload(filePath, file)
+
+      if (error) {
+        console.error('[uploadCarouselImage] Error:', error)
+        throw new Error('Error al subir la imagen al almacenamiento de Supabase.')
+      }
+
+      const { data } = supabase.storage
+        .from('carousel-images')
+        .getPublicUrl(filePath)
+
+      return data.publicUrl
+    } else {
+      assertMockAllowed()
+      return `https://images.unsplash.com/photo-1556906781-9a412961c28c?w=1600&auto=format&fit=crop&q=80`
+    }
+  },
+
+  async saveCarouselSlide(slide: Partial<CarouselSlide>): Promise<{ success: boolean; message: string; data?: CarouselSlide }> {
+    if (isSupabaseConfigured()) {
+      const supabase = await createClient()
+      const now = new Date().toISOString()
+      
+      if (slide.id) {
+        const { data, error } = await supabase
+          .from('carousel_slides')
+          .update({
+            ...slide,
+            updated_at: now
+          })
+          .eq('id', slide.id)
+          .select()
+          .single()
+
+        if (error) {
+          console.error('[saveCarouselSlide] Error actualizando:', error)
+          return { success: false, message: 'Error al actualizar la publicación del carrusel.' }
+        }
+        return { success: true, message: 'Publicación del carrusel actualizada con éxito.', data }
+      } else {
+        const { data, error } = await supabase
+          .from('carousel_slides')
+          .insert({
+            ...slide,
+            created_at: now,
+            updated_at: now
+          })
+          .select()
+          .single()
+
+        if (error) {
+          console.error('[saveCarouselSlide] Error insertando:', error)
+          return { success: false, message: 'Error al crear la publicación del carrusel.' }
+        }
+        return { success: true, message: 'Publicación del carrusel creada con éxito.', data }
+      }
+    } else {
+      assertMockAllowed()
+      const slides = await this.getCarouselSlides()
+      const now = new Date().toISOString()
+      
+      if (slide.id) {
+        let updatedSlide: CarouselSlide | undefined
+        const updatedSlides = slides.map(s => {
+          if (s.id === slide.id) {
+            updatedSlide = {
+              ...s,
+              ...slide,
+              updated_at: now
+            } as CarouselSlide
+            return updatedSlide
+          }
+          return s
+        })
+        await setCookieData('mock_carousel_slides', updatedSlides)
+        return { success: true, message: 'Publicación del carrusel actualizada con éxito (simulación).', data: updatedSlide }
+      } else {
+        const newSlide: CarouselSlide = {
+          id: 'slide-' + Math.random().toString(36).substr(2, 9),
+          title: slide.title || '',
+          subtitle: slide.subtitle,
+          tag: slide.tag,
+          image_url: slide.image_url || '',
+          link: slide.link || '',
+          cta: slide.cta || 'Ver Detalles',
+          color: slide.color || 'from-navy via-navy/95 to-transparent',
+          is_active: slide.is_active ?? true,
+          published_at: slide.published_at || now,
+          expires_at: slide.expires_at || null,
+          image_cleaned_up: false,
+          created_at: now,
+          updated_at: now
+        }
+        slides.push(newSlide)
+        await setCookieData('mock_carousel_slides', slides)
+        return { success: true, message: 'Publicación del carrusel creada con éxito (simulación).', data: newSlide }
+      }
+    }
+  },
+
+  async deleteCarouselSlide(id: string): Promise<{ success: boolean; message: string }> {
+    if (isSupabaseConfigured()) {
+      const supabase = await createClient()
+      
+      const { data: slide, error: fetchErr } = await supabase
+        .from('carousel_slides')
+        .select('*')
+        .eq('id', id)
+        .single()
+
+      if (fetchErr || !slide) {
+        return { success: false, message: 'Publicación no encontrada.' }
+      }
+
+      if (slide.image_url && !slide.image_cleaned_up) {
+        try {
+          const parts = slide.image_url.split('/carousel-images/')
+          if (parts.length > 1) {
+            const fileName = parts[1]
+            await supabase.storage.from('carousel-images').remove([fileName])
+          }
+        } catch (e) {
+          console.error('[deleteCarouselSlide] Error borrando archivo del storage:', e)
+        }
+      }
+
+      const { error: deleteErr } = await supabase
+        .from('carousel_slides')
+        .delete()
+        .eq('id', id)
+
+      if (deleteErr) {
+        console.error('[deleteCarouselSlide] Error eliminando registro:', deleteErr)
+        return { success: false, message: 'Error al eliminar la publicación.' }
+      }
+
+      return { success: true, message: 'Publicación y archivo de imagen eliminados con éxito.' }
+    } else {
+      assertMockAllowed()
+      const slides = await this.getCarouselSlides()
+      const filtered = slides.filter(s => s.id !== id)
+      await setCookieData('mock_carousel_slides', filtered)
+      return { success: true, message: 'Publicación eliminada con éxito (simulación).' }
     }
   },
 

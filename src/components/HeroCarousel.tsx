@@ -14,10 +14,14 @@ interface Slide {
   color: string
 }
 
-export default function HeroCarousel() {
+interface HeroCarouselProps {
+  initialSlides?: any[]
+}
+
+export default function HeroCarousel({ initialSlides }: HeroCarouselProps) {
   const [current, setCurrent] = useState(0)
 
-  const slides: Slide[] = [
+  const defaultSlides: Slide[] = [
     {
       title: 'CALZADO PREMIUM CLUB',
       subtitle: 'Hasta 50% de descuento en Nike, Adidas, Puma y Jordan. Envío gratis garantizado.',
@@ -55,6 +59,18 @@ export default function HeroCarousel() {
       color: 'from-[#1F160A] via-[#1F160A]/95 to-transparent'
     }
   ]
+
+  const slides: Slide[] = initialSlides && initialSlides.length > 0
+    ? initialSlides.map(s => ({
+        title: s.title,
+        subtitle: s.subtitle || '',
+        tag: s.tag || '✨ Destacado',
+        image: s.image_url,
+        link: s.link,
+        cta: s.cta || 'Ver Detalles',
+        color: s.color || 'from-navy via-navy/95 to-transparent'
+      }))
+    : defaultSlides
 
   useEffect(() => {
     const timer = setInterval(() => {
