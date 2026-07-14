@@ -300,7 +300,7 @@ export default async function CustomerLayout({
                   <span>🛡️ Pago 100% Seguro</span>
                 </li>
                 <li className="flex items-center space-x-2">
-                  <span>📦 Envíos Asegurados DHL / FedEx</span>
+                  <span>📦 Envíos Asegurados</span>
                 </li>
                 <li className="flex items-center space-x-2">
                   <span>🔄 Devoluciones sin costo</span>
