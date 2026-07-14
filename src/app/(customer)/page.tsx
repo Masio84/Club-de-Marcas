@@ -56,7 +56,7 @@ export default async function HomePage({ searchParams }: PageProps) {
 
   return (
     <div className="space-y-24 my-10">
-      {/* 1. HERO PRINCIPAL CARRUSEL + PROPUESTAS DE VALOR (ESTILO EDITORIAL OUTLET DE LUJO) */}
+      {/* 1. HERO PRINCIPAL CARRUSEL + PROPUESTAS DE VALOR (ESTILO EDITORIAL BOUTIQUE DE CLUB) */}
       {!category && !search && (
         <div className="space-y-8">
           <HeroCarousel />

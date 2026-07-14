@@ -246,7 +246,7 @@ export default async function CustomerLayout({
           <div className="animate-ticker font-mono space-x-12 uppercase tracking-wider flex items-center">
             <span>• 🇲🇽 ENVÍOS EXPRESS GRATIS EN COMPRAS MAYORES A $1,500 MXN EN AGUASCALIENTES</span>
             <span>• 💎 GARANTÍA DE AUTENTICIDAD: PRODUCTOS 100% ORIGINALES DE DISEÑADOR</span>
-            <span>• 🛍️ SOFÍA T. ADQUIRIÓ BOLSA <strong className="text-accent-signature font-bold">COACH NEW YORK</strong> CON -40% OUTLET · HACE 4 MIN</span>
+            <span>• 🛍️ SOFÍA T. ADQUIRIÓ BOLSA <strong className="text-accent-signature font-bold">COACH NEW YORK</strong> CON -40% DE DESCUENTO · HACE 4 MIN</span>
             <span>• 👑 CONVIÉRTETE EN SOCIO SIGNATURE Y LOGRA HASTA <strong className="text-accent-signature font-bold">17% DE CASHBACK</strong> EN CADA COMPRA</span>
             <span>• ⏱️ HÉCTOR M. AHORRÓ <strong className="text-accent-acceso">$2,450.00</strong> EN RELOJ SEIKO AUTOMÁTICO · HACE 10 MIN</span>
             <span>• 🕶️ LENTES RAY-BAN CON HASTA -30% DE DESCUENTO MÁS ACUMULACIÓN DE SALDO CLUB</span>
@@ -255,7 +255,7 @@ export default async function CustomerLayout({
             {/* Duplicado para loop infinito fluido */}
             <span>• 🇲🇽 ENVÍOS EXPRESS GRATIS EN COMPRAS MAYORES A $1,500 MXN EN AGUASCALIENTES</span>
             <span>• 💎 GARANTÍA DE AUTENTICIDAD: PRODUCTOS 100% ORIGINALES DE DISEÑADOR</span>
-            <span>• 🛍️ SOFÍA T. ADQUIRIÓ BOLSA <strong className="text-accent-signature font-bold">COACH NEW YORK</strong> CON -40% OUTLET · HACE 4 MIN</span>
+            <span>• 🛍️ SOFÍA T. ADQUIRIÓ BOLSA <strong className="text-accent-signature font-bold">COACH NEW YORK</strong> CON -40% DE DESCUENTO · HACE 4 MIN</span>
             <span>• 👑 CONVIÉRTETE EN SOCIO SIGNATURE Y LOGRA HASTA <strong className="text-accent-signature font-bold">17% DE CASHBACK</strong> EN CADA COMPRA</span>
             <span>• ⏱️ HÉCTOR M. AHORRÓ <strong className="text-accent-acceso">$2,450.00</strong> EN RELOJ SEIKO AUTOMÁTICO · HACE 10 MIN</span>
             <span>• 🕶️ LENTES RAY-BAN CON HASTA -30% DE DESCUENTO MÁS ACUMULACIÓN DE SALDO CLUB</span>
@@ -278,7 +278,7 @@ export default async function CustomerLayout({
                 CLUB DE MARCAS
               </span>
               <p className="text-sm">
-                La plataforma outlet premium número uno de México. Descuentos exclusivos del 30% al 70% en tus marcas de lujo favoritas.
+                La plataforma de descuentos exclusivos y marcas de lujo número uno en Aguascalientes. Descuentos exclusivos del 30% al 70% en tus marcas de lujo favoritas.
               </p>
             </div>
             <div>

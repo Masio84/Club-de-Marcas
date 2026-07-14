@@ -21,13 +21,13 @@ export default async function LoginPage() {
       <div className="bg-pure-white p-8 rounded-3xl border border-gray-200 shadow-lg w-full max-w-md space-y-6">
         <div className="text-center space-y-2">
           <span className="text-xs uppercase bg-emerald/10 text-emerald-800 px-3 py-1 rounded-full font-black tracking-widest inline-block">
-            Outlet Exclusivo
+            Club de Descuentos
           </span>
           <h1 className="text-3xl font-black tracking-tight text-navy">
             CLUB DE MARCAS
           </h1>
           <p className="text-sm text-gray-500 font-medium">
-            Ingresa a tu cuenta para obtener precios outlet de socio
+            Ingresa a tu cuenta para obtener precios club de socio
           </p>
         </div>
 

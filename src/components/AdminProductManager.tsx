@@ -55,7 +55,7 @@ export default function AdminProductManager({ products }: AdminProductManagerPro
       <div className="flex items-center justify-between border-b border-border-hairline pb-4">
         <div>
           <h2 className="text-2xl font-display font-semibold text-text-primary">Gestión de Catálogo</h2>
-          <p className="text-xs text-text-secondary mt-1">Agrega, edita o elimina productos del outlet Club de Marcas.</p>
+          <p className="text-xs text-text-secondary mt-1">Agrega, edita o elimina productos del Club de Marcas.</p>
         </div>
         <button
           onClick={openAddModal}
@@ -75,7 +75,7 @@ export default function AdminProductManager({ products }: AdminProductManagerPro
                 <th className="p-4 font-semibold">Imagen</th>
                 <th className="p-4 font-semibold">Título</th>
                 <th className="p-4 font-semibold">Categoría</th>
-                <th className="p-4 font-semibold">Precio Outlet</th>
+                <th className="p-4 font-semibold">Precio Club</th>
                 <th className="p-4 font-semibold">Precio Original</th>
                 <th className="p-4 text-center font-semibold">Stock</th>
                 <th className="p-4 text-right font-semibold">Acciones</th>
@@ -131,7 +131,7 @@ export default function AdminProductManager({ products }: AdminProductManagerPro
                       </span>
                     </td>
 
-                    {/* Precio Outlet */}
+                    {/* Precio Club */}
                     <td className="p-4 font-bold font-mono text-text-primary">
                       ${product.price.toLocaleString('es-MX')}
                     </td>
@@ -253,7 +253,7 @@ export default function AdminProductManager({ products }: AdminProductManagerPro
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">
                   <label className="text-[10px] font-mono font-bold text-text-primary uppercase tracking-wider block">
-                    Precio Outlet ($ MXN)
+                    Precio Club ($ MXN)
                   </label>
                   <input
                     type="number"

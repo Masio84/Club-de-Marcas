@@ -57,7 +57,7 @@ export default function MembershipsView({ initialProfile }: MembershipsViewProps
           Tasas de membresía y beneficios Club.
         </h1>
         <p className="text-[17px] text-text-secondary leading-relaxed max-w-xl">
-          En Club de Marcas no solo adquieres artículos premium de lujo a precios outlet; cada compra te devuelve Saldo Club en tu cuenta que puedes acumular e incrementar mediante nuestro programa de permanencia.
+          En Club de Marcas no solo adquieres artículos premium de lujo con descuentos exclusivos de socio; cada compra te devuelve Saldo Club en tu cuenta que puedes acumular e incrementar mediante nuestro programa de permanencia.
         </p>
       </div>
 
@@ -285,7 +285,7 @@ export default function MembershipsView({ initialProfile }: MembershipsViewProps
           <div className="space-y-3">
             <h4 className="font-display font-semibold text-text-primary text-lg">Compras Premium</h4>
             <p className="text-sm text-text-secondary leading-relaxed">
-              Adquiere tenis, relojes, bolsas y más artículos de marcas de prestigio mundial a precios outlet insuperables con autenticación verificada.
+              Adquiere tenis, relojes, bolsas y más artículos de marcas de prestigio mundial a precios club insuperables con autenticación verificada.
             </p>
           </div>
           

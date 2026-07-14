@@ -19,7 +19,7 @@ export default function HeroCarousel() {
 
   const slides: Slide[] = [
     {
-      title: 'CALZADO PREMIUM OUTLET',
+      title: 'CALZADO PREMIUM CLUB',
       subtitle: 'Hasta 50% de descuento en Nike, Adidas, Puma y Jordan. Envío gratis garantizado.',
       tag: '🔥 Lo Más Vendido',
       image: 'https://images.unsplash.com/photo-1556906781-9a412961c28c?w=1600&auto=format&fit=crop&q=80',
@@ -29,7 +29,7 @@ export default function HeroCarousel() {
     },
     {
       title: 'ROPA DE DISEÑADOR Y MARCAS',
-      subtitle: 'Essentials, The North Face, Moncler y Balenciaga. Descubre prendas de alta costura a precios outlet.',
+      subtitle: 'Essentials, The North Face, Moncler y Balenciaga. Descubre prendas de alta costura con descuentos exclusivos de socio.',
       tag: '💎 Exclusividad',
       image: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=1600&auto=format&fit=crop&q=80',
       link: '/?category=Ropa',
