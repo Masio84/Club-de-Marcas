@@ -1810,6 +1810,73 @@ export const DataService = {
       await this.cleanupExpiredSlidesImages()
     }
 
+    const initialSlides: CarouselSlide[] = [
+      {
+        id: 'b36c4b22-8d76-47b2-bd7d-0e4ab43f0578',
+        title: 'CALZADO PREMIUM CLUB',
+        subtitle: 'Hasta 50% de descuento en Nike, Adidas, Puma y Jordan. Envío gratis garantizado.',
+        tag: '🔥 Lo Más Vendido',
+        image_url: 'https://images.unsplash.com/photo-1556906781-9a412961c28c?w=1600&auto=format&fit=crop&q=80',
+        link: '/?category=Calzado',
+        cta: 'Ver Calzado en Oferta',
+        color: 'from-navy via-navy/95 to-transparent',
+        is_active: true,
+        published_at: new Date(Date.now() - 86400000).toISOString(),
+        expires_at: null,
+        image_cleaned_up: false,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      },
+      {
+        id: 'c36c4b22-8d76-47b2-bd7d-0e4ab43f0578',
+        title: 'ROPA DE DISEÑADOR Y MARCAS',
+        subtitle: 'Essentials, The North Face, Moncler y Balenciaga. Descubre prendas de alta costura con descuentos exclusivos de socio.',
+        tag: '💎 Exclusividad',
+        image_url: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=1600&auto=format&fit=crop&q=80',
+        link: '/?category=Ropa',
+        cta: 'Explorar Ropa',
+        color: 'from-black via-black/90 to-transparent',
+        is_active: true,
+        published_at: new Date(Date.now() - 86400000).toISOString(),
+        expires_at: null,
+        image_cleaned_up: false,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      },
+      {
+        id: 'd36c4b22-8d76-47b2-bd7d-0e4ab43f0578',
+        title: 'COLECCIONES DE TEMPORADA',
+        subtitle: 'Chamarras, hoodies, playeras y jeans con descuentos exclusivos y autenticidad 100% garantizada.',
+        tag: '✨ Nuevos Arribos',
+        image_url: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1600&auto=format&fit=crop&q=80',
+        link: '/?category=Ropa',
+        cta: 'Ver Ropa y Abrigos',
+        color: 'from-navy-light via-navy-light/95 to-transparent',
+        is_active: true,
+        published_at: new Date(Date.now() - 86400000).toISOString(),
+        expires_at: null,
+        image_cleaned_up: false,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      },
+      {
+        id: 'e36c4b22-8d76-47b2-bd7d-0e4ab43f0578',
+        title: 'BENEFICIOS VIP SIGNATURE',
+        subtitle: 'Obtén hasta 15% de Cashback en cada compra, envíos express gratis y acceso exclusivo a productos Prestige de edición limitada.',
+        tag: '👑 Membresía Elite',
+        image_url: 'https://images.unsplash.com/photo-1441984969893-c534e9749e48?w=1600&auto=format&fit=crop&q=80',
+        link: '/memberships',
+        cta: 'Unirse a Signature',
+        color: 'from-[#1F160A] via-[#1F160A]/95 to-transparent',
+        is_active: true,
+        published_at: new Date(Date.now() - 86400000).toISOString(),
+        expires_at: null,
+        image_cleaned_up: false,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      }
+    ]
+
     let slides: CarouselSlide[] = []
     if (isSupabaseConfigured()) {
       const supabase = await createClient()
@@ -1819,159 +1886,30 @@ export const DataService = {
         .order('created_at', { ascending: true })
       
       if (error) {
-        console.error('[getCarouselSlides] Error:', error)
-        return []
-      }
+        console.error('[getCarouselSlides] Error al obtener de base de datos:', error)
+        slides = initialSlides
+      } else if (!data || data.length === 0) {
+        try {
+          const { data: insertedData, error: insertError } = await supabase
+            .from('carousel_slides')
+            .insert(initialSlides)
+            .select()
 
-      // Si la tabla de Supabase está vacía, auto-sembrarla en caliente
-      if (!data || data.length === 0) {
-        const defaultSlidesToInsert = [
-          {
-            id: 'b36c4b22-8d76-47b2-bd7d-0e4ab43f0578',
-            title: 'CALZADO PREMIUM CLUB',
-            subtitle: 'Hasta 50% de descuento en Nike, Adidas, Puma y Jordan. Envío gratis garantizado.',
-            tag: '🔥 Lo Más Vendido',
-            image_url: 'https://images.unsplash.com/photo-1556906781-9a412961c28c?w=1600&auto=format&fit=crop&q=80',
-            link: '/?category=Calzado',
-            cta: 'Ver Calzado en Oferta',
-            color: 'from-navy via-navy/95 to-transparent',
-            is_active: true,
-            published_at: new Date(Date.now() - 86400000).toISOString(),
-            expires_at: null,
-            image_cleaned_up: false,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          },
-          {
-            id: 'c36c4b22-8d76-47b2-bd7d-0e4ab43f0578',
-            title: 'ROPA DE DISEÑADOR Y MARCAS',
-            subtitle: 'Essentials, The North Face, Moncler y Balenciaga. Descubre prendas de alta costura con descuentos exclusivos de socio.',
-            tag: '💎 Exclusividad',
-            image_url: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=1600&auto=format&fit=crop&q=80',
-            link: '/?category=Ropa',
-            cta: 'Explorar Ropa',
-            color: 'from-black via-black/90 to-transparent',
-            is_active: true,
-            published_at: new Date(Date.now() - 86400000).toISOString(),
-            expires_at: null,
-            image_cleaned_up: false,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          },
-          {
-            id: 'd36c4b22-8d76-47b2-bd7d-0e4ab43f0578',
-            title: 'COLECCIONES DE TEMPORADA',
-            subtitle: 'Chamarras, hoodies, playeras y jeans con descuentos exclusivos y autenticidad 100% garantizada.',
-            tag: '✨ Nuevos Arribos',
-            image_url: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1600&auto=format&fit=crop&q=80',
-            link: '/?category=Ropa',
-            cta: 'Ver Ropa y Abrigos',
-            color: 'from-navy-light via-navy-light/95 to-transparent',
-            is_active: true,
-            published_at: new Date(Date.now() - 86400000).toISOString(),
-            expires_at: null,
-            image_cleaned_up: false,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          },
-          {
-            id: 'e36c4b22-8d76-47b2-bd7d-0e4ab43f0578',
-            title: 'BENEFICIOS VIP SIGNATURE',
-            subtitle: 'Obtén hasta 15% de Cashback en cada compra, envíos express gratis y acceso exclusivo a productos Prestige de edición limitada.',
-            tag: '👑 Membresía Elite',
-            image_url: 'https://images.unsplash.com/photo-1441984969893-c534e9749e48?w=1600&auto=format&fit=crop&q=80',
-            link: '/memberships',
-            cta: 'Unirse a Signature',
-            color: 'from-[#1F160A] via-[#1F160A]/95 to-transparent',
-            is_active: true,
-            published_at: new Date(Date.now() - 86400000).toISOString(),
-            expires_at: null,
-            image_cleaned_up: false,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
+          if (insertError) {
+            console.error('[getCarouselSlides] Error al auto-sembrar slides:', insertError)
+            slides = initialSlides
+          } else {
+            slides = insertedData || initialSlides
           }
-        ]
-
-        const { data: insertedData, error: insertError } = await supabase
-          .from('carousel_slides')
-          .insert(defaultSlidesToInsert)
-          .select()
-
-        if (insertError) {
-          console.error('[getCarouselSlides] Error al auto-sembrar slides:', insertError)
-        } else {
-          data = insertedData
+        } catch (e) {
+          console.error('[getCarouselSlides] Excepción al auto-sembrar slides:', e)
+          slides = initialSlides
         }
+      } else {
+        slides = data
       }
-      slides = data || []
     } else {
       assertMockAllowed()
-      const initialSlides: CarouselSlide[] = [
-        {
-          id: 'b36c4b22-8d76-47b2-bd7d-0e4ab43f0578',
-          title: 'CALZADO PREMIUM CLUB',
-          subtitle: 'Hasta 50% de descuento en Nike, Adidas, Puma y Jordan. Envío gratis garantizado.',
-          tag: '🔥 Lo Más Vendido',
-          image_url: 'https://images.unsplash.com/photo-1556906781-9a412961c28c?w=1600&auto=format&fit=crop&q=80',
-          link: '/?category=Calzado',
-          cta: 'Ver Calzado en Oferta',
-          color: 'from-navy via-navy/95 to-transparent',
-          is_active: true,
-          published_at: new Date(Date.now() - 86400000).toISOString(),
-          expires_at: null,
-          image_cleaned_up: false,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        },
-        {
-          id: 'c36c4b22-8d76-47b2-bd7d-0e4ab43f0578',
-          title: 'ROPA DE DISEÑADOR Y MARCAS',
-          subtitle: 'Essentials, The North Face, Moncler y Balenciaga. Descubre prendas de alta costura con descuentos exclusivos de socio.',
-          tag: '💎 Exclusividad',
-          image_url: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=1600&auto=format&fit=crop&q=80',
-          link: '/?category=Ropa',
-          cta: 'Explorar Ropa',
-          color: 'from-black via-black/90 to-transparent',
-          is_active: true,
-          published_at: new Date(Date.now() - 86400000).toISOString(),
-          expires_at: null,
-          image_cleaned_up: false,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        },
-        {
-          id: 'd36c4b22-8d76-47b2-bd7d-0e4ab43f0578',
-          title: 'COLECCIONES DE TEMPORADA',
-          subtitle: 'Chamarras, hoodies, playeras y jeans con descuentos exclusivos y autenticidad 100% garantizada.',
-          tag: '✨ Nuevos Arribos',
-          image_url: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1600&auto=format&fit=crop&q=80',
-          link: '/?category=Ropa',
-          cta: 'Ver Ropa y Abrigos',
-          color: 'from-navy-light via-navy-light/95 to-transparent',
-          is_active: true,
-          published_at: new Date(Date.now() - 86400000).toISOString(),
-          expires_at: null,
-          image_cleaned_up: false,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        },
-        {
-          id: 'e36c4b22-8d76-47b2-bd7d-0e4ab43f0578',
-          title: 'BENEFICIOS VIP SIGNATURE',
-          subtitle: 'Obtén hasta 15% de Cashback en cada compra, envíos express gratis y acceso exclusivo a productos Prestige de edición limitada.',
-          tag: '👑 Membresía Elite',
-          image_url: 'https://images.unsplash.com/photo-1441984969893-c534e9749e48?w=1600&auto=format&fit=crop&q=80',
-          link: '/memberships',
-          cta: 'Unirse a Signature',
-          color: 'from-[#1F160A] via-[#1F160A]/95 to-transparent',
-          is_active: true,
-          published_at: new Date(Date.now() - 86400000).toISOString(),
-          expires_at: null,
-          image_cleaned_up: false,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        }
-      ]
       slides = await getCookieData<CarouselSlide[]>('mock_carousel_slides', initialSlides)
     }
 
