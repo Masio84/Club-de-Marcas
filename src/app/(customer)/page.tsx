@@ -78,7 +78,7 @@ export default async function HomePage({ searchParams }: PageProps) {
               </div>
               <div>
                 <h4 className="font-display font-bold text-sm text-text-primary">Envío Express Gratis</h4>
-                <p className="text-xs text-text-secondary mt-0.5">Asegurado en todo México</p>
+                <p className="text-xs text-text-secondary mt-0.5">Asegurado en Aguascalientes</p>
               </div>
             </div>
             <div className="flex items-center space-x-3.5 text-left">

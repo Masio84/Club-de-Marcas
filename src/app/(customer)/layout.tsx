@@ -220,7 +220,7 @@ export default async function CustomerLayout({
             </div>
             
             <div className="flex items-center space-x-4 text-[10px] font-mono text-accent-acceso min-w-max ml-4 uppercase tracking-wider">
-              <span>🇲🇽 Envíos a todo México gratis</span>
+              <span>🇲🇽 Envíos gratis en Aguascalientes</span>
             </div>
           </nav>
         </div>
@@ -244,7 +244,7 @@ export default async function CustomerLayout({
             }
           `}</style>
           <div className="animate-ticker font-mono space-x-12 uppercase tracking-wider flex items-center">
-            <span>• 🇲🇽 ENVÍOS EXPRESS GRATIS EN COMPRAS MAYORES A $1,500 MXN</span>
+            <span>• 🇲🇽 ENVÍOS EXPRESS GRATIS EN COMPRAS MAYORES A $1,500 MXN EN AGUASCALIENTES</span>
             <span>• 💎 GARANTÍA DE AUTENTICIDAD: PRODUCTOS 100% ORIGINALES DE DISEÑADOR</span>
             <span>• 🛍️ SOFÍA T. ADQUIRIÓ BOLSA <strong className="text-accent-signature font-bold">COACH NEW YORK</strong> CON -40% OUTLET · HACE 4 MIN</span>
             <span>• 👑 CONVIÉRTETE EN SOCIO SIGNATURE Y LOGRA HASTA <strong className="text-accent-signature font-bold">17% DE CASHBACK</strong> EN CADA COMPRA</span>
@@ -253,7 +253,7 @@ export default async function CustomerLayout({
             <span>• 👟 ADRIANA L. OBTUVO <strong className="text-accent-acceso">$450.00</strong> DE CASHBACK EN TENIS ADIDAS PREMIUM · HACE 15 MIN</span>
             
             {/* Duplicado para loop infinito fluido */}
-            <span>• 🇲🇽 ENVÍOS EXPRESS GRATIS EN COMPRAS MAYORES A $1,500 MXN</span>
+            <span>• 🇲🇽 ENVÍOS EXPRESS GRATIS EN COMPRAS MAYORES A $1,500 MXN EN AGUASCALIENTES</span>
             <span>• 💎 GARANTÍA DE AUTENTICIDAD: PRODUCTOS 100% ORIGINALES DE DISEÑADOR</span>
             <span>• 🛍️ SOFÍA T. ADQUIRIÓ BOLSA <strong className="text-accent-signature font-bold">COACH NEW YORK</strong> CON -40% OUTLET · HACE 4 MIN</span>
             <span>• 👑 CONVIÉRTETE EN SOCIO SIGNATURE Y LOGRA HASTA <strong className="text-accent-signature font-bold">17% DE CASHBACK</strong> EN CADA COMPRA</span>
@@ -312,12 +312,12 @@ export default async function CustomerLayout({
               <p className="text-sm">
                 ¿Necesitas ayuda?<br />
                 Soporte 24/7 en WhatsApp:<br />
-                <span className="text-emerald font-semibold">+52 (55) 1234-5678</span>
+                <span className="text-emerald font-semibold">+52 449 110 9178</span>
               </p>
             </div>
           </div>
           <div className="border-t border-navy-light/60 mt-8 pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs">
-            <p>&copy; {new Date().getFullYear()} Club de Marcas. Todos los derechos reservados.</p>
+            <p>&copy; {new Date().getFullYear()} Personal Rikdom S.A.P.I. de C.V. Todos los derechos reservados.</p>
             <div className="flex flex-wrap justify-center gap-x-6 gap-y-2">
               <Link href="/terminos-y-condiciones" className="hover:text-emerald transition-colors font-medium">Términos y Condiciones</Link>
               <Link href="/aviso-de-privacidad" className="hover:text-emerald transition-colors font-medium">Aviso de Privacidad</Link>

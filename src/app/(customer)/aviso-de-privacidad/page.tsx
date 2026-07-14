@@ -4,7 +4,7 @@ import { ArrowLeft, Shield, ShieldCheck } from 'lucide-react'
 
 export const metadata = {
   title: 'Aviso de Privacidad | Club de Marcas',
-  description: 'Aviso de privacidad integral para la protección de datos personales en posesión de Club de Marcas México conforme al INAI.'
+  description: 'Aviso de privacidad integral para la protección de datos personales en posesión de Personal Rikdom S.A.P.I. de C.V. conforme al INAI.'
 }
 
 export default function PrivacyPage() {
@@ -47,7 +47,7 @@ export default function PrivacyPage() {
               <span className="text-emerald">1.</span> <span>Identidad y Domicilio del Responsable</span>
             </h2>
             <p>
-              El responsable del tratamiento y protección de sus datos personales es <strong>Club de Marcas México S.A. de C.V.</strong>, con domicilio para oír y recibir notificaciones en la Ciudad de México, México. Nos comprometemos a resguardar su información bajo estrictos estándares de seguridad técnica, administrativa y física en estricto cumplimiento con lo establecido en la <em>Ley Federal de Protección de Datos Personales en Posesión de los Particulares (LFPDPPP)</em> y los lineamientos del Instituto Nacional de Transparencia, Acceso a la Información y Protección de Datos Personales (INAI).
+              El responsable del tratamiento y protección de sus datos personales es <strong>Personal Rikdom S.A.P.I. de C.V.</strong>, con domicilio para oír y recibir notificaciones en Aguascalientes, México. Nos comprometemos a resguardar su información bajo estrictos estándares de seguridad técnica, administrativa y física en estricto cumplimiento con lo establecido en la <em>Ley Federal de Protección de Datos Personales en Posesión de los Particulares (LFPDPPP)</em> y los lineamientos del Instituto Nacional de Transparencia, Acceso a la Información y Protección de Datos Personales (INAI).
             </p>
           </section>
 

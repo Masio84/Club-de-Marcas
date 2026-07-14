@@ -1113,7 +1113,7 @@ export const DataService = {
   async getStoreSettings(): Promise<Record<string, string>> {
     const defaults = {
       store_name: 'Club de Marcas',
-      support_whatsapp: '+52 (55) 1234-5678',
+      support_whatsapp: '+52 449 110 9178',
       shipping_cost: '0'
     }
     if (isSupabaseConfigured()) {

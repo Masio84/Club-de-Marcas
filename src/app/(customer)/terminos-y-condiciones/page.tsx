@@ -92,7 +92,7 @@ export default function TermsPage() {
               <span className="text-emerald">6.</span> <span>Legislación y Jurisdicción</span>
             </h2>
             <p>
-              Estos términos y condiciones se rigen por las leyes federales vigentes en la República Mexicana. Cualquier controversia derivada del uso del sitio que no pueda ser resuelta mediante conciliación amistosa o arbitraje ante la PROFECO se someterá a la jurisdicción exclusiva de los tribunales competentes de la Ciudad de México, renunciando las partes a cualquier otra jurisdicción que les corresponda por domicilio presente o futuro.
+              Estos términos y condiciones se rigen por las leyes federales vigentes en la República Mexicana. Cualquier controversia derivada del uso del sitio que no pueda ser resuelta mediante conciliación amistosa o arbitraje ante la PROFECO se someterá a la jurisdicción exclusiva de los tribunales competentes de la Ciudad de Aguascalientes, Aguascalientes, renunciando las partes a cualquier otra jurisdicción que les corresponda por domicilio presente o futuro.
             </p>
           </section>
 

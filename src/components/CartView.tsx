@@ -319,14 +319,14 @@ export default function CartView({ initialItems, userEmail, profile }: CartViewP
             <form onSubmit={handleCheckout} className="space-y-6">
               <div className="space-y-2">
                 <label htmlFor="address" className="text-xs font-bold text-text-secondary uppercase tracking-wider block">
-                  Dirección de Envío (México)
+                  Dirección de Envío (Solo Aguascalientes, México)
                 </label>
                 <textarea
                   id="address"
                   required
                   value={shippingAddress}
                   onChange={(e) => setShippingAddress(e.target.value)}
-                  placeholder="Calle, Número, Colonia, C.P., Municipio, Estado"
+                  placeholder="Calle, Número, Colonia, C.P., Municipio, Aguascalientes"
                   rows={3}
                   className="w-full text-sm bg-bg-base text-text-primary placeholder-text-secondary/60 p-3.5 rounded-xl border border-border-hairline focus:outline-none focus:border-text-secondary font-mono"
                 />

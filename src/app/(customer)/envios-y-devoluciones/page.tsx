@@ -47,7 +47,7 @@ export default function ShippingReturnsPage() {
               <span className="text-emerald">1.</span> <span>Políticas de Envío y Cobertura</span>
             </h2>
             <p>
-              En <strong>Club de Marcas</strong> ofrecemos envíos a toda la República Mexicana. Trabajamos exclusivamente con paqueterías líderes (como DHL, FedEx y Estafeta) para asegurar la integridad de tus compras premium. 
+              En <strong>Club de Marcas</strong> nuestra cobertura de envíos está limitada exclusivamente al estado de Aguascalientes, México por el momento. Más adelante nos expandiremos a todo México, pero por ahora los envíos se realizan únicamente dentro del estado de Aguascalientes. Trabajamos exclusivamente con paqueterías líderes para asegurar la integridad de tus compras premium.
             </p>
             <ul className="list-disc pl-5 space-y-1 text-navy/70">
               <li><strong>Envío Gratuito</strong>: Aplicará según los términos y promociones vigentes que defina el administrador de la tienda y se mostrará desglosado en el checkout.</li>

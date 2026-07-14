@@ -20,7 +20,7 @@ const ibmPlexMono = IBM_Plex_Mono({
 
 export const metadata: Metadata = {
   title: "Club de Marcas | Outlet Premium",
-  description: "El club exclusivo de marcas premium en México. Tenis, Relojes, Gorras, Lentes y más con envíos gratis y seguridad garantizada.",
+  description: "El club exclusivo de marcas premium en Aguascalientes. Tenis, Relojes, Gorras, Lentes y más con envíos gratis y seguridad garantizada.",
 };
 
 export default function RootLayout({

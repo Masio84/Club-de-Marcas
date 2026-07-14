@@ -21,7 +21,7 @@ export default function AdminSettingsForm({ adminProfile, storeSettings, isSupab
   
   // Estado Tienda
   const [storeName, setStoreName] = useState(storeSettings.store_name || 'Club de Marcas')
-  const [whatsapp, setWhatsapp] = useState(storeSettings.support_whatsapp || '+52 (55) 1234-5678')
+  const [whatsapp, setWhatsapp] = useState(storeSettings.support_whatsapp || '+52 449 110 9178')
   const [shippingCost, setShippingCost] = useState(storeSettings.shipping_cost || '0')
 
   const [isPending, startTransition] = useTransition()
@@ -260,7 +260,7 @@ export default function AdminSettingsForm({ adminProfile, storeSettings, isSupab
                     value={whatsapp}
                     onChange={(e) => setWhatsapp(e.target.value)}
                     className="block w-full pl-10 pr-4 py-3 bg-bg-base border border-border-hairline rounded-xl focus:outline-none focus:ring-2 focus:ring-accent-acceso/20 focus:border-accent-acceso text-sm font-medium text-text-primary placeholder-gray-400"
-                    placeholder="Ej. +52 (55) 1234-5678"
+                    placeholder="Ej. +52 449 110 9178"
                     required
                   />
                 </div>
