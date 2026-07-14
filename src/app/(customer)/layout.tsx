@@ -296,14 +296,8 @@ export default async function CustomerLayout({
             <div>
               <h4 className="text-pure-white font-semibold text-sm mb-4 uppercase tracking-wider">Seguridad</h4>
               <ul className="space-y-2 text-sm">
-                <li className="flex items-center space-x-2 text-emerald">
-                  <span>🛡️ Pago 100% Seguro</span>
-                </li>
                 <li className="flex items-center space-x-2">
                   <span>📦 Envíos Asegurados</span>
-                </li>
-                <li className="flex items-center space-x-2">
-                  <span>🔄 Devoluciones sin costo</span>
                 </li>
               </ul>
             </div>
