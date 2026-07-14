@@ -39,6 +39,7 @@ export default function AdminCarouselManager({ initialSlides }: AdminCarouselMan
   const [publishedAt, setPublishedAt] = useState('')
   const [expiresAt, setExpiresAt] = useState('')
   const [imageFile, setImageFile] = useState<File | null>(null)
+  const [linkType, setLinkType] = useState('/')
 
   const openAddModal = () => {
     setEditingSlide(null)
@@ -46,7 +47,8 @@ export default function AdminCarouselManager({ initialSlides }: AdminCarouselMan
     setSubtitle('')
     setTag('✨ Destacado')
     setImageUrl('')
-    setLink('/?category=')
+    setLink('/')
+    setLinkType('/')
     setCta('Ver Detalles')
     setColor(GRADIENTS[0].value)
     setIsActive(true)
@@ -70,6 +72,11 @@ export default function AdminCarouselManager({ initialSlides }: AdminCarouselMan
     setTag(slide.tag || '')
     setImageUrl(slide.image_url)
     setLink(slide.link)
+    if (['/', '/?category=Calzado', '/?category=Ropa', '/memberships'].includes(slide.link)) {
+      setLinkType(slide.link)
+    } else {
+      setLinkType('custom')
+    }
     setCta(slide.cta)
     setColor(slide.color)
     setIsActive(slide.is_active)
@@ -430,16 +437,38 @@ export default function AdminCarouselManager({ initialSlides }: AdminCarouselMan
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-mono font-bold text-text-secondary uppercase tracking-wider block">
-                    Ruta / Enlace de Destino
+                    Destino del Botón (Enlace)
                   </label>
-                  <input
-                    type="text"
-                    required
-                    value={link}
-                    onChange={(e) => setLink(e.target.value)}
-                    className="block w-full px-3.5 py-2.5 bg-bg-base border border-border-hairline rounded-xl focus:outline-none focus:ring-2 focus:ring-accent-signature/20 focus:border-accent-signature text-sm font-medium text-text-primary font-mono"
-                    placeholder="Ej. /?category=Calzado o /memberships"
-                  />
+                  <select
+                    value={linkType}
+                    onChange={(e) => {
+                      const val = e.target.value
+                      setLinkType(val)
+                      if (val !== 'custom') {
+                        setLink(val)
+                      } else {
+                        setLink('')
+                      }
+                    }}
+                    className="block w-full px-3.5 py-2.5 bg-bg-base border border-border-hairline rounded-xl focus:outline-none focus:ring-2 focus:ring-accent-signature/20 focus:border-accent-signature text-sm font-medium text-text-primary"
+                  >
+                    <option value="/">Inicio (Todo el Catálogo)</option>
+                    <option value="/?category=Calzado">Categoría: Calzado (Tenis y Zapatos)</option>
+                    <option value="/?category=Ropa">Categoría: Ropa (Sudaderas, Chamarras, etc.)</option>
+                    <option value="/memberships">Página de Membresías (Unirse a Signature)</option>
+                    <option value="custom">Enlace personalizado (Escribir ruta...)</option>
+                  </select>
+                  
+                  {linkType === 'custom' && (
+                    <input
+                      type="text"
+                      required
+                      value={link}
+                      onChange={(e) => setLink(e.target.value)}
+                      className="block w-full mt-2 px-3.5 py-2.5 bg-bg-base border border-border-hairline rounded-xl focus:outline-none focus:ring-2 focus:ring-accent-signature/20 focus:border-accent-signature text-sm font-medium text-text-primary font-mono animate-fadeIn"
+                      placeholder="Ej. /aviso-de-privacidad"
+                    />
+                  )}
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-mono font-bold text-text-secondary uppercase tracking-wider block">
