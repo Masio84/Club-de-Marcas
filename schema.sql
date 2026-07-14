@@ -751,3 +751,12 @@ ON storage.objects FOR ALL
 TO authenticated
 USING (bucket_id = 'carousel-images' AND public.is_admin())
 WITH CHECK (bucket_id = 'carousel-images' AND public.is_admin());
+
+-- Insertar diapositivas iniciales por defecto (con IDs fijos para evitar duplicados)
+INSERT INTO public.carousel_slides (id, title, subtitle, tag, image_url, link, cta, color, is_active, published_at, expires_at)
+VALUES 
+('b36c4b22-8d76-47b2-bd7d-0e4ab43f0578', 'CALZADO PREMIUM CLUB', 'Hasta 50% de descuento en Nike, Adidas, Puma y Jordan. Envío gratis garantizado.', '🔥 Lo Más Vendido', 'https://images.unsplash.com/photo-1556906781-9a412961c28c?w=1600&auto=format&fit=crop&q=80', '/?category=Calzado', 'Ver Calzado en Oferta', 'from-navy via-navy/95 to-transparent', TRUE, timezone('utc'::text, now() - INTERVAL '1 day'), NULL),
+('c36c4b22-8d76-47b2-bd7d-0e4ab43f0578', 'ROPA DE DISEÑADOR Y MARCAS', 'Essentials, The North Face, Moncler y Balenciaga. Descubre prendas de alta costura con descuentos exclusivos de socio.', '💎 Exclusividad', 'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=1600&auto=format&fit=crop&q=80', '/?category=Ropa', 'Explorar Ropa', 'from-black via-black/90 to-transparent', TRUE, timezone('utc'::text, now() - INTERVAL '1 day'), NULL),
+('d36c4b22-8d76-47b2-bd7d-0e4ab43f0578', 'COLECCIONES DE TEMPORADA', 'Chamarras, hoodies, playeras y jeans con descuentos exclusivos y autenticidad 100% garantizada.', '✨ Nuevos Arribos', 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1600&auto=format&fit=crop&q=80', '/?category=Ropa', 'Ver Ropa y Abrigos', 'from-navy-light via-navy-light/95 to-transparent', TRUE, timezone('utc'::text, now() - INTERVAL '1 day'), NULL),
+('e36c4b22-8d76-47b2-bd7d-0e4ab43f0578', 'BENEFICIOS VIP SIGNATURE', 'Obtén hasta 15% de Cashback en cada compra, envíos express gratis y acceso exclusivo a productos Prestige de edición limitada.', '👑 Membresía Elite', 'https://images.unsplash.com/photo-1441984969893-c534e9749e48?w=1600&auto=format&fit=crop&q=80', '/memberships', 'Unirse a Signature', 'from-[#1F160A] via-[#1F160A]/95 to-transparent', TRUE, timezone('utc'::text, now() - INTERVAL '1 day'), NULL)
+ON CONFLICT (id) DO NOTHING;

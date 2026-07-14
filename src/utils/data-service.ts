@@ -1849,6 +1849,22 @@ export const DataService = {
           tag: '💎 Exclusividad',
           image_url: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=1600&auto=format&fit=crop&q=80',
           link: '/?category=Ropa',
+          cta: 'Explorar Ropa',
+          color: 'from-black via-black/90 to-transparent',
+          is_active: true,
+          published_at: new Date(Date.now() - 86400000).toISOString(),
+          expires_at: null,
+          image_cleaned_up: false,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        },
+        {
+          id: 'slide-3',
+          title: 'COLECCIONES DE TEMPORADA',
+          subtitle: 'Chamarras, hoodies, playeras y jeans con descuentos exclusivos y autenticidad 100% garantizada.',
+          tag: '✨ Nuevos Arribos',
+          image_url: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1600&auto=format&fit=crop&q=80',
+          link: '/?category=Ropa',
           cta: 'Ver Ropa y Abrigos',
           color: 'from-navy-light via-navy-light/95 to-transparent',
           is_active: true,
@@ -1859,7 +1875,7 @@ export const DataService = {
           updated_at: new Date().toISOString()
         },
         {
-          id: 'slide-3',
+          id: 'slide-4',
           title: 'BENEFICIOS VIP SIGNATURE',
           subtitle: 'Obtén hasta 15% de Cashback en cada compra, envíos express gratis y acceso exclusivo a productos Prestige de edición limitada.',
           tag: '👑 Membresía Elite',
