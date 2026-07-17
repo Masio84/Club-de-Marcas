@@ -278,7 +278,7 @@ export default async function CustomerLayout({
                 CLUB DE MARCAS
               </span>
               <p className="text-sm">
-                La plataforma de descuentos exclusivos y marcas de lujo número uno en Aguascalientes. Descuentos exclusivos del 30% al 70% en tus marcas de lujo favoritas.
+                La plataforma de descuentos exclusivos y marcas de lujo número uno en Aguascalientes. Descuentos exclusivos en tus marcas de lujo favoritas.
               </p>
             </div>
             <div>

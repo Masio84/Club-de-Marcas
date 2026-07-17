@@ -408,7 +408,7 @@ export default function ProfileForm({ initialProfile, initialOrders, initialRevi
               </div>
               <h3 className="text-lg font-black text-navy uppercase">Sin Pedidos Aún</h3>
               <p className="text-sm text-gray-500 max-w-sm mx-auto">
-                No hemos encontrado compras realizadas en tu historial. ¡Revisa nuestro catálogo premium para encontrar descuentos del 30% al 70%!
+                No hemos encontrado compras realizadas en tu historial. ¡Revisa nuestro catálogo premium para encontrar descuentos exclusivos!
               </p>
               <Link
                 href="/"
